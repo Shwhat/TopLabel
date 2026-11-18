@@ -52,9 +52,19 @@ function textBlock(font, lines, size, align, spacing, fake) {
 
 const region = (x0, y0, x1, y1) => ({ x0, y0, x1, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 });
 
+// the area the content is arranged in: the label minus its margin, or on a divider the solid top band minus the margin
+function contentArea(l) {
+  const { w, h } = l.size, m = num(l.arr.margin, 7);
+  if (l.kind === 'divider') {
+    const band = clamp(num(l.div.band, 12), 2, h), mm = clamp(m, 0, Math.min(w / 2, band / 2) - 0.5);
+    return region(-w / 2 + mm, h / 2 - band + mm, w / 2 - mm, h / 2 - mm);
+  }
+  const mm = clamp(m, 0, Math.min(w, h) / 2 - 1);
+  return region(-w / 2 + mm, -h / 2 + mm, w / 2 - mm, h / 2 - mm);
+}
 function regionsFor(l, hasSymbol, hasText) {
-  const { w, h } = l.size, a = l.arr, m = clamp(num(a.margin, 7), 0, Math.min(w, h) / 2 - 1), g = Math.max(0, num(a.gap, 4));
-  const inner = region(-w / 2 + m, -h / 2 + m, w / 2 - m, h / 2 - m);
+  const a = l.arr, g = Math.max(0, num(a.gap, 4));
+  const inner = contentArea(l);
   let kind = a.kind;
   if (!hasSymbol && hasText) kind = 'text';
   if (!hasText && hasSymbol) kind = 'symbol';
@@ -68,12 +78,54 @@ function regionsFor(l, hasSymbol, hasText) {
   return { inner, sym: hasSymbol ? sym : null, txt: hasText ? txt : null, kind };
 }
 
+// ---------- divider outline and pattern ----------
+// the upper body at full width, the lower tab narrower by the inset on each side
+function dividerOutline(l) {
+  const { w, h } = l.size, r = num(l.size.r, 0), d = l.div;
+  const tabH = clamp(num(d.tabH, 0), 0, h - 1), inset = clamp(num(d.tabInset, 0), 0, w / 2 - 1);
+  if (tabH <= 0 || inset <= 0) return gRect(w, h, r);
+  const upper = gRect(w, h - tabH, r, 0, tabH / 2), tab = gRect(w - inset * 2, tabH + r * 2, r, 0, -h / 2 + tabH / 2 + r);
+  return gUnion(upper.concat(tab));
+}
+function holeShape(kind, w, h) {
+  const P = pts => [pts.map(([x, y]) => ({ X: Math.round(x * GU), Y: Math.round(y * GU) }))];
+  if (kind === 'hex') return P([[w / 2, 0], [w / 4, h / 2], [-w / 4, h / 2], [-w / 2, 0], [-w / 4, -h / 2], [w / 4, -h / 2]]);
+  if (kind === 'diamond') return P([[w / 2, 0], [0, h / 2], [-w / 2, 0], [0, -h / 2]]);
+  if (kind === 'circle') return P(Array.from({ length: 40 }, (_, i) => [Math.cos(i / 40 * Math.PI * 2) * w / 2, Math.sin(i / 40 * Math.PI * 2) * h / 2]));
+  if (kind === 'square') return gRect(w, h, Math.min(0.5, w / 4, h / 4));
+  if (kind === 'slot') return gRect(w, h, Math.min(w, h) / 2 - 0.001);
+  return [];
+}
+// the pattern area: below the top band, inside the border, as wide as the tab allows; holes cut off by its edge
+// are kept when at least a quarter of the hole remains
+function dividerHoles(l) {
+  const { w, h } = l.size, d = l.div, p = d.pattern || {};
+  if (!p.kind || p.kind === 'solid') return { holes: [], area: null };
+  const border = Math.max(0.4, num(p.border, 2)), half = w / 2 - Math.max(0, num(d.tabInset, 0)) - border;
+  const area = region(-half, -h / 2 + border, half, h / 2 - clamp(num(d.band, 12), 0, h));
+  const hw = Math.max(0.5, num(p.w, 6)), hh = Math.max(0.5, num(p.h, 6)), cx = Math.max(hw * 0.5, num(p.cx, 8)), cy = Math.max(0.5, num(p.cy, 8));
+  if (area.w <= 1 || area.h <= 1) return { holes: [], area };
+  const box = gRect(area.w, area.h, 0, area.cx, area.cy), shape = holeShape(p.kind, hw, hh), full = gTotalArea(shape);
+  const holes = [];
+  const nx = Math.ceil(area.w / 2 / cx) + 1, ny = Math.ceil(area.h / 2 / cy) + 2;
+  for (let i = -nx; i <= nx; i++) for (let j = -ny; j <= ny; j++) {
+    const x = area.cx + i * cx, y = area.cy + j * cy + (p.stagger && Math.abs(i) % 2 === 1 ? cy / 2 : 0);
+    if (x + hw / 2 < area.x0 || x - hw / 2 > area.x1 || y + hh / 2 < area.y0 || y - hh / 2 > area.y1) continue;
+    const piece = gInter(gXform(shape, 1, x, y), box);
+    if (piece.length && gTotalArea(piece) >= full * 0.25) holes.push(...piece);
+  }
+  return { holes: holes.length ? gUnion(holes) : [], area, count: holes.length };
+}
+
 let BUILD_SEQ = 0;
 // build the label: returns { parts, outline, guides, warnings, info }. Parts carry slabs of outlines with z ranges.
 async function buildLabel(l) {
   const warnings = [];
   const size = l.size, t = Math.max(0.2, num(size.t, 2));
-  const outline = gRect(num(size.w, 76), num(size.h, 100), num(size.r, 0));
+  const isDiv = l.kind === 'divider';
+  const shape = isDiv ? dividerOutline(l) : gRect(num(size.w, 76), num(size.h, 100), num(size.r, 0));
+  const pat = isDiv ? dividerHoles(l) : { holes: [] };
+  const outline = pat.holes.length ? gDiff(shape, pat.holes) : shape;
   // sources
   const lines = l.text.show ? resolveLines(l) : [];
   const url = l.symbol.show ? symbolURL(l) : '';
@@ -126,29 +178,46 @@ async function buildLabel(l) {
       if (size0 * k < num(l.text.min, 3) - 1e-6) warnings.push(`The text is ${r2(size0 * k)} mm, smaller than the ${num(l.text.min, 3)} mm minimum. Shorten the text, make the label larger or lower the minimum.`);
     }
   }
-  // keep every element inside the label
-  for (const e of elements) e.paths = gInter(e.paths, outline);
+  // keep every element inside the label (a divider's content stays in its solid top band)
+  const keep = isDiv ? gInter(shape, gRect(size.w, num(l.div.band, 12), 0, 0, size.h / 2 - num(l.div.band, 12) / 2)) : outline;
+  for (const e of elements) { e.paths = gInter(e.paths, keep); e.side = 'top'; }
+  // a divider can carry the same content on its back, mirrored so it reads from behind, flush or engraved
+  if (isDiv && l.div.back && l.div.back.mode !== 'off') {
+    const bs = Math.max(0, num(l.div.back.sink, 0.5));
+    for (const e of elements.slice()) elements.push({ key: e.key + '_b', name: e.name + ' (back)', slot: e.slot, side: 'bottom', paths: e.paths.map(p => p.map(q => ({ X: -q.X, Y: q.Y })).reverse()), d: { raise: 0, sink: bs, engrave: l.div.back.mode === 'engrave' } });
+  }
 
-  // parts and slabs
+  // parts and slabs. Pockets from the top run from (t - sink) to t, pockets from the back from 0 to sink.
   const parts = [];
   const zr = v => Math.round(v * 1e4) / 1e4;
-  const cutters = elements.filter(e => num(e.d.sink, 0) > 0).map(e => ({ z: zr(Math.max(0.2, t - num(e.d.sink, 0))), paths: e.paths }));
-  if (elements.some(e => num(e.d.sink, 0) > t - 0.2)) warnings.push('An element is sunk deeper than the base allows; it keeps 0.2 mm of base under it.');
-  const zs = [...new Set([0, t, ...cutters.map(c => c.z)])].sort((a, b) => a - b);
+  const topSink = Math.max(0, ...elements.filter(e => e.side === 'top').map(e => num(e.d.sink, 0)));
+  let tooDeep = false;
+  const cutters = elements.filter(e => num(e.d.sink, 0) > 0).map(e => {
+    let s = num(e.d.sink, 0);
+    if (e.side === 'bottom') { const max = t - topSink - 0.2; if (s > max) { s = Math.max(0, max); tooDeep = true; } return { z0: 0, z1: zr(s), side: 'bottom', paths: e.paths, e }; }
+    if (s > t - 0.2) { s = t - 0.2; tooDeep = true; }
+    return { z0: zr(t - s), z1: t, side: 'top', paths: e.paths, e };
+  }).filter(c => c.z1 - c.z0 > 1e-6);
+  if (tooDeep) warnings.push(isDiv ? 'The front and back are sunk deeper than the divider allows; 0.2 mm of plate is kept between them.' : 'An element is sunk deeper than the base allows; it keeps 0.2 mm of base under it.');
+  const zs = [...new Set([0, t, ...cutters.flatMap(c => [c.z0, c.z1])])].sort((a, b) => a - b);
   const baseSlabs = [];
   for (let i = 0; i < zs.length - 1; i++) {
     const za = zs[i], zb = zs[i + 1];
-    const cut = cutters.filter(c => c.z <= za + 1e-9).flatMap(c => c.paths);
+    const cut = cutters.filter(c => c.z0 <= za + 1e-9 && c.z1 >= zb - 1e-9).flatMap(c => c.paths);
     const paths = cut.length ? gDiff(outline, gUnion(cut)) : outline;
     if (paths.length) baseSlabs.push({ z0: za, z1: zb, paths });
   }
-  parts.push({ key: 'base', name: 'Base', slot: l.base.slot, slabs: baseSlabs, paths: outline, solid: { outline, t, pockets: cutters } });
+  parts.push({ key: 'base', name: isDiv ? 'Divider' : 'Base', slot: l.base.slot, slabs: baseSlabs, paths: outline, solid: { outline, t, pockets: cutters.map(c => ({ z: c.side === 'top' ? c.z0 : c.z1, side: c.side, paths: c.paths })) } });
   for (const e of elements) {
     if (e.d.engrave) continue;
-    const z0 = zr(Math.max(0.2, t - num(e.d.sink, 0))), z1 = zr(t + Math.max(0, num(e.d.raise, 0)));
-    if (z1 - z0 < 0.01 || !e.paths.length) { warnings.push(`${e.name} has no height, so it is not printed. Raise it or sink it into the base.`); continue; }
-    parts.push({ key: e.key, name: e.name, slot: e.slot, slabs: [{ z0, z1, paths: e.paths }], paths: e.paths });
+    const c = cutters.find(x => x.e === e);
+    let z0, z1;
+    if (e.side === 'bottom') { z0 = 0; z1 = c ? c.z1 : 0; }
+    else { z0 = c ? c.z0 : t; z1 = zr(t + Math.max(0, num(e.d.raise, 0))); }
+    if (z1 - z0 < 0.01 || !e.paths.length) { if (e.side === 'top') warnings.push(`${e.name} has no height, so it is not printed. Raise it or sink it into the base.`); continue; }
+    parts.push({ key: e.key, name: e.name, slot: e.slot, side: e.side, slabs: [{ z0, z1, paths: e.paths }], paths: e.paths });
   }
-  const engraved = elements.filter(e => e.d.engrave).map(e => ({ key: e.key, name: e.name, paths: e.paths }));
-  return { parts, engraved, outline, guides: R, warnings, info, height: Math.max(...parts.flatMap(p => p.slabs.map(s => s.z1))) };
+  const engraved = elements.filter(e => e.d.engrave && e.side === 'top').map(e => ({ key: e.key, name: e.name, paths: e.paths }));
+  if (isDiv) info.pattern = { holes: pat.count || 0 };
+  return { parts, engraved, outline, guides: Object.assign(R, { pattern: pat.area || null }), warnings, info, height: Math.max(...parts.flatMap(p => p.slabs.map(s => s.z1))) };
 }

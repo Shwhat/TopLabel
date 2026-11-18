@@ -66,40 +66,50 @@ function slabSolid(W, slab) {
   };
   ringTree(slab.paths).forEach(walk);
 }
-// the base as one closed solid with pockets cut into its top, when the pockets are inside the label and apart
-// from each other; otherwise null, and the base is built from stacked slabs. Faces and walls use the very same
-// rings, so every edge is shared by exactly two triangles.
+// The base as one closed solid: its outline (holes included) extruded to its thickness, with pockets cut into the
+// top and into the bottom. Used when the pockets lie inside the outline, pockets on one side do not overlap, and
+// pockets from both sides do not meet; otherwise null, and the base is built from stacked slabs. Faces and walls
+// use the very same rings, so every edge is shared by exactly two triangles.
 function baseSolid(solid) {
-  const { outline, t, pockets } = solid;
-  if (outline.length !== 1) return null;
+  const { outline, t } = solid;
+  const tree = ringTree(outline); if (tree.length !== 1) return null;
+  const out = tree[0]; if (out.holes.some(h => h.outers.length)) return null;
   const inner = gOffset(outline, -0.05, CL.JoinType.jtMiter);
-  const byZ = new Map(); for (const p of pockets) byZ.set(p.z, (byZ.get(p.z) || []).concat(p.paths));
-  const regions = [...byZ.entries()].map(([z, paths]) => ({ z, paths: gUnion(paths) })).filter(p => p.paths.length && p.z < t - 1e-6);
-  for (const r of regions) if (gTotalArea(gDiff(r.paths, inner)) > 1e-6) return null;
-  for (let i = 0; i < regions.length; i++) for (let j = i + 1; j < regions.length; j++) if (gTotalArea(gInter(regions[i].paths, regions[j].paths)) > 1e-6) return null;
-  const W = welder();
-  const out = ringTree(outline)[0]; if (!out || out.holes.length) return null;
-  const tops = [];
-  const pocketOuters = [];
-  for (const r of regions) {
-    const walk = (o) => {
-      pocketOuters.push(o.ring);
-      faceAt(W, { outer: o.ring, holes: o.holes.map(h => h.ring) }, r.z, true);
-      wallsOf(W, { outer: o.ring, holes: o.holes.map(h => h.ring) }, r.z, t, false);
-      for (const h of o.holes) { tops.push({ outer: h.ring.slice().reverse(), holes: h.outers.map(x => x.ring) }); h.outers.forEach(walk); }
-    };
-    ringTree(r.paths).forEach(walk);
+  const regions = { top: [], bottom: [] };
+  for (const side of ['top', 'bottom']) {
+    const byZ = new Map(); for (const p of solid.pockets.filter(p => (p.side || 'top') === side)) byZ.set(p.z, (byZ.get(p.z) || []).concat(p.paths));
+    regions[side] = [...byZ.entries()].map(([z, paths]) => ({ z, paths: gUnion(paths) })).filter(r => r.paths.length && (side === 'top' ? r.z < t - 1e-6 : r.z > 1e-6));
+    const rs = regions[side];
+    for (const r of rs) if (gTotalArea(gDiff(r.paths, inner)) > 1e-6) return null;
+    for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) if (gTotalArea(gInter(rs[i].paths, rs[j].paths)) > 1e-6) return null;
   }
-  const topLevel = pocketOuters.filter(r => !tops.some(tp => tp.holes.includes(r)));
-  tops.push({ outer: out.ring, holes: topLevel });
-  faceAt(W, { outer: out.ring, holes: [] }, 0, false); wallsOf(W, { outer: out.ring, holes: [] }, 0, t, true);
-  for (const tp of tops) faceAt(W, tp, t, true);
+  for (const a of regions.top) for (const b of regions.bottom) if (b.z >= a.z - 1e-6 && gTotalArea(gInter(a.paths, b.paths)) > 1e-6) return null;
+  const W = welder();
+  const holes = out.holes.map(h => h.ring);
+  wallsOf(W, { outer: out.ring, holes }, 0, t, true);
+  for (const side of ['top', 'bottom']) {
+    const top = side === 'top', zFace = top ? t : 0;
+    const faces = [], pocketOuters = [];
+    for (const r of regions[side]) {
+      const walk = o => {
+        pocketOuters.push(o.ring);
+        const ex = { outer: o.ring, holes: o.holes.map(h => h.ring) };
+        faceAt(W, ex, r.z, top);                          // pocket floor (top) or ceiling (bottom)
+        wallsOf(W, ex, top ? r.z : 0, top ? t : r.z, false);
+        for (const h of o.holes) { faces.push({ outer: h.ring.slice().reverse(), holes: h.outers.map(x => x.ring) }); h.outers.forEach(walk); }
+      };
+      ringTree(r.paths).forEach(walk);
+    }
+    const nested = new Set(faces.flatMap(f => f.holes));
+    faces.push({ outer: out.ring, holes: holes.concat(pocketOuters.filter(r => !nested.has(r))) });
+    for (const f of faces) faceAt(W, f, zFace, top);
+  }
   return W;
 }
 // one mesh per part: { name, slot, pos: Float32Array, idx: Uint32Array }
 function partMeshes(model) {
   return model.parts.map(p => {
-    let W = p.solid && p.solid.pockets.length ? baseSolid(p.solid) : null;
+    let W = p.solid ? baseSolid(p.solid) : null;
     if (!W) { W = welder(); for (const s of p.slabs) slabSolid(W, s); }
     const pos = W.pos, idx = W.idx;
     return { key: p.key, name: p.name, slot: p.slot, pos: new Float32Array(pos), idx: new Uint32Array(idx) };

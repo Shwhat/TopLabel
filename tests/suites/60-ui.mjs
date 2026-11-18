@@ -50,6 +50,6 @@ export const tests = {
       const r = await t.eval(() => [MODEL.warnings, MODEL.parts.length]);
       t.eq(r[0], [], id + ' warnings'); t.ok(r[1] >= 1, id + ' parts');
     }
-    t.eq(await t.eval(() => [L.set.code, L.depth.id, MODEL.parts.map(p => p.key)]), ['FDN', 'engraved', ['base']]);
+    t.eq(await t.eval(() => [L.kind, L.set.code, L.depth.id, MODEL.parts.map(p => p.key)]), ['divider', 'BLB', 'standard', ['base', 'symbol', 'text']]);
   },
 };

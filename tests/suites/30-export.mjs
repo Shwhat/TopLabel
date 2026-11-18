@@ -50,7 +50,7 @@ export const tests = {
     t.eq(r.parts, [['Base', '1'], ['Symbol', '2'], ['Text', '2']]);
     t.eq(r.objects.map(o => o.open_edges), [0, 0, 0], 'closed meshes');
     t.eq(r.item, '1 0 0 0 1 0 0 0 1 175 160 1.5', 'centred on the H2D bed, resting on it');
-    t.eq(r.objects.map(o => [o.zmin, o.zmax]), [[-1.5, 0.5], [0.5, 1.5], [0, 1]]);
+    t.eq(r.objects.map(o => [o.zmin, o.zmax]), [[-1.5, 0.5], [0, 1.5], [0, 1.5]]);
     t.eq(r.project.filament_colour.slice(0, 3), ['#161616', '#FFFFFF', '#C12E1F']);
   },
   'Export dialog: format, bed, colors, file name pattern are used and remembered': async t => {
@@ -70,7 +70,7 @@ export const tests = {
     await t.open(); await t.pickSet('BLB'); await t.prop('symbol.slot', 5);
     const d = await t.download(() => t.eval(() => exportLabel('3mf')));
     const r = inspect(t, d);
-    t.eq(r.objects.map(o => [o.pid, o.open_edges, o.zmin]), [['0', 0, 0], ['1', 0, 2], ['2', 0, 1.5]]);
+    t.eq(r.objects.map(o => [o.pid, o.open_edges, o.zmin]), [['0', 0, 0], ['1', 0, 1.5], ['2', 0, 1.5]]);
   },
   'STL combined and STL per color': async t => {
     await t.open(); await t.pickSet('FDN'); await t.prop('text.slot', 3);

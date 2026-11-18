@@ -1,10 +1,10 @@
 # TopLabel handoff
 
-Version 0.1.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
+Version 0.2.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
 
 ## Project
 
-TopLabel is a self-hosted web app that makes 3D-printable Magic: The Gathering storage labels (the main use is a 76 x 100 x 3 mm toploader replacement). Picking a set builds the label from the mtg-vectors set symbol and Scryfall set data; it exports to a Bambu Studio and OrcaSlicer 3MF with each part on its filament slot, a standard 3MF, STL and STL per color. Owner: Devon. Repository: github.com/Shwhat/TopLabel. The approved specification is `TopLabel-spec.md` in the project.
+TopLabel is a self-hosted web app that makes 3D-printable Magic: The Gathering storage labels (the main use is a 76 x 100 x 3 mm toploader replacement) and drawer dividers (default shape from Devon's Card catalog divider, 71.92 x 72 x 2.16 mm). Picking a set builds the label from the mtg-vectors set symbol and Scryfall set data; it exports to a Bambu Studio and OrcaSlicer 3MF with each part on its filament slot, a standard 3MF, STL and STL per color. Owner: Devon. Repository: github.com/Shwhat/TopLabel. The approved specification is `TopLabel-spec.md` in the project.
 
 The design follows the program-design-guide skill (OpenSchem structure and theme), the About section follows program-about-guide, and deployment follows docker-server-setup.
 
@@ -34,11 +34,11 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `ui/index.html`, `ui/style.css`, `ui/manifest.txt` | Page skeleton, the whole stylesheet, script order |
 | `ui/vendor/` | three.js 0.147 (classic build) with OrbitControls and SVGLoader, opentype.js 1.3.4, Clipper 6.4.2, licenses |
 | `ui/js/core.js` | APP_VERSION, helpers, PREFS defaults, the open label `L`, `commit()`, undo and redo, `flash()`, `render()` |
-| `ui/js/presets.js` | Size presets, depth profiles, arrangements, palette, rarities, lands, line sources, `newLabel()`, `applySet()` |
+| `ui/js/presets.js` | Size presets, depth profiles, arrangements, palette, rarities, lands, line sources, `newLabel()`, `applySet()`, divider patterns and shapes, `newDivider()` |
 | `ui/js/host.js` | API calls, data load and save (server or local storage), library index, symbol and font loading |
 | `ui/js/geom.js` | Clipper wrappers, SVG to outlines, symbol styles (detailed, silhouette, two-tone), text to outlines |
-| `ui/js/layout.js` | Text lines, wrapping, arrangement areas, auto-fit, depth and pockets: `buildLabel()` |
-| `ui/js/mesh.js` | Closed meshes: base solid with pockets from shared rings, slab solids, vertex welding |
+| `ui/js/layout.js` | Text lines, wrapping, arrangement areas (`contentArea`: label or divider top band), divider outline and pattern holes, auto-fit, depth, front and back pockets: `buildLabel()` |
+| `ui/js/mesh.js` | Closed meshes: base solid with holes and pockets on both faces from shared rings, slab solids, vertex welding |
 | `ui/js/views.js` | Build scheduling, 2D layout (SVG), 3D preview (three.js), part toggles, view switching |
 | `ui/js/export.js` | Zip writer, binary STL, Bambu 3MF, standard 3MF, `exportLabel()` |
 | `ui/js/ribbon.js` | Icons, ribbon tabs and groups |
@@ -52,7 +52,7 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `ui/js/demo.js` | Demo labels (one per feature) |
 | `ui/js/app.js` | Startup (last in the manifest), panels, status bar |
 | `tests/run.mjs` | Builds the server, starts it with the fixture library and a fake GitHub and Scryfall, runs the Playwright suites |
-| `tests/suites/` | 00-static, 10-label, 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
+| `tests/suites/` | 00-static, 10-label, 15-divider, 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
 | `tests/fixtures/library/current/` | A small real library (9 symbol folders, watermarks, code lists, 13 sets) |
 | `Dockerfile`, `docker-compose.yml`, `.env.example`, `.github/workflows/docker.yml` | Image (scratch, CA certificates, UID 65532), Dockhand-ready stack, CI publishing to GHCR |
 
@@ -60,13 +60,15 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 - The server only stores data and keeps the library. All geometry is built in the browser: SVG paths and font glyphs are flattened to polygons, combined with Clipper (integer units of 1/1000 mm), placed by the arrangement, then extruded into closed meshes.
 - Symbol styles use painter's order: later SVG elements cover earlier ones. Detailed = visible colored parts if any, otherwise visible black parts; silhouette = everything; two-tone = everything minus detailed as the outline.
-- Pockets: elements with Sunk > 0 cut the base. The base is one solid when pockets are inside the label and apart (pockets at the same depth are merged); otherwise stacked slabs.
+- Pockets: elements with Sunk > 0 cut the base from the top; a divider's back elements (mirrored copies) cut it from the bottom. The base is one solid when pockets are inside the outline, apart on each side and do not meet across the plate (pockets at the same depth are merged); otherwise stacked slabs.
+- Depth: `L.depth.sync` (Same depth for symbol and text) links the symbol and text values in the Properties panel and the Depth dialog. Labels saved before 0.2.0 get `sync` only when their two depths are equal.
+- Dividers: `L.kind = 'divider'` with `L.div` (shape id, band, tabH, tabInset, pattern, back). Content is arranged inside the top band. Saved divider shapes are in `presets.json` under `dividers`.
 - The open label autosaves into `prefs.json` (`autosave`) 1.5 s after each change.
 - Library refresh downloads into `library/new-<time>`, swaps it with `library/current` only when every step worked, and removes leftovers on start.
 
 ## Tests
 
-- `go test ./...` and `npm test` (48 browser tests) pass at 0.1.0.
+- `go test ./...` and `npm test` (55 browser tests) pass at 0.2.0.
 - The browser tests use one account (`tester`) and reset its data per test, because sign-ups are rate limited per address.
 - Exports are checked with Python: XML well formed, every mesh edge shared by exactly two triangles, filament slots, placement.
 
@@ -76,17 +78,19 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Open ideas
 
-- Release 0.2.0: drag, resize and rotate elements in the 2D layout; upload own SVGs and fonts; several symbols per label with their own colors (the Landing Party label); grid arrangement for marketing-style symbol sheets.
-- Release 0.3.0: batch export of many sets with one plate per label or plates packed to the bed; OBJ, AMF, SVG, DXF and PNG export.
+- Release 0.3.0: drag, resize and rotate elements in the 2D layout; upload own SVGs and fonts; several symbols per label with their own colors (the Landing Party label); grid arrangement for marketing-style symbol sheets.
+- Release 0.4.0: batch export of many sets with one plate per label or plates packed to the bed (useful for printing a set of dividers); OBJ, AMF, SVG, DXF and PNG export.
+- Rounded or chamfered plate edges like the example divider (about 0.5 mm); dividers are flat-edged now.
 - A short-name option for set names (the example labels used "Lord of the Rings" instead of the full Scryfall name; today this is a custom line).
 
 ## Known limits
 
-- One symbol and one text block per label; no drag editing yet.
+- One symbol and one text block per label or divider; no drag editing yet.
+- The 2D layout shows only the front of a divider; the back parts are in the 3D preview.
 - Panels can be resized and hidden but not docked elsewhere (no OpenSchem docking or workspaces).
 - The Bambu 3MF writes a minimal project settings file (filament colors and types only). It has not yet been opened in Bambu Studio by Devon; if the slicer complains, export with "Include filament colors" off.
 - GitHub limits anonymous downloads to 60 per hour per address, which only matters for repeated refreshes.
 
 ## Where work stopped
 
-0.1.0 is built, tested and pushed to `main`. Next: Devon to deploy with Dockhand, open a Bambu 3MF in Bambu Studio on the H2D, and report anything that looks wrong; then plan 0.2.0.
+0.2.0 is built, tested and pushed to `main`: new depth defaults (2 mm base, 0.5 mm sunk, 1 mm above; Flush inlay and Engraved now 0.5 mm), the Same depth checkbox, the Box divider preset removed, and dividers. Next: Devon to deploy, print a label and a divider on the H2D, and report anything that looks wrong; then plan 0.3.0.

@@ -1,6 +1,6 @@
 # TopLabel
 
-TopLabel makes 3D-printable labels for Magic: The Gathering card storage, such as a full toploader replacement. Choose a set and TopLabel builds the label: a flat base with the set symbol and the set name and code raised or inlaid, each part on its own filament slot, ready for Bambu Studio, OrcaSlicer or any other slicer.
+TopLabel makes 3D-printable labels and drawer dividers for Magic: The Gathering card storage, such as a full toploader replacement. Choose a set and TopLabel builds the label: a flat base with the set symbol and the set name and code raised or inlaid, each part on its own filament slot, ready for Bambu Studio, OrcaSlicer or any other slicer.
 
 Set symbols come from [mtg-vectors](https://github.com/Investigamer/mtg-vectors) and the set list from [Scryfall](https://scryfall.com). Both are downloaded by the server and refreshed with one button.
 
@@ -12,8 +12,9 @@ The full user guide is built into the program: Help, About TopLabel.
 - Sets panel: search by name or code, sort by code, name or date, filter by set type, year and symbol.
 - Automatic labels: pick a set and the label is built; symbol and text scale to fit any label size; long names wrap.
 - Arrangements: symbol over text, text over symbol, symbol only, text only, symbol beside text; margins, gap, text area and symbol size; save arrangements by name and pick a default.
-- Sizes: toploader replacement (76 x 100 mm), card size, small card, square tile, mini tile, box divider, or any custom size; scale by percentage.
-- Depth profiles: standard, low, bold, flush inlay, engraved, or custom heights per element; save profiles by name.
+- Sizes: toploader replacement (76 x 100 mm), card size, small card, square tile, mini tile, or any custom size; scale by percentage.
+- Depth profiles: standard (2 mm base, symbol and text 0.5 mm sunk and 1 mm above, 3 mm in all), low, bold, flush inlay, engraved; the symbol and text share one depth unless Same depth is turned off; save profiles by name.
+- Dividers: Card catalog divider shape (71.92 x 72 x 2.16 mm with a narrower tab), hexagon, circle, square, diamond, slot or solid patterns, symbol and text in the top band on one or both faces (flush by default), saved divider shapes.
 - Symbol styles: detailed (symbol without its border), silhouette, two-tone.
 - Text lines from the set name, code, year, date, type, rarity, card count or custom text; 33 built-in free fonts with bold, italic and capitals.
 - Filament palette of up to 16 slots with saved color sets.
@@ -21,13 +22,14 @@ The full user guide is built into the program: Help, About TopLabel.
 - Export: Bambu Studio and OrcaSlicer 3MF project (parts on their filament slots), standard 3MF, STL, STL per color.
 - Accounts, saved labels and preferences on the server, undo and redo, keyboard shortcuts.
 
-Planned: drag editing, own SVG and font upload and multi-symbol labels (0.2.0); batch export with plate packing, OBJ, AMF, SVG, DXF and PNG (0.3.0).
+Planned: drag editing, own SVG and font upload and multi-symbol labels (0.3.0); batch export with plate packing, OBJ, AMF, SVG, DXF and PNG (0.4.0).
 
 ## Keyboard shortcuts
 
 | Keys | Action |
 |---|---|
-| Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New, open, save, save as |
+| Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New label, open, save, save as |
+| Ctrl+Shift+N | New divider |
 | Ctrl+E | Export |
 | Ctrl+Z, Ctrl+Y | Undo, redo |
 | Ctrl+L | Add a text line |

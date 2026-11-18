@@ -23,18 +23,18 @@ const surfaceDark = () => PREFS.surface === 'dark';
 // ---------- 2D ----------
 function draw2D() {
   const svg = $('#view2d'); if (!svg || !MODEL) return;
-  const w = num(L.size.w, 76), h = num(L.size.h, 100), pad = Math.max(w, h) * 0.08;
+  const w = num(L.size.w, 76), h = num(L.size.h, 100), pad = Math.max(w, h) * 0.1;
   svg.setAttribute('viewBox', `${-w / 2 - pad} ${-h / 2 - pad} ${w + pad * 2} ${h + pad * 2}`);
   const g = [];
   const parts = MODEL.parts.filter(p => !LAYERS_OFF.has(p.key));
   const base = parts.find(p => p.key === 'base');
   if (base) g.push(`<path class="v2base" d="${gPathD(base.slabs[base.slabs.length - 1].paths)}" fill="${slotColor(base.slot)}"/>`);
   for (const e of MODEL.engraved) g.push(`<path class="v2cut" d="${gPathD(e.paths)}"/>`);
-  for (const p of parts) if (p.key !== 'base') g.push(`<path class="v2part" data-part="${p.key}" d="${gPathD(p.paths)}" fill="${slotColor(p.slot)}"/>`);
+  for (const p of parts) if (p.key !== 'base' && p.side !== 'bottom') g.push(`<path class="v2part" data-part="${p.key}" d="${gPathD(p.paths)}" fill="${slotColor(p.slot)}"/>`);
   g.push(`<path class="v2edge" d="${gPathD(MODEL.outline)}"/>`);
   if (PREFS.guides) {
     const R = MODEL.guides, box = (r, c) => r ? `<rect class="v2guide ${c}" x="${r.x0}" y="${-r.y1}" width="${Math.max(0, r.w)}" height="${Math.max(0, r.h)}"/>` : '';
-    g.push(box(R.inner, 'in'), box(R.sym, 'sym'), box(R.txt, 'txt'));
+    g.push(box(R.inner, 'in'), box(R.sym, 'sym'), box(R.txt, 'txt'), box(R.pattern, 'pat'));
   }
   // dimensions
   const dy = h / 2 + pad * 0.55, dx = w / 2 + pad * 0.55;

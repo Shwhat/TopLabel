@@ -49,7 +49,7 @@ The server contacts api.github.com and codeload.github.com (symbols), api.scryfa
 ## Limits
 
 - Elements cannot yet be dragged in the 2D layout; their place comes from the arrangement.
-- One symbol and one text block per label.
+- One symbol and one text block per label or divider.
 - Own SVG files and fonts cannot be uploaded yet.
 - One label per export; batch export is planned.
 - Panels can be resized and hidden but not moved to other edges.

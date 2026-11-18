@@ -7,6 +7,7 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Keys | Action |
 |---|---|
 | Ctrl+N | New label |
+| Ctrl+Shift+N | New divider |
 | Ctrl+O | Open a saved label |
 | Ctrl+S | Save the label |
 | Ctrl+Shift+S | Save the label under a new name |

@@ -2,7 +2,7 @@
 // On the server, window.TL_SERVER holds the signed-in user. Without a server (the page opened from disk)
 // saved data goes to the browser's local storage, and the library is read from the same addresses if reachable.
 const SERVER = window.TL_SERVER || null;
-let SAVED = { labels: [], arrangements: [], presets: { sizes: [], depths: [], palettes: [] } };
+let SAVED = { labels: [], arrangements: [], presets: { sizes: [], depths: [], palettes: [], dividers: [] } };
 let LIB = { ready: false, meta: {}, sets: [], watermarks: [], fonts: [] };
 
 async function api(method, url, body) {
@@ -42,7 +42,7 @@ async function loadSaved() {
   const [labels, arrangements, presets, prefs] = await Promise.all(['labels.json', 'arrangements.json', 'presets.json', 'prefs.json'].map(n => host.read(n).catch(() => null)));
   SAVED.labels = Array.isArray(labels) ? labels : [];
   SAVED.arrangements = Array.isArray(arrangements) ? arrangements : [];
-  SAVED.presets = Object.assign({ sizes: [], depths: [], palettes: [] }, presets || {});
+  SAVED.presets = Object.assign({ sizes: [], depths: [], palettes: [], dividers: [] }, presets || {});
   if (prefs && typeof prefs === 'object') PREFS = Object.assign(clone(PREFS_DEFAULT), prefs, { panels: Object.assign({}, PREFS_DEFAULT.panels, prefs.panels), sizes: Object.assign({}, PREFS_DEFAULT.sizes, prefs.sizes) });
 }
 let prefsTimer = 0;

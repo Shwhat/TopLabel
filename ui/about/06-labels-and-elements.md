@@ -1,6 +1,6 @@
 # Labels and elements
 
-A label is a flat base with up to two elements on it: the symbol and a block of text. This page lists every field of a label as shown in the Properties panel.
+A label is a flat base with up to two elements on it: the symbol and a block of text. This page lists every field of a label as shown in the Properties panel. Dividers have the same Symbol, Text, Depth and Colors fields; their shape fields are on the [Dividers](/about/dividers) page.
 
 ## Label
 
@@ -90,13 +90,16 @@ See [Sizes and depth](/about/sizes-and-depth).
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| Profile | List | Standard | Built-in and saved depth profiles; choosing one sets the base and the values below |
+| Profile | List | Standard (Flush inlay for dividers) | Built-in and saved depth profiles; choosing one sets the values below and, on labels, the base thickness |
+| Same depth for symbol and text | Check | On | While on, one set of fields (Above, Sunk, Engrave) applies to both, and changing it changes both. Turning it off keeps the current values and shows separate fields. Turning it on again gives the text the symbol's values. |
 | Symbol above (mm) | Number | 1 | Height of the symbol above the top of the base |
-| Symbol sunk (mm) | Number | 0 | Depth of the symbol into the base |
+| Symbol sunk (mm) | Number | 0.5 | Depth of the symbol into the base |
 | Engrave symbol | Check | Off | Cut the symbol into the base and leave the pocket empty |
-| Text above (mm) | Number | 0.5 | |
+| Text above (mm) | Number | 1 | |
 | Text sunk (mm) | Number | 0.5 | |
 | Engrave text | Check | Off | |
+
+Labels saved before version 0.2.0 keep their depths; Same depth for symbol and text is on for them only when their symbol and text depths are already equal.
 
 ## Colors
 

@@ -41,7 +41,7 @@ const posNum = (v, min = 0) => { const n = parseFloat(v); return Number.isFinite
 function confirmDiscard() { return !dirty || confirm('This label has changes that are not saved. Continue without saving?'); }
 
 function shortcuts() {
-  const k = [['Ctrl+N', 'New label'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text line'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
+  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text line'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
   dialog('Keyboard shortcuts', [], null, 'OK', `<div class="kbd">${k.map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join('')}</div>`);
 }
 
@@ -49,9 +49,9 @@ function shortcuts() {
 function sizeOpts() { return SIZE_PRESETS.concat((SAVED.presets.sizes || [])).map(p => [p.id, `${p.name} (${p.w} x ${p.h} x ${p.t} mm)`]).concat([['custom', 'Custom']]); }
 function applySize(p) { L.size.preset = p.id; L.size.w = p.w; L.size.h = p.h; L.size.t = p.t; }
 function sizeDlg() {
-  const s = L.size;
-  dialog('Label size', [['preset', 'Size preset', sizeById(s.preset) ? s.preset : 'custom', 'select', sizeOpts()], ['w', 'Width (mm)', s.w, 'number'], ['h', 'Height (mm)', s.h, 'number'], ['t', 'Base thickness (mm)', s.t, 'number'], ['r', 'Corner radius (mm)', s.r, 'number'], ['scale', 'Scale the whole label (%)', 100, 'number']], v => {
-    const p = sizeById(v.preset), sc = posNum(v.scale, 1);
+  const s = L.size, isDiv = L.kind === 'divider';
+  dialog(isDiv ? 'Divider size' : 'Label size', [...(isDiv ? [] : [['preset', 'Size preset', sizeById(s.preset) ? s.preset : 'custom', 'select', sizeOpts()]]), ['w', 'Width (mm)', s.w, 'number'], ['h', 'Height (mm)', s.h, 'number'], ['t', isDiv ? 'Thickness (mm)' : 'Base thickness (mm)', s.t, 'number'], ['r', 'Corner radius (mm)', s.r, 'number'], ['scale', 'Scale the whole label (%)', 100, 'number']], v => {
+    const p = isDiv ? null : sizeById(v.preset), sc = posNum(v.scale, 1);
     let w = posNum(v.w, 5), h = posNum(v.h, 5), t = posNum(v.t, 0.2), r = posNum(v.r, 0);
     if (p && p.id !== s.preset) { w = p.w; h = p.h; t = p.t; }
     if (w === null || h === null || t === null || r === null || sc === null) { alert('Width and height must be at least 5 mm, the base at least 0.2 mm, and the scale above 1%.'); return false; }
@@ -59,11 +59,12 @@ function sizeDlg() {
       const k = sc / 100;
       L.size.w = r2(w * k); L.size.h = r2(h * k); L.size.t = r2(t); L.size.r = r2(r * k);
       if (k !== 1) { L.text.size = r2(L.text.size * k); L.arr.margin = r2(L.arr.margin * k); L.arr.gap = r2(L.arr.gap * k); }
+      if (isDiv) { if (k !== 1) { L.div.band = r2(L.div.band * k); L.div.tabH = r2(L.div.tabH * k); L.div.tabInset = r2(L.div.tabInset * k); } L.div.shape = 'custom'; L.size.preset = 'custom'; return; }
       const match = SIZE_PRESETS.concat(SAVED.presets.sizes || []).find(q => q.w === L.size.w && q.h === L.size.h && q.t === L.size.t);
       L.size.preset = match ? match.id : 'custom';
     });
     flash(`Label size ${L.size.w} x ${L.size.h} mm`);
-  }, 'OK', '<div class="note">Choosing a preset fills in its size. Scale changes the width, height, corner radius, margins and text size together; the base thickness stays.</div>');
+  }, 'OK', isDiv ? '<div class="note">Scale changes the width, height, corner radius, top band, tab, margins and text size together; the thickness and the pattern stay.</div>' : '<div class="note">Choosing a preset fills in its size. Scale changes the width, height, corner radius, margins and text size together; the base thickness stays.</div>');
 }
 function arrOpts() { return ARRANGEMENTS.concat(SAVED.arrangements || []).map(a => [a.id, a.name + (SAVED.arrangements.includes(a) ? ' (saved)' : '')]); }
 function applyArrangement(a) { L.arr = { id: a.id, name: a.name, kind: a.kind, margin: a.margin, gap: a.gap, band: a.band, symPct: a.symPct }; if (a.text) { Object.assign(L.text, clone(a.text)); } }
@@ -105,21 +106,21 @@ function manageArrangements() {
   };
 }
 function depthOpts() { return DEPTH_PROFILES.concat(SAVED.presets.depths || []).map(d => [d.id, d.name]).concat([['custom', 'Custom']]); }
-function applyDepth(d) { L.depth = { id: d.id, symbol: clone(d.symbol), text: clone(d.text) }; L.size.t = d.t; }
+function applyDepth(d) { L.depth = { id: d.id, sync: d.sync !== false && JSON.stringify(d.symbol) === JSON.stringify(d.text), symbol: clone(d.symbol), text: clone(d.text) }; if (L.kind !== 'divider') L.size.t = d.t; }
 function depthDlg() {
   const d = L.depth;
-  dialog('Depth', [['id', 'Depth profile', depthById(d.id) ? d.id : 'custom', 'select', depthOpts()], ['t', 'Base thickness (mm)', L.size.t, 'number'], ['sr', 'Symbol height above the base (mm)', d.symbol.raise, 'number'], ['ss', 'Symbol sunk into the base (mm)', d.symbol.sink, 'number'], ['se', 'Engrave the symbol (cut only)', d.symbol.engrave, 'check'], ['tr', 'Text height above the base (mm)', d.text.raise, 'number'], ['ts', 'Text sunk into the base (mm)', d.text.sink, 'number'], ['te', 'Engrave the text (cut only)', d.text.engrave, 'check']], v => {
+  dialog('Depth', [['id', 'Depth profile', depthById(d.id) ? d.id : 'custom', 'select', depthOpts()], ['t', L.kind === 'divider' ? 'Divider thickness (mm)' : 'Base thickness (mm)', L.size.t, 'number'], ['sync', 'Same depth for symbol and text', d.sync, 'check'], ['sr', 'Symbol height above the base (mm)', d.symbol.raise, 'number'], ['ss', 'Symbol sunk into the base (mm)', d.symbol.sink, 'number'], ['se', 'Engrave the symbol (cut only)', d.symbol.engrave, 'check'], ['tr', 'Text height above the base (mm)', d.text.raise, 'number'], ['ts', 'Text sunk into the base (mm)', d.text.sink, 'number'], ['te', 'Engrave the text (cut only)', d.text.engrave, 'check']], v => {
     const p = depthById(v.id);
     commit(() => {
       if (p && p.id !== d.id) { applyDepth(p); return; }
       L.size.t = Math.max(0.2, num(v.t, 2));
+      L.depth.sync = v.sync;
       L.depth.symbol = { raise: Math.max(0, num(v.sr)), sink: Math.max(0, num(v.ss)), engrave: v.se };
-      L.depth.text = { raise: Math.max(0, num(v.tr)), sink: Math.max(0, num(v.ts)), engrave: v.te };
-      const m = DEPTH_PROFILES.concat(SAVED.presets.depths || []).find(q => q.t === L.size.t && JSON.stringify(q.symbol) === JSON.stringify(L.depth.symbol) && JSON.stringify(q.text) === JSON.stringify(L.depth.text));
-      L.depth.id = m ? m.id : 'custom';
+      L.depth.text = v.sync ? clone(L.depth.symbol) : { raise: Math.max(0, num(v.tr)), sink: Math.max(0, num(v.ts)), engrave: v.te };
+      matchDepth();
     });
     flash('Depth: ' + ((depthById(L.depth.id) || {}).name || 'custom'));
-  }, 'OK', '<div class="note">Height above the base is how far a part stands up from the top of the base. Sunk into the base cuts a pocket that the part fills, so it prints in its own color flush with or below the surface. Engraved parts cut the pocket and leave it empty.</div>');
+  }, 'OK', '<div class="note">Height above the base is how far a part stands up from the top of the base. Sunk into the base cuts a pocket that the part fills, so it prints in its own color flush with or below the surface. Engraved parts cut the pocket and leave it empty. With the same depth for symbol and text, the symbol values are used for both.</div>');
 }
 function savePreset(kind, item) {
   const list = SAVED.presets[kind] = (SAVED.presets[kind] || []);
@@ -132,9 +133,9 @@ function savePreset(kind, item) {
 function saveDepthDlg() {
   dialog('Save depth profile', [['name', 'Name', '', 'text']], v => {
     if (!v.name) { alert('Enter a name.'); return false; }
-    const it = savePreset('depths', { id: 'd_' + uid(), name: v.name, t: L.size.t, symbol: clone(L.depth.symbol), text: clone(L.depth.text) }); if (!it) return false;
+    const it = savePreset('depths', { id: 'd_' + uid(), name: v.name, t: L.size.t, sync: !!L.depth.sync, symbol: clone(L.depth.symbol), text: clone(L.depth.text) }); if (!it) return false;
     commit(() => { L.depth.id = it.id; });
-  }, 'Save', '<div class="note">Saves the base thickness and the symbol and text depths. Saved profiles are shared with everyone on this server.</div>');
+  }, 'Save', '<div class="note">Saves the base thickness, the symbol and text depths and whether they are kept the same. Saved profiles are shared with everyone on this server.</div>');
 }
 function saveSizeDlg() {
   dialog('Save size preset', [['name', 'Name', '', 'text']], v => {
@@ -146,7 +147,7 @@ function saveSizeDlg() {
 function managePresets() {
   const rows = () => {
     const sec = (kind, title, desc) => { const l = SAVED.presets[kind] || []; return `<div class="pgrp"><h4>${title}</h4>${l.length ? `<table class="dtab">${l.map(p => `<tr><td>${esc(p.name)}</td><td class="note">${desc(p)}</td><td><button type="button" class="lnk" data-del="${kind}:${p.id}">Delete</button></td></tr>`).join('')}</table>` : '<div class="note">None saved.</div>'}</div>`; };
-    return sec('sizes', 'Sizes', p => `${p.w} x ${p.h} x ${p.t} mm`) + sec('depths', 'Depth profiles', p => `base ${p.t}, symbol +${p.symbol.raise}/-${p.symbol.sink}, text +${p.text.raise}/-${p.text.sink} mm`) + sec('palettes', 'Filament color sets', p => p.slots.map(s => s.name).join(', '));
+    return sec('sizes', 'Sizes', p => `${p.w} x ${p.h} x ${p.t} mm`) + sec('dividers', 'Divider shapes', p => `${p.w} x ${p.h} x ${p.t} mm, ${(PATTERNS[p.pattern.kind] || {}).name || ''}`) + sec('depths', 'Depth profiles', p => `base ${p.t}, symbol +${p.symbol.raise}/-${p.symbol.sink}, text +${p.text.raise}/-${p.text.sink} mm`) + sec('palettes', 'Filament color sets', p => p.slots.map(s => s.name).join(', '));
   };
   dialog('Saved presets', [], null, 'OK', `<div id="mpre">${rows()}</div>`);
   $('#dlgbody').onclick = e => {
@@ -155,6 +156,15 @@ function managePresets() {
     if (!p || !confirm(`Delete the saved preset "${p.name}"?`)) return;
     SAVED.presets[kind] = SAVED.presets[kind].filter(x => x !== p); host.write('presets.json', SAVED.presets).catch(er => flash(er.message)); $('#mpre').innerHTML = rows(); renderProps();
   };
+}
+
+function saveDividerDlg() {
+  dialog('Save divider shape', [['name', 'Name', '', 'text']], v => {
+    if (!v.name) { alert('Enter a name.'); return false; }
+    const d = L.div, it = savePreset('dividers', { id: 'v_' + uid(), name: v.name, w: L.size.w, h: L.size.h, t: L.size.t, r: L.size.r, band: d.band, tabH: d.tabH, tabInset: d.tabInset, pattern: clone(d.pattern) });
+    if (!it) return false;
+    commit(() => { L.div.shape = it.id; L.size.preset = it.id; });
+  }, 'Save', '<div class="note">Saves the outline (width, height, thickness, corners, top band and tab) and the pattern. Saved divider shapes are shared with everyone on this server.</div>');
 }
 
 // ---------- filament colors ----------
@@ -243,10 +253,14 @@ function saveLabel(as) {
 }
 function openLabel(lab, id) { L = normalizeLabel(clone(lab)); labelId = id; dirty = false; undoStack = []; redoStack = []; V3.fitted = ''; render(); scheduleAutosave(); }
 function normalizeLabel(l) {
-  const d = newLabel();
+  const d = l.kind === 'divider' ? newDivider() : newLabel();
+  l.kind = d.kind;
+  const hadSync = l.depth && typeof l.depth.sync === 'boolean';
   for (const k of ['size', 'arr', 'depth', 'base', 'symbol', 'text']) l[k] = Object.assign({}, d[k], l[k] || {});
   l.depth.symbol = Object.assign({}, d.depth.symbol, l.depth.symbol); l.depth.text = Object.assign({}, d.depth.text, l.depth.text);
+  if (!hadSync) l.depth.sync = JSON.stringify(l.depth.symbol) === JSON.stringify(l.depth.text);
   if (!Array.isArray(l.text.lines)) l.text.lines = d.text.lines;
+  if (d.div) { l.div = Object.assign({}, d.div, l.div || {}); l.div.pattern = Object.assign({}, d.div.pattern, l.div.pattern || {}); l.div.back = Object.assign({}, d.div.back, l.div.back || {}); }
   return l;
 }
 function openDlg() {

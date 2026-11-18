@@ -32,4 +32,5 @@ On a new server the symbol library downloads by itself when the server starts. T
 | Change the filament colors | Label tab, Filament colors |
 | Export | Home tab or the Export menu |
 | Open a saved label | Saved labels panel, or File, Open saved label |
+| Make a drawer divider | Pick a set, then New divider on the Home tab |
 | See demo labels | Help, Open demo labels |

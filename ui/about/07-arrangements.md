@@ -11,8 +11,9 @@ An arrangement decides where the symbol and the text go. TopLabel then sizes bot
 | Symbol only | Symbol fills the label | 7 mm | | | 90% |
 | Text only | Text fills the label | 7 mm | | | |
 | Symbol beside text | Symbol left, text right, for wide labels | 6 mm | 4 mm | 55% | 90% |
+| Divider band | Symbol left, text right, inside a divider's top band | 1.5 mm | 2 mm | 78% | 90% |
 
-New labels use the default arrangement, Symbol over text unless another one was made the default.
+New labels use the default arrangement, Symbol over text unless another one was made the default. New dividers use Divider band. On a divider, every arrangement is applied inside its top band.
 
 ## Areas
 

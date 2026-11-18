@@ -116,19 +116,34 @@ export const tests = {
   'depth: profiles set heights, pockets and engraving': async t => {
     await t.open(); await t.pickSet('FDN');
     const z = () => t.eval(() => Object.fromEntries(MODEL.parts.map(p => [p.key, [Math.min(...p.slabs.map(s => s.z0)), Math.max(...p.slabs.map(s => s.z1))]])));
-    t.eq(await z(t), { base: [0, 2], symbol: [2, 3], text: [1.5, 2.5] }, 'standard');
+    t.eq(await z(t), { base: [0, 2], symbol: [1.5, 3], text: [1.5, 3] }, 'standard');
     await t.prop('depth.id', 'inlay');
-    t.eq(await z(t), { base: [0, 2], symbol: [1.4, 2], text: [1.4, 2] }, 'flush inlay');
+    t.eq(await z(t), { base: [0, 2], symbol: [1.5, 2], text: [1.5, 2] }, 'flush inlay');
     await t.prop('depth.id', 'engraved');
     t.eq(await parts(t), ['base'], 'engraved parts are only cut');
     t.ok(await t.eval(() => MODEL.engraved.length === 2), 'two engraved outlines');
     await t.prop('depth.id', 'low');
-    t.eq(await z(t), { base: [0, 1.6], symbol: [1.6, 2.2], text: [1.2, 2] }, 'low');
+    t.eq(await z(t), { base: [0, 1.6], symbol: [1.2, 2.2], text: [1.2, 2.2] }, 'low');
+    await t.prop('depth.sync', false);
     await t.prop('depth.text.raise', 0); await t.prop('depth.text.sink', 0);
     t.eq(await t.eval(() => L.depth.id), 'custom');
     t.ok((await warns(t)).some(w => w.includes('Text has no height')), 'no height warning');
     await t.prop('depth.symbol.sink', 5);
     t.ok((await warns(t)).some(w => w.includes('0.2 mm of base')), 'too deep warning');
+  },
+  'same depth for symbol and text: on by default, linked, separate when off': async t => {
+    await t.open(); await t.pickSet('NEO');
+    t.eq(await t.eval(() => [L.depth.sync, L.depth.id, MODEL.height]), [true, 'standard', 3]);
+    t.ok(await t.eval(() => !document.querySelector('#props [data-p="depth.text.raise"]')), 'one set of fields while linked');
+    await t.prop('depth.symbol.raise', 0.6);
+    t.eq(await t.eval(() => [L.depth.text.raise, L.depth.id]), [0.6, 'custom'], 'text follows');
+    await t.prop('depth.sync', false);
+    await t.prop('depth.text.raise', 1.2);
+    t.eq(await t.eval(() => [L.depth.symbol.raise, L.depth.text.raise]), [0.6, 1.2], 'separate');
+    await t.prop('depth.sync', true);
+    t.eq(await t.eval(() => L.depth.text.raise), 0.6, 'turning it on copies the symbol depth to the text');
+    t.eq(await t.eval(() => normalizeLabel({ depth: { symbol: { raise: 1, sink: 0, engrave: false }, text: { raise: 0.5, sink: 0.5, engrave: false } } }).depth.sync), false, 'older labels with different depths stay separate');
+    t.ok(await t.eval(() => !SIZE_PRESETS.some(s => s.name === 'Box divider')), 'Box divider preset removed');
   },
   'every part is a closed mesh in every depth profile': async t => {
     await t.open(); await t.pickSet('TLA');

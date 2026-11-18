@@ -5,15 +5,15 @@ const SIZE_PRESETS = [
   { id: 'smallcard', name: 'Small card', w: 59, h: 86, t: 2 },
   { id: 'square', name: 'Square tile', w: 50, h: 50, t: 2 },
   { id: 'mini', name: 'Mini tile', w: 35, h: 35, t: 2 },
-  { id: 'divider', name: 'Box divider', w: 70, h: 95, t: 1.6 },
 ];
-// raise: height above the top of the base; sink: depth into the base; engrave: cut only, no part
+// raise: height above the top of the base; sink: depth into the base; engrave: cut only, no part.
+// sync: the symbol and the text use the same depth.
 const DEPTH_PROFILES = [
-  { id: 'standard', name: 'Standard', t: 2, symbol: { raise: 1, sink: 0, engrave: false }, text: { raise: 0.5, sink: 0.5, engrave: false } },
-  { id: 'low', name: 'Low', t: 1.6, symbol: { raise: 0.6, sink: 0, engrave: false }, text: { raise: 0.4, sink: 0.4, engrave: false } },
-  { id: 'bold', name: 'Bold', t: 2, symbol: { raise: 1.5, sink: 0, engrave: false }, text: { raise: 1, sink: 0.5, engrave: false } },
-  { id: 'inlay', name: 'Flush inlay', t: 2, symbol: { raise: 0, sink: 0.6, engrave: false }, text: { raise: 0, sink: 0.6, engrave: false } },
-  { id: 'engraved', name: 'Engraved', t: 2, symbol: { raise: 0, sink: 0.6, engrave: true }, text: { raise: 0, sink: 0.6, engrave: true } },
+  { id: 'standard', name: 'Standard', t: 2, sync: true, symbol: { raise: 1, sink: 0.5, engrave: false }, text: { raise: 1, sink: 0.5, engrave: false } },
+  { id: 'low', name: 'Low', t: 1.6, sync: true, symbol: { raise: 0.6, sink: 0.4, engrave: false }, text: { raise: 0.6, sink: 0.4, engrave: false } },
+  { id: 'bold', name: 'Bold', t: 2, sync: true, symbol: { raise: 1.5, sink: 0.5, engrave: false }, text: { raise: 1.5, sink: 0.5, engrave: false } },
+  { id: 'inlay', name: 'Flush inlay', t: 2, sync: true, symbol: { raise: 0, sink: 0.5, engrave: false }, text: { raise: 0, sink: 0.5, engrave: false } },
+  { id: 'engraved', name: 'Engraved', t: 2, sync: true, symbol: { raise: 0, sink: 0.5, engrave: true }, text: { raise: 0, sink: 0.5, engrave: true } },
 ];
 // kind: stack (symbol over text), stackrev (text over symbol), symbol, text, side (symbol beside text)
 const ARRANGEMENTS = [
@@ -22,6 +22,7 @@ const ARRANGEMENTS = [
   { id: 'symbol', name: 'Symbol only', kind: 'symbol', margin: 7, gap: 4, band: 0, symPct: 90 },
   { id: 'text', name: 'Text only', kind: 'text', margin: 7, gap: 4, band: 100, symPct: 90 },
   { id: 'side', name: 'Symbol beside text', kind: 'side', margin: 6, gap: 4, band: 55, symPct: 90 },
+  { id: 'divband', name: 'Divider band', kind: 'side', margin: 1.5, gap: 2, band: 78, symPct: 90 },
 ];
 const ARR_KINDS = [['stack', 'Symbol over text'], ['stackrev', 'Text over symbol'], ['symbol', 'Symbol only'], ['text', 'Text only'], ['side', 'Symbol beside text']];
 const DEFAULT_PALETTE = [
@@ -62,10 +63,10 @@ function newLabel() {
   const arr = clone(arrangementById(PREFS.defaultArr) || ARRANGEMENTS[0]);
   const d = DEPTH_PROFILES[0];
   return {
-    v: 1, name: '', set: null,
+    v: 1, kind: 'label', name: '', set: null,
     size: { preset: 'toploader', w: 76, h: 100, t: d.t, r: 0 },
     arr: { id: arr.id, name: arr.name, kind: arr.kind, margin: arr.margin, gap: arr.gap, band: arr.band, symPct: arr.symPct },
-    depth: { id: d.id, symbol: clone(d.symbol), text: clone(d.text) },
+    depth: { id: d.id, sync: true, symbol: clone(d.symbol), text: clone(d.text) },
     base: { slot: 1 },
     symbol: { show: true, src: 'set', wm: '', rarity: 'C', style: 'detail', slot: 2, slot2: 3 },
     text: { show: true, lines: [{ src: 'name', text: '' }, { src: 'code', text: '' }], font: DEFAULT_FONT, bold: true, italic: false, upper: false, size: 7, min: 3, spacing: 1.15, align: 'center', slot: 2 },
@@ -78,7 +79,7 @@ function applySet(l, s) {
   l.symbol.src = 'set';
   const rs = l.set.src === 'vectors' ? l.set.rarities : [];
   if (rs.length && !rs.includes(l.symbol.rarity)) l.symbol.rarity = rs.includes('C') ? 'C' : rs[0];
-  if (l.text.lines.every(x => x.src === 'custom')) l.text.lines = [{ src: 'name', text: '' }, { src: 'code', text: '' }];
+  if (l.text.lines.every(x => x.src === 'custom')) l.text.lines = defaultLines(l);
 }
 function applyLand(l, land) {
   l.set = null; l.name = land.name;
@@ -90,4 +91,39 @@ function applyWatermark(l, name) {
   l.set = null; l.name = name.replace(/^./, c => c.toUpperCase());
   l.symbol.src = 'wm'; l.symbol.wm = name;
   l.text.lines = [{ src: 'custom', text: l.name }];
+}
+
+// ---------- dividers ----------
+// hole patterns: hole width and height, column and row spacing, rows staggered by half a row in every other column
+const PATTERNS = {
+  hex: { name: 'Hexagon', w: 8.28, h: 6.35, cx: 9.1, cy: 8.06, stagger: true },
+  circle: { name: 'Circles', w: 6, h: 6, cx: 8, cy: 8, stagger: true },
+  square: { name: 'Squares', w: 6, h: 6, cx: 8, cy: 8, stagger: false },
+  diamond: { name: 'Diamonds', w: 7, h: 7, cx: 5.2, cy: 7.6, stagger: true },
+  slot: { name: 'Vertical slots', w: 3, h: 16, cx: 5.5, cy: 18, stagger: false },
+  solid: { name: 'Solid' },
+};
+const PATTERN_OPTS = Object.entries(PATTERNS).map(([k, p]) => [k, p.name]);
+// built-in divider shapes; saved shapes live in SAVED.presets.dividers with the same fields
+const DIVIDER_SHAPES = [
+  { id: 'catalog', name: 'Card catalog divider', w: 71.92, h: 72, t: 2.16, r: 0.6, band: 12, tabH: 20.4, tabInset: 2.5, pattern: Object.assign({ kind: 'hex', border: 2 }, PATTERNS.hex) },
+];
+function dividerShapeById(id) { return DIVIDER_SHAPES.find(d => d.id === id) || ((SAVED.presets && SAVED.presets.dividers) || []).find(d => d.id === id) || null; }
+function defaultLines(l) { return l && l.kind === 'divider' ? [{ src: 'name', text: '' }] : [{ src: 'name', text: '' }, { src: 'code', text: '' }]; }
+function applyDividerShape(l, d) {
+  l.size = { preset: d.id, w: d.w, h: d.h, t: d.t, r: d.r };
+  l.div.shape = d.id; l.div.band = d.band; l.div.tabH = d.tabH; l.div.tabInset = d.tabInset;
+  l.div.pattern = clone(d.pattern);
+}
+function newDivider() {
+  const l = newLabel();
+  l.kind = 'divider';
+  l.div = { shape: 'catalog', band: 12, tabH: 20.4, tabInset: 2.5, pattern: {}, back: { mode: 'flush', sink: 0.5 } };
+  applyDividerShape(l, DIVIDER_SHAPES[0]);
+  const a = ARRANGEMENTS.find(x => x.id === 'divband');
+  l.arr = { id: a.id, name: a.name, kind: a.kind, margin: a.margin, gap: a.gap, band: a.band, symPct: a.symPct };
+  const d = DEPTH_PROFILES.find(x => x.id === 'inlay');
+  l.depth = { id: d.id, sync: true, symbol: clone(d.symbol), text: clone(d.text) };
+  l.text.lines = defaultLines(l);
+  return l;
 }

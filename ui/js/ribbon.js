@@ -2,6 +2,7 @@
 const S_ = 'fill="none" stroke="#2b3442" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"';
 const RI = {
   newLabel: `<rect x="4" y="2.5" width="12" height="15" rx="1" fill="#dbe6f7" ${S_}/><path d="M13 13.5h4M15 11.5v4" stroke="#2f7d32" stroke-width="1.8"/>`,
+  newDivider: `<rect x="3" y="2.5" width="13" height="4" rx="0.6" fill="#dbe6f7" ${S_}/><path d="M3 6.5h13v6H14.5v4h-10v-4H3z" fill="#fff" ${S_}/><path d="M6.5 9l1.2 .8v1.4L6.5 12l-1.2-.8V9.8zM10 9l1.2 .8v1.4L10 12l-1.2-.8V9.8z" fill="#556"/><path d="M14 14.5h5M16.5 12v5" stroke="#2f7d32" stroke-width="1.8"/>`,
   open: `<path d="M2.5 6V15.5h13l2-7H5l-2 7" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1.3" stroke-linejoin="round"/><path d="M2.5 6V4h5l1.5 1.5H15V8" fill="none" stroke="#8a6d1d" stroke-width="1.3"/>`,
   save: `<rect x="3" y="3" width="14" height="14" rx="1.5" fill="#dbe6f7" ${S_}/><rect x="6" y="3" width="8" height="5" fill="#fff" ${S_}/><rect x="6" y="11" width="8" height="6" fill="#fff" ${S_}/>`,
   saveAs: `<rect x="3" y="3" width="12" height="12" rx="1.5" fill="#dbe6f7" ${S_}/><rect x="5.5" y="3" width="7" height="4" fill="#fff" ${S_}/><path d="M12 17l5-5-1.5-1.5-5 5V17z" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1.1"/>`,
@@ -38,18 +39,18 @@ const RI = {
   demo: `<rect x="4" y="2.5" width="12" height="15" rx="1" fill="#fff" ${S_}/><path d="M10 5l1.6 3.2 3.4.4-2.5 2.4.6 3.5L10 12.8l-3.1 1.7.6-3.5L5 8.6l3.4-.4z" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1"/>`,
 };
 const RLABEL = {
-  newLabel: 'New label', openDlg: 'Open', save: 'Save', saveAs: 'Save as', undo: 'Undo', redo: 'Redo',
+  newLabel: 'New label', newDivider: 'New divider', openDlg: 'Open', save: 'Save', saveAs: 'Save as', undo: 'Undo', redo: 'Redo',
   exportBambu: 'Bambu 3MF', exportStl: 'STL', exportDlg: 'Export...', sizeDlg: 'Size...', arrangementDlg: 'Arrangement...',
-  saveArrangement: 'Save arrangement', setDefaultArr: 'Make default', depthDlg: 'Depth...', saveDepth: 'Save depth', paletteDlg: 'Filament colors',
+  saveArrangement: 'Save arrangement', setDefaultArr: 'Make default', depthDlg: 'Depth...', saveDepth: 'Save depth', saveDivider: 'Save divider shape', paletteDlg: 'Filament colors',
   toggleTwoTone: 'Two-tone symbol', addLine: 'Add text line', toggleSymbol: 'Symbol', toggleText: 'Text',
   refreshLibrary: 'Refresh library', libraryInfo: 'Library info', fontsDlg: 'Fonts', showWatermarks: 'Lands and watermarks', showSets: 'Sets',
   view2d: '2D layout', view3d: '3D preview', viewBoth: 'Both', fitView: 'Fit', toggleGuides: 'Layout guides', toggleTheme: 'Dark theme', toggleSurface: 'Dark work surface',
   togglePanels: 'Panels', about: 'About', shortcuts: 'Shortcuts', demo: 'Demo labels',
 };
-const RICON = { openDlg: 'open', exportBambu: 'export3mf', exportStl: 'exportStl', sizeDlg: 'size', arrangementDlg: 'arrangement', saveArrangement: 'saveArr', setDefaultArr: 'defaultArr', depthDlg: 'depth', saveDepth: 'saveDepth', paletteDlg: 'palette', toggleTwoTone: 'twoTone', refreshLibrary: 'refresh', libraryInfo: 'libInfo', fontsDlg: 'fonts', showWatermarks: 'watermarks', showSets: 'libInfo', toggleGuides: 'guides', toggleTheme: 'theme', toggleSurface: 'surface', togglePanels: 'panels' };
+const RICON = { openDlg: 'open', saveDivider: 'newDivider', exportBambu: 'export3mf', exportStl: 'exportStl', sizeDlg: 'size', arrangementDlg: 'arrangement', saveArrangement: 'saveArr', setDefaultArr: 'defaultArr', depthDlg: 'depth', saveDepth: 'saveDepth', paletteDlg: 'palette', toggleTwoTone: 'twoTone', refreshLibrary: 'refresh', libraryInfo: 'libInfo', fontsDlg: 'fonts', showWatermarks: 'watermarks', showSets: 'libInfo', toggleGuides: 'guides', toggleTheme: 'theme', toggleSurface: 'surface', togglePanels: 'panels' };
 const DEFAULT_RIBBON = [
-  { id: 'home', name: 'Home', groups: [{ name: 'Label', items: ['newLabel', 'save', 'saveAs', 'openDlg'] }, { name: 'Edit', items: ['undo', 'redo'] }, { name: 'Export', items: ['exportBambu', 'exportStl', 'exportDlg'] }, { name: 'View', items: ['view2d', 'view3d', 'viewBoth'] }] },
-  { id: 'label', name: 'Label', groups: [{ name: 'Size', items: ['sizeDlg'] }, { name: 'Arrangement', items: ['arrangementDlg', 'saveArrangement', 'setDefaultArr'] }, { name: 'Depth', items: ['depthDlg', 'saveDepth'] }, { name: 'Colors', items: ['paletteDlg', 'toggleTwoTone'] }] },
+  { id: 'home', name: 'Home', groups: [{ name: 'Label', items: ['newLabel', 'newDivider', 'save', 'saveAs', 'openDlg'] }, { name: 'Edit', items: ['undo', 'redo'] }, { name: 'Export', items: ['exportBambu', 'exportStl', 'exportDlg'] }, { name: 'View', items: ['view2d', 'view3d', 'viewBoth'] }] },
+  { id: 'label', name: 'Label', groups: [{ name: 'Size', items: ['sizeDlg'] }, { name: 'Arrangement', items: ['arrangementDlg', 'saveArrangement', 'setDefaultArr'] }, { name: 'Depth', items: ['depthDlg', 'saveDepth'] }, { name: 'Divider', items: ['saveDivider'] }, { name: 'Colors', items: ['paletteDlg', 'toggleTwoTone'] }] },
   { id: 'insert', name: 'Insert', groups: [{ name: 'Elements', items: ['toggleSymbol', 'toggleText', 'addLine'] }, { name: 'Symbols', items: ['showSets', 'showWatermarks'] }] },
   { id: 'library', name: 'Library', groups: [{ name: 'Library', items: ['refreshLibrary', 'libraryInfo', 'fontsDlg'] }] },
   { id: 'view', name: 'View', groups: [{ name: 'Views', items: ['view2d', 'view3d', 'viewBoth', 'fitView'] }, { name: 'Show', items: ['toggleGuides', 'togglePanels'] }, { name: 'Theme', items: ['toggleTheme', 'toggleSurface'] }] },

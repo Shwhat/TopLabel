@@ -13,6 +13,7 @@ Warnings appear in amber boxes at the top of the Properties panel, and their num
 | This symbol has no separate border, so two-tone prints it in one color. | Two-tone is on for a symbol drawn as a single shape | Use Detailed or Silhouette |
 | The text is X mm, smaller than the Y mm minimum. Shorten the text, make the label larger or lower the minimum. | The text had to shrink below the minimum to fit its area | Shorten or remove lines, enlarge the text area or the label, or lower the minimum |
 | An element is sunk deeper than the base allows; it keeps 0.2 mm of base under it. | Sunk is more than the base thickness minus 0.2 mm | Lower Sunk or thicken the base |
+| The front and back are sunk deeper than the divider allows; 0.2 mm of plate is kept between them. | On a divider, the front and back depths add up to more than the thickness minus 0.2 mm | Lower one of the depths or make the divider thicker |
 | Symbol (or Text) has no height, so it is not printed. Raise it or sink it into the base. | Above and Sunk are both 0 and Engrave is off | Give the element a height or a depth |
 | The label could not be built: ... | An unexpected problem with a symbol or font file | Try another rarity, symbol style or font |
 
@@ -55,6 +56,7 @@ Missing Scryfall icons do not stop a refresh; those sets show "No symbol".
 | This label is not saved | Deleting a label that is not saved |
 | No saved labels yet | Opening when nothing is saved |
 | Save the arrangement first | Make default for an arrangement that is not in the list |
+| Open a divider first | Save divider shape while a label is open |
 | Refresh the library first; the demo labels use its symbols | Opening the demos before the library is downloaded |
 | That set is not in the library | A demo label's set is missing |
 | Could not save in this browser | The page runs without a server and the browser refused to store data |

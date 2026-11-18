@@ -27,8 +27,16 @@ This page lists what TopLabel does in the current version, followed by what is p
 - Text lines from the set name, code, release year, release date, set type, rarity, card count or custom text, in any order.
 - Long names wrap at a colon or between words; text shrinks to fit, with a warning below the minimum size.
 - 33 built-in fonts with bold, italic and all capitals.
-- Depth profiles: standard, low, bold, flush inlay and engraved, or custom heights and depths per element, saved as named profiles.
+- Depth profiles: standard (2 mm base, symbol and text 0.5 mm sunk and 1 mm above, 3 mm in all), low, bold, flush inlay and engraved, saved as named profiles.
+- The symbol and the text keep the same depth while Same depth for symbol and text is on, or take their own depths when it is off.
 - Filament palette of 1 to 16 slots with names and colors, saved as named color sets.
+
+### Dividers
+
+- Drawer dividers with the symbol and text in a solid top band, made from the open label's set with New divider.
+- Built-in Card catalog divider shape (71.92 x 72 x 2.16 mm with a narrower tab); every dimension adjustable; shapes and patterns saved by name.
+- Hexagon, circle, square, diamond and slot patterns with adjustable holes, spacing and border, or solid.
+- Content on the front only or on both faces, flush inlay by default, the back mirrored.
 
 ### Views
 
@@ -54,5 +62,5 @@ These are part of the release plan and are not available yet.
 
 | Version | Planned features |
 |---|---|
-| 0.2.0 | Drag, resize and rotate elements in the 2D layout; upload your own SVG symbols and fonts; several symbols on one label, each in its own color; a grid arrangement for symbol sheets |
-| 0.3.0 | Batch export of many sets with plate packing; OBJ, AMF, SVG, DXF and PNG export |
+| 0.3.0 | Drag, resize and rotate elements in the 2D layout; upload your own SVG symbols and fonts; several symbols on one label, each in its own color; a grid arrangement for symbol sheets |
+| 0.4.0 | Batch export of many sets with plate packing; OBJ, AMF, SVG, DXF and PNG export |

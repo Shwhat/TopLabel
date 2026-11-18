@@ -1,13 +1,13 @@
 # Overview
 
-TopLabel is a self-hosted program that makes 3D-printable labels for Magic: The Gathering card storage, such as a full replacement for a toploader. Choose a set and TopLabel builds the label: a flat base with the set symbol and the set name and code raised or inlaid in their own filament colors, ready to export to Bambu Studio, OrcaSlicer or any other slicer.
+TopLabel is a self-hosted program that makes 3D-printable labels and dividers for Magic: The Gathering card storage, such as a full replacement for a toploader or a drawer divider. Choose a set and TopLabel builds the label: a flat base with the set symbol and the set name and code raised or inlaid in their own filament colors, ready to export to Bambu Studio, OrcaSlicer or any other slicer.
 
 | Area | What it holds |
 |---|---|
 | **Sets panel** | Every Magic set from Scryfall with its symbol, plus basic lands and watermarks |
 | **Work area** | The label as a 2D layout and as a 3D preview |
-| **Properties panel** | Size, arrangement, symbol, text, depth and colors of the open label |
-| **Saved labels panel** | The labels saved under your account |
+| **Properties panel** | Size or divider shape, pattern, arrangement, symbol, text, depth and colors of the open label or divider |
+| **Saved labels panel** | The labels and dividers saved under your account |
 | **Library** | The set symbols from mtg-vectors, the set list from Scryfall and the built-in fonts |
 
 The library feeds the Sets panel. Picking a set fills the open label with that set's symbol and text, the Properties panel adjusts it, the views show it, and Export turns it into a file for the printer.
@@ -32,6 +32,7 @@ The library feeds the Sets panel. Picking a set fills the open label with that s
 | [Labels and elements](/about/labels-and-elements) | What a label is made of and every label field |
 | [Arrangements and auto-fit](/about/arrangements) | How symbol and text are placed and sized |
 | [Sizes and depth](/about/sizes-and-depth) | Size presets, depth profiles and how parts are stacked |
+| [Dividers](/about/dividers) | Divider shapes, patterns, top band content and both faces |
 | [Colors and filament slots](/about/colors) | Filament slots, the color palette and saved color sets |
 | [Fonts](/about/fonts) | The built-in fonts and how styles are chosen |
 | [Export](/about/export) | Every export format and its options |

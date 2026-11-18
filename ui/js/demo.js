@@ -6,14 +6,17 @@ const DEMOS = [
   { id: 'tla', name: 'Avatar: The Last Airbender, long name wrapped', set: 'TLA' },
   { id: 'neo', name: 'Kamigawa: Neon Dynasty, two-tone rare, flush inlay', set: 'NEO', make: l => { l.symbol.rarity = 'R'; l.symbol.style = 'twotone'; l.symbol.slot = 2; l.symbol.slot2 = 5; } },
   { id: 'blb', name: 'Bloomburrow, symbol beside text on a wide label', set: 'BLB', make: l => { Object.assign(l.size, { preset: 'custom', w: 100, h: 35 }); Object.assign(l.arr, { id: 'side', name: 'Symbol beside text', kind: 'side', margin: 4, gap: 3, band: 60, symPct: 92 }); l.text.size = 8; } },
-  { id: 'fdn', name: 'Foundations, text over symbol, engraved, Cinzel', set: 'FDN', make: l => { Object.assign(l.arr, { id: 'stackrev', name: 'Text over symbol', kind: 'stackrev' }); l.text.font = 'cinzel'; l.text.upper = true; l.depth = { id: 'engraved', symbol: clone(DEPTH_PROFILES[4].symbol), text: clone(DEPTH_PROFILES[4].text) }; } },
+  { id: 'fdn', name: 'Foundations, text over symbol, engraved, Cinzel', set: 'FDN', make: l => { Object.assign(l.arr, { id: 'stackrev', name: 'Text over symbol', kind: 'stackrev' }); l.text.font = 'cinzel'; l.text.upper = true; l.depth = { id: 'engraved', sync: true, symbol: clone(DEPTH_PROFILES[4].symbol), text: clone(DEPTH_PROFILES[4].text) }; } },
+  { id: 'divhex', name: 'Divider, hexagon pattern, both faces', set: 'NEO', divider: true },
+  { id: 'divsolid', name: 'Divider, solid, front only, raised text', set: 'BLB', divider: true, make: l => { l.div.pattern = { kind: 'solid', border: 2 }; l.div.shape = 'custom'; l.div.back.mode = 'off'; l.depth = { id: 'standard', sync: true, symbol: clone(DEPTH_PROFILES[0].symbol), text: clone(DEPTH_PROFILES[0].text) }; } },
 ];
 function demoLabel(d) {
+  if (d.divider) { const l = newDivider(); const s = SETS_BY_CODE.get(d.set); if (!s) return null; applySet(l, s); if (d.make) d.make(l); return l; }
   const l = newLabel();
   l.arr = { id: 'stack', name: 'Symbol over text', kind: 'stack', margin: 7, gap: 4, band: 27, symPct: 90 };
   if (d.set) { const s = SETS_BY_CODE.get(d.set); if (!s) return null; applySet(l, s); }
   if (d.make) d.make(l);
-  if (d.id === 'neo') { l.depth = { id: 'inlay', symbol: clone(DEPTH_PROFILES[3].symbol), text: clone(DEPTH_PROFILES[3].text) }; }
+  if (d.id === 'neo') { l.depth = { id: 'inlay', sync: true, symbol: clone(DEPTH_PROFILES[3].symbol), text: clone(DEPTH_PROFILES[3].text) }; }
   return l;
 }
 function demoDlg() {

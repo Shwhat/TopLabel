@@ -247,3 +247,4 @@ dialog::backdrop{background:rgba(20,28,40,.35)}
 :root[data-surface=dark] .v2dim text{fill:#c9d0d8}
 :root[data-surface=light] #work{background:#c9ced6}
 .wmcard.active{border-color:var(--accent);background:var(--accent-soft)}
+.v2guide.pat{stroke:#7bd389}
