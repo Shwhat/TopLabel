@@ -7,7 +7,7 @@ This page covers where the symbols and set information come from, how the librar
 | Source | Provides |
 |---|---|
 | mtg-vectors (github.com/Investigamer/mtg-vectors) | Set symbols, one SVG file per rarity for each symbol, the watermarks (including the basic land symbols), and the lists that match set codes to symbols |
-| Scryfall (scryfall.com) | Every set with its name, code, release date, set type, card count and set icon |
+| Scryfall (scryfall.com) | Every set with its name, code, release date, set type, card count and set icon, and the mana symbols |
 
 The repository the symbols come from is the server setting `TOPLABEL_VECTORS_REPO`.
 
@@ -17,8 +17,9 @@ Library, Refresh library (or the Refresh library button) downloads everything ag
 
 1. The newest mtg-vectors files from GitHub (set symbols, watermarks and the code lists).
 2. The set list from Scryfall.
-3. The Scryfall icon of every set that has no mtg-vectors symbol.
-4. The new library replaces the old one.
+3. The mana symbols from Scryfall (every symbol that stands for mana: colors, colorless, generic numbers, hybrid, Phyrexian and others).
+4. The Scryfall icon of every set that has no mtg-vectors symbol.
+5. The new library replaces the old one.
 
 A window shows each step. It can be closed; the refresh continues on the server. Only one refresh runs at a time. If any step fails, the old library stays in use and the window shows why. When a new server starts with no library, it runs a refresh by itself (server setting `TOPLABEL_AUTO_REFRESH`).
 

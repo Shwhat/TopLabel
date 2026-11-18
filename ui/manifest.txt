@@ -20,6 +20,7 @@ js/about-pages.js
 js/about.js
 js/sets.js
 js/props.js
+js/rows.js
 js/labels.js
 js/theme.js
 js/demo.js

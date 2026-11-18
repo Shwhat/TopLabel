@@ -73,7 +73,7 @@ export const tests = {
     t.eq(r.objects.map(o => [o.pid, o.open_edges, o.zmin]), [['0', 0, 0], ['1', 0, 1.5], ['2', 0, 1.5]]);
   },
   'STL combined and STL per color': async t => {
-    await t.open(); await t.pickSet('FDN'); await t.prop('text.slot', 3);
+    await t.open(); await t.pickSet('FDN'); await t.page.selectOption('#rows .lrow2:nth-child(3) [data-if="slot"]', '3'); await t.built();
     const tris = await t.eval(() => MESHES.reduce((s, m) => s + m.idx.length / 3, 0));
     const d = await t.download(() => t.page.click('.rb[data-act="exportStl"]'));
     t.eq(inspect(t, d), { tris, size_ok: true });

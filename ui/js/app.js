@@ -31,7 +31,7 @@ function renderStatus() {
   $('#st-lib').textContent = LIB.ready ? `Library ${libDate()}, ${LIB.sets.length} sets` : 'Library not downloaded';
   const t = (MODEL && MODEL.info) || {};
   $('#whname').textContent = labelTitle(L);
-  $('#whsub').textContent = [L.set ? `${L.set.code}, ${L.set.date || ''}` : '', L.arr.name, t.text ? `text ${t.text.size} mm` : '', t.symbol ? `symbol ${t.symbol.w} x ${t.symbol.h} mm` : ''].filter(Boolean).join('  |  ');
+  $('#whsub').textContent = [L.set ? `${L.set.code}, ${L.set.date || ''}` : '', L.arr.name, t.text ? `text ${t.text.size} mm` : '', t.symbol ? `symbol ${t.symbol.w} x ${t.symbol.h} mm` : '', t.mana ? `${t.mana} mana` : ''].filter(Boolean).join('  |  ');
   renderWarnings();
 }
 

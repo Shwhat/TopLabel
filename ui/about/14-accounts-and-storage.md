@@ -16,8 +16,8 @@
 |---|---|---|
 | Saved labels and dividers | On the server, per account | No |
 | The open label (including unsaved changes) | On the server, per account, a moment after each change | No |
-| Preferences: theme, work surface, view, panels and their sizes, ribbon tab, Sets panel search, filter and sort, export options, palette, default arrangement | On the server, per account | No |
-| Saved arrangements | On the server | Yes, everyone on the server |
+| Preferences: theme, work surface, view, panels and their sizes, ribbon tab, Sets panel search, filter and sort, export options, palette, default layout | On the server, per account | No |
+| Saved layouts | On the server | Yes, everyone on the server |
 | Saved size presets, depth profiles, color sets and divider shapes | On the server | Yes |
 | Symbol library | On the server | Yes |
 
@@ -41,7 +41,7 @@ All data lives in the server's data folder (`/opt/toplabel/data` on the Docker h
 | `sessions.json` | Sign-ins (stored only as hashes) |
 | `users/<id>/labels.json` | Saved labels and dividers of one account |
 | `users/<id>/prefs.json` | Preferences and the open label of one account |
-| `shared/arrangements.json` | Saved arrangements |
+| `shared/arrangements.json` | Saved layouts |
 | `shared/presets.json` | Saved sizes, depth profiles, color sets and divider shapes |
 | `library/current/` | The symbol library; it can always be downloaded again with Refresh library |
 

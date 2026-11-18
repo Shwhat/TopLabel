@@ -34,7 +34,7 @@ function draw2D() {
   g.push(`<path class="v2edge" d="${gPathD(MODEL.outline)}"/>`);
   if (PREFS.guides) {
     const R = MODEL.guides, box = (r, c) => r ? `<rect class="v2guide ${c}" x="${r.x0}" y="${-r.y1}" width="${Math.max(0, r.w)}" height="${Math.max(0, r.h)}"/>` : '';
-    g.push(box(R.inner, 'in'), box(R.sym, 'sym'), box(R.txt, 'txt'), box(R.pattern, 'pat'));
+    g.push(box(R.inner, 'in'), box(R.pattern, 'pat'), ...(R.items || []).map(i => box(i.rect, { symbol: 'sym', text: 'txt', mana: 'mana' }[i.kind])));
   }
   // dimensions
   const dy = h / 2 + pad * 0.55, dx = w / 2 + pad * 0.55;

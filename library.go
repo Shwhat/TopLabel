@@ -7,6 +7,8 @@ package main
 //	vectors/data/*.yml                mtg-vectors code aliases and routes (data/set)
 //	sets.json                         the Scryfall set list, trimmed to the fields TopLabel uses
 //	icons/<code>.svg                  Scryfall set icons for sets mtg-vectors does not have
+//	mana/<code>.svg                   Scryfall mana symbols, for example mana/B.svg and mana/WU.svg for {W/U}
+//	mana.json                         the mana symbols in Scryfall's order with their names and colors
 //	meta.json                         when the library was downloaded and what it holds
 //
 // A refresh downloads everything into a new folder and swaps it in only when every step succeeded,
@@ -67,12 +69,30 @@ type LibMeta struct {
 	Watermks int       `json:"watermarks"`
 }
 
+type ScryfallSymbol struct {
+	Symbol   string   `json:"symbol"`
+	English  string   `json:"english"`
+	SVG      string   `json:"svg_uri"`
+	Mana     bool     `json:"represents_mana"`
+	Colors   []string `json:"colors"`
+	Hybrid   bool     `json:"hybrid"`
+	Phyrexia bool     `json:"phyrexian"`
+}
+
+type ManaInfo struct {
+	Code   string   `json:"code"`
+	Symbol string   `json:"symbol"`
+	Name   string   `json:"name"`
+	Colors []string `json:"colors"`
+}
+
 type LibIndex struct {
-	Ready      bool      `json:"ready"`
-	Meta       LibMeta   `json:"meta"`
-	Sets       []SetInfo `json:"sets"`
-	Watermarks []string  `json:"watermarks"`
-	Fonts      any       `json:"fonts"`
+	Ready      bool       `json:"ready"`
+	Meta       LibMeta    `json:"meta"`
+	Sets       []SetInfo  `json:"sets"`
+	Watermarks []string   `json:"watermarks"`
+	Mana       []ManaInfo `json:"mana"`
+	Fonts      any        `json:"fonts"`
 }
 
 type RefreshStatus struct {
@@ -136,6 +156,9 @@ func (l *Library) Index() LibIndex {
 	if ix.Watermarks == nil {
 		ix.Watermarks = []string{}
 	}
+	if ix.Mana == nil {
+		ix.Mana = []ManaInfo{}
+	}
 	return ix
 }
 
@@ -185,6 +208,18 @@ func readYAMLMap(p string) map[string]string {
 	return out
 }
 
+// manaCode turns a Scryfall symbol into a file name: {B} is B, {W/U} is WU, {2/W} is 2W, {W/P} is WP.
+// Symbols with other characters (for example {½} or {∞}) are left out.
+var reManaCode = regexp.MustCompile(`^[A-Z0-9]{1,6}$`)
+
+func manaCode(sym string) string {
+	c := strings.ReplaceAll(strings.Trim(sym, "{}"), "/", "")
+	if !reManaCode.MatchString(c) {
+		return ""
+	}
+	return c
+}
+
 var rarityOrder = map[string]int{"C": 0, "U": 1, "R": 2, "M": 3, "S": 4, "T": 5, "WM": 6}
 
 func sortRarities(r []string) {
@@ -232,6 +267,7 @@ func (l *Library) load() error {
 	var meta LibMeta
 	readJSON(filepath.Join(cur, "meta.json"), &meta)
 	idx := buildIndex(cur, raw)
+	readJSON(filepath.Join(cur, "mana.json"), &idx.Mana)
 	idx.Meta = meta
 	idx.Ready = true
 	l.mu.Lock()
@@ -411,7 +447,54 @@ func (l *Library) refresh() error {
 		return err
 	}
 
-	// 3. Scryfall icons for sets mtg-vectors does not have
+	// 3. Scryfall mana symbols
+	l.setStatus(func(s *RefreshStatus) { s.Step = "Downloading the mana symbols from Scryfall"; s.Done = 0 })
+	res, err = l.get(l.cfg.ScryfallAPI + "/symbology")
+	if err != nil {
+		return fmt.Errorf("could not download the mana symbols from Scryfall: %w", err)
+	}
+	var syms struct {
+		Data []ScryfallSymbol `json:"data"`
+	}
+	err = json.NewDecoder(io.LimitReader(res.Body, 16<<20)).Decode(&syms)
+	res.Body.Close()
+	if err != nil {
+		return fmt.Errorf("could not read the Scryfall mana symbols: %w", err)
+	}
+	mana := []ManaInfo{}
+	os.MkdirAll(filepath.Join(dst, "mana"), 0o750)
+	l.setStatus(func(s *RefreshStatus) { s.Total = len(syms.Data) })
+	for _, sy := range syms.Data {
+		code := manaCode(sy.Symbol)
+		l.setStatus(func(s *RefreshStatus) { s.Done++ })
+		if !sy.Mana || sy.SVG == "" || code == "" {
+			continue
+		}
+		res, err := l.get(sy.SVG)
+		if err != nil {
+			continue
+		}
+		b, err := io.ReadAll(io.LimitReader(res.Body, maxFile))
+		res.Body.Close()
+		if err != nil || !strings.Contains(string(b), "<svg") {
+			continue
+		}
+		if os.WriteFile(filepath.Join(dst, "mana", code+".svg"), b, 0o640) == nil {
+			if sy.Colors == nil {
+				sy.Colors = []string{}
+			}
+			mana = append(mana, ManaInfo{Code: code, Symbol: sy.Symbol, Name: sy.English, Colors: sy.Colors})
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	if len(mana) == 0 {
+		return errors.New("the Scryfall mana symbols could not be downloaded")
+	}
+	if err := writeJSON(filepath.Join(dst, "mana.json"), mana); err != nil {
+		return err
+	}
+
+	// 4. Scryfall icons for sets mtg-vectors does not have
 	idx := buildIndex(dst, list.Data)
 	need := map[string]string{}
 	for i, s := range idx.Sets {
@@ -470,7 +553,7 @@ func (l *Library) refresh() error {
 		return err
 	}
 
-	// 4. swap in the new library
+	// 5. swap in the new library
 	l.setStatus(func(s *RefreshStatus) { s.Step = "Installing the new library"; s.Total = 0; s.Done = 0 })
 	l.mu.Lock()
 	cur := l.current()

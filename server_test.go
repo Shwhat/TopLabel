@@ -58,6 +58,15 @@ func fakeUpstream(t *testing.T, fail *atomic.Bool) *httptest.Server {
 				{"code": "zzt", "name": "Icon Only", "released_at": "2026-10-01", "set_type": "expansion", "icon_svg_uri": ic("zzt")},
 				{"code": "zzn", "name": "No Symbol", "released_at": "2026-10-02", "set_type": "expansion", "icon_svg_uri": ic("zzn")},
 			}})
+		case r.URL.Path == "/symbology":
+			json.NewEncoder(w).Encode(map[string]any{"data": []map[string]any{
+				{"symbol": "{B}", "english": "one black mana", "svg_uri": srv.URL + "/mana/B.svg", "represents_mana": true, "colors": []string{"B"}},
+				{"symbol": "{W/U}", "english": "one white or blue mana", "svg_uri": srv.URL + "/mana/WU.svg", "represents_mana": true, "colors": []string{"W", "U"}},
+				{"symbol": "{T}", "english": "tap this permanent", "svg_uri": srv.URL + "/mana/T.svg", "represents_mana": false},
+				{"symbol": "{½}", "english": "one-half generic mana", "svg_uri": srv.URL + "/mana/H.svg", "represents_mana": true},
+			}})
+		case strings.HasPrefix(r.URL.Path, "/mana/"):
+			w.Write([]byte(svgSym))
 		case r.URL.Path == "/icons/zzt.svg":
 			w.Write([]byte(svgSym))
 		default:
@@ -218,6 +227,17 @@ func TestRefreshBuildsTheIndex(t *testing.T) {
 		if code, _ := call(t, c, "GET", ts.URL+u, ""); code != 404 {
 			t.Errorf("%s: want 404, got %d", u, code)
 		}
+	}
+	if got := []string{}; true {
+		for _, m := range ix.Mana {
+			got = append(got, m.Code)
+		}
+		if strings.Join(got, ",") != "B,WU" {
+			t.Errorf("mana: %v", got)
+		}
+	}
+	if code, body := call(t, c, "GET", ts.URL+"/api/library/mana/WU.svg", ""); code != 200 || !strings.Contains(body, "<svg") {
+		t.Errorf("mana file: %d", code)
 	}
 	if code, body := call(t, c, "GET", ts.URL+"/api/library", ""); code != 200 || !strings.Contains(body, `"fonts":[`) || !strings.Contains(body, `"ready":true`) {
 		t.Errorf("library index: %d %.200s", code, body)

@@ -14,7 +14,7 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Ctrl+E | Export |
 | Ctrl+Z | Undo |
 | Ctrl+Y or Ctrl+Shift+Z | Redo |
-| Ctrl+L | Add a text line |
+| Ctrl+L | Add a text row |
 
 ## Views
 

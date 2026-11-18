@@ -1,0 +1,69 @@
+[
+ {
+  "code": "W",
+  "symbol": "{W}",
+  "name": "one white mana",
+  "colors": [
+   "W"
+  ]
+ },
+ {
+  "code": "U",
+  "symbol": "{U}",
+  "name": "one blue mana",
+  "colors": [
+   "U"
+  ]
+ },
+ {
+  "code": "B",
+  "symbol": "{B}",
+  "name": "one black mana",
+  "colors": [
+   "B"
+  ]
+ },
+ {
+  "code": "R",
+  "symbol": "{R}",
+  "name": "one red mana",
+  "colors": [
+   "R"
+  ]
+ },
+ {
+  "code": "G",
+  "symbol": "{G}",
+  "name": "one green mana",
+  "colors": [
+   "G"
+  ]
+ },
+ {
+  "code": "C",
+  "symbol": "{C}",
+  "name": "one colorless mana",
+  "colors": []
+ },
+ {
+  "code": "2",
+  "symbol": "{2}",
+  "name": "two generic mana",
+  "colors": []
+ },
+ {
+  "code": "X",
+  "symbol": "{X}",
+  "name": "X generic mana",
+  "colors": []
+ },
+ {
+  "code": "WU",
+  "symbol": "{W/U}",
+  "name": "one white or blue mana",
+  "colors": [
+   "W",
+   "U"
+  ]
+ }
+]

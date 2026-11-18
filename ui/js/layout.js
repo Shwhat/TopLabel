@@ -2,10 +2,10 @@
 // The label is centred on the origin, x to the right, y up, in millimetres. The base sits on z = 0.
 const fixDashes = s => String(s || '').replace(/\s*[\u2012\u2013\u2014\u2015]\s*/g, ' - ');
 
-// the text lines a label shows, in order, with empty lines left out
-function resolveLines(l) {
+// the text lines of one text item (or of the whole label), in order, with empty lines left out
+function resolveLines(l, lines = allLines(l)) {
   const st = l.set, out = [];
-  for (const ln of l.text.lines || []) {
+  for (const ln of lines || []) {
     let v = '';
     switch (ln.src) {
       case 'name': v = st ? fixDashes(st.name) : (l.name || ''); break;
@@ -62,22 +62,6 @@ function contentArea(l) {
   const mm = clamp(m, 0, Math.min(w, h) / 2 - 1);
   return region(-w / 2 + mm, -h / 2 + mm, w / 2 - mm, h / 2 - mm);
 }
-function regionsFor(l, hasSymbol, hasText) {
-  const a = l.arr, g = Math.max(0, num(a.gap, 4));
-  const inner = contentArea(l);
-  let kind = a.kind;
-  if (!hasSymbol && hasText) kind = 'text';
-  if (!hasText && hasSymbol) kind = 'symbol';
-  const band = clamp(num(a.band, 27), 5, 95) / 100;
-  let sym = null, txt = null;
-  if (kind === 'stack') { const bh = inner.h * band; txt = region(inner.x0, inner.y0, inner.x1, inner.y0 + bh); sym = region(inner.x0, Math.min(inner.y1, inner.y0 + bh + g), inner.x1, inner.y1); }
-  else if (kind === 'stackrev') { const bh = inner.h * band; txt = region(inner.x0, inner.y1 - bh, inner.x1, inner.y1); sym = region(inner.x0, inner.y0, inner.x1, Math.max(inner.y0, inner.y1 - bh - g)); }
-  else if (kind === 'side') { const tw = inner.w * band; sym = region(inner.x0, inner.y0, Math.max(inner.x0, inner.x1 - tw - g), inner.y1); txt = region(inner.x1 - tw, inner.y0, inner.x1, inner.y1); }
-  else if (kind === 'symbol') sym = inner;
-  else txt = inner;
-  return { inner, sym: hasSymbol ? sym : null, txt: hasText ? txt : null, kind };
-}
-
 // ---------- divider outline and pattern ----------
 // the upper body at full width, the lower tab narrower by the inset on each side
 function dividerOutline(l) {
@@ -126,14 +110,21 @@ async function buildLabel(l) {
   const shape = isDiv ? dividerOutline(l) : gRect(num(size.w, 76), num(size.h, 100), num(size.r, 0));
   const pat = isDiv ? dividerHoles(l) : { holes: [] };
   const outline = pat.holes.length ? gDiff(shape, pat.holes) : shape;
-  // sources
-  const lines = l.text.show ? resolveLines(l) : [];
-  const url = l.symbol.show ? symbolURL(l) : '';
+  // sources: the symbol, mana and font files the rows need
+  const rows = (l.arr && l.arr.rows) || [];
+  const items = rows.flatMap(r => r.items);
   let svg = '';
-  if (url) { try { svg = await fetchText(url); } catch (e) { warnings.push('The symbol file could not be loaded. Refresh the library or pick another rarity.'); } }
-  else if (l.symbol.show && l.symbol.src === 'set' && l.set && l.set.src === 'none') warnings.push('This set has no symbol in the library.');
+  if (items.some(i => i.t === 'symbol')) {
+    const url = symbolURL(l);
+    if (url) { try { svg = await fetchText(url); } catch (e) { warnings.push('The symbol file could not be loaded. Refresh the library or pick another rarity.'); } }
+    else if (l.symbol.src === 'set' && l.set && l.set.src === 'none') warnings.push('This set has no symbol in the library.');
+  }
+  const manaSvg = {};
+  const codes = [...new Set(items.filter(i => i.t === 'mana').flatMap(i => i.syms.map(m => m.c)))];
+  if (codes.length && !(LIB.mana || []).length) warnings.push('The library has no mana symbols yet. Refresh the library to download them.');
+  else for (const c of codes) { try { manaSvg[c] = await fetchText(`/api/library/mana/${encodeURIComponent(c)}.svg`); } catch (e) { warnings.push(`The mana symbol ${c} could not be loaded. Refresh the library.`); } }
   let font = null, fake = {};
-  if (lines.length) {
+  if (items.some(i => i.t === 'text' && resolveLines(l, i.lines).length)) {
     const info = fontInfo(l.text.font);
     if (!info) warnings.push('No fonts are available.');
     else {
@@ -144,40 +135,87 @@ async function buildLabel(l) {
   }
   const twoTone = l.symbol.style === 'twotone';
   const shapes = svg ? symbolShapes(svg, l.symbol.style) : null;
-  const hasSymbol = !!(shapes && shapes.all.length), hasText = !!(font && lines.length);
-  const R = regionsFor(l, hasSymbol, hasText);
-  const elements = [], info = {};
+  const sb = shapes && shapes.all.length ? gBounds(shapes.all) : null;
+  if (twoTone && shapes && !shapes.border) warnings.push('This symbol has no separate border, so two-tone prints it in one color.');
+  const manaCache = {};
+  const manaShape = (c, style) => { const k = c + ':' + style; if (!(k in manaCache)) manaCache[k] = manaSvg[c] ? manaShapes(manaSvg[c], style) : null; return manaCache[k]; };
 
-  // symbol: scale to fit its region, centred, y flipped from SVG
-  if (hasSymbol && R.sym) {
-    const b = gBounds(shapes.all); // in SVG units
-    const pct = clamp(num(l.arr.symPct, 90), 5, 100) / 100;
-    const s = Math.min(R.sym.w * pct / b.w, R.sym.h * pct / b.h);
-    const place = paths => gXform(paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), s, R.sym.cx - (b.x0 + b.w / 2) * s, R.sym.cy + (b.y0 + b.h / 2) * s);
-    const d = l.depth.symbol;
-    if (twoTone && shapes.fill.length) {
-      elements.push({ key: 'symbol', name: 'Symbol outline', slot: l.symbol.slot, paths: place(shapes.outline), d });
-      elements.push({ key: 'symbol2', name: 'Symbol fill', slot: l.symbol.slot2, paths: place(shapes.fill), d });
-    } else elements.push({ key: 'symbol', name: 'Symbol', slot: l.symbol.slot, paths: place(shapes.outline), d });
-    if (twoTone && !shapes.border) warnings.push('This symbol has no separate border, so two-tone prints it in one color.');
-    info.symbol = { w: r2(b.w * s), h: r2(b.h * s) };
-  }
-  // text: wrap long lines, shrink to fit the region, centre vertically
-  if (hasText && R.txt) {
-    const sp = clamp(num(l.text.spacing, 1.15), 0.7, 3), size0 = clamp(num(l.text.size, 7), 0.5, 200), align = l.text.align || 'center';
-    const measure = s => font.getAdvanceWidth(s, size0, { kerning: true }) * (fake.fakeBold ? 1.03 : 1);
-    const wrapped = lines.flatMap(s => wrapLine(measure, s, R.txt.w));
-    let blk = textBlock(font, wrapped, size0, align, sp, fake);
-    let b = gBounds(blk.paths), k = 1;
-    if (b) {
-      k = Math.min(1, R.txt.w / b.w, R.txt.h / b.h);
-      const ax = align === 'left' ? R.txt.x0 - b.x0 * k : align === 'right' ? R.txt.x1 - b.x1 * k : R.txt.cx - (b.x0 + b.w / 2) * k;
-      const paths = gXform(blk.paths, k, ax, R.txt.cy - (b.y0 + b.h / 2) * k);
-      elements.push({ key: 'text', name: 'Text', slot: l.text.slot, paths, d: l.depth.text });
-      info.text = { size: r2(size0 * k), lines: wrapped.length };
-      if (size0 * k < num(l.text.min, 3) - 1e-6) warnings.push(`The text is ${r2(size0 * k)} mm, smaller than the ${num(l.text.min, 3)} mm minimum. Shorten the text, make the label larger or lower the minimum.`);
+  // the rows that have something to show
+  const sp = clamp(num(l.text.spacing, 1.15), 0.7, 3), size0 = clamp(num(l.text.size, 7), 0.5, 200), align = l.text.align || 'center';
+  const measure = str => font.getAdvanceWidth(str, size0, { kerning: true }) * (fake.fakeBold ? 1.03 : 1);
+  const live = rows.map(r => ({ pct: num(r.h, 0), items: r.items.map(it => {
+    if (it.t === 'symbol') return sb ? { t: 'symbol', aspect: sb.w / sb.h } : null;
+    if (it.t === 'text') { const ls = font ? resolveLines(l, it.lines) : []; return ls.length ? { t: 'text', lines: ls, slot: it.slot || l.text.slot } : null; }
+    if (it.t === 'mana') { const ms = it.syms.filter(m => manaShape(m.c, m.style)); return ms.length ? { t: 'mana', syms: ms, size: Math.max(1, num(it.size, 8)) } : null; }
+    return null;
+  }).filter(Boolean) })).filter(r => r.items.length);
+  const C = contentArea(l), g = Math.max(0, num(l.arr.gap, 3)), elements = [], info = {}, guides = { inner: C, items: [] };
+  const manaW = (n, s) => n * s + (n - 1) * s * 0.25;
+  if (live.length) {
+    // row heights: percentage rows are fixed; rows with a symbol share what is left; text and mana rows take what they need
+    const avail = Math.max(1, C.h - g * (live.length - 1));
+    for (const r of live) {
+      r.flex = r.pct <= 0 && r.items.some(i => i.t === 'symbol');
+      const fixedW = r.items.reduce((s, i) => s + (i.t === 'mana' ? manaW(i.syms.length, i.size) : 0), 0) + g * (r.items.length - 1);
+      const textW = Math.max(5, (C.w - fixedW) * (r.items.some(i => i.t === 'symbol') ? 0.6 : 1) / Math.max(1, r.items.filter(i => i.t === 'text').length));
+      r.need = r.pct > 0 ? r.pct / 100 * C.h : Math.max(0, ...r.items.map(i => i.t === 'text' ? i.lines.flatMap(x => wrapLine(measure, x, textW)).length * size0 * sp : i.t === 'mana' ? i.size : 0));
     }
+    const flex = live.filter(r => r.flex), fixed = live.filter(r => !r.flex), sum = fixed.reduce((s, r) => s + r.need, 0);
+    if (flex.length) {
+      let rest = avail - sum;
+      if (rest < avail * 0.3) { const k = avail * 0.7 / Math.max(sum, 1e-6); fixed.forEach(r => { r.h = r.need * k; }); rest = avail * 0.3; } else fixed.forEach(r => { r.h = r.need; });
+      flex.forEach(r => { r.h = rest / flex.length; });
+    } else if (sum > avail) fixed.forEach(r => { r.h = r.need * avail / sum; });
+    else { const auto = fixed.filter(r => r.pct <= 0), extra = (avail - sum) / Math.max(1, auto.length); fixed.forEach(r => { r.h = r.need + (r.pct <= 0 ? extra : 0); }); if (!auto.length) fixed.forEach(r => { r.h = r.need * avail / sum; }); }
+    // place the rows from the top, and the items of each row from the left
+    let y = C.y1, symMax = null;
+    const add = (key, name, slot, paths, d, kind) => { const e = elements.find(x => x.key === key); if (e) e.paths = e.paths.concat(paths); else elements.push({ key, name, slot, paths, d, kind }); };
+    for (const r of live) {
+      const rr = region(C.x0, y - r.h, C.x1, y); y -= r.h + g;
+      const want = r.items.map(i => i.t === 'symbol' ? Math.min(rr.w, rr.h * i.aspect) : i.t === 'mana' ? manaW(i.syms.length, Math.min(i.size, rr.h)) : 0);
+      const nText = r.items.filter(i => i.t === 'text').length, gaps = g * (r.items.length - 1);
+      let fixedSum = want.reduce((a, b) => a + b, 0), textW = 0;
+      if (nText) { textW = (rr.w - gaps - fixedSum) / nText; if (textW < rr.w * 0.25) { const k = Math.max(0.05, (rr.w * 0.75 - gaps) / Math.max(fixedSum, 1e-6)); for (let i = 0; i < want.length; i++) want[i] *= k; fixedSum *= k; textW = (rr.w - gaps - fixedSum) / nText; } }
+      else if (fixedSum + gaps > rr.w) { const k = Math.max(0.05, (rr.w - gaps) / fixedSum); for (let i = 0; i < want.length; i++) want[i] *= k; fixedSum *= k; }
+      let x = nText ? rr.x0 : rr.cx - (fixedSum + gaps) / 2;
+      r.items.forEach((it, idx) => {
+        const w = it.t === 'text' ? textW : want[idx], box = region(x, rr.y0, x + w, rr.y1); x += w + g;
+        guides.items.push({ kind: it.t, rect: box });
+        if (it.t === 'symbol') {
+          const pct = clamp(num(l.arr.symPct, 90), 5, 100) / 100, s = Math.min(box.w * pct / sb.w, box.h * pct / sb.h);
+          const place = paths => gXform(paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), s, box.cx - (sb.x0 + sb.w / 2) * s, box.cy + (sb.y0 + sb.h / 2) * s);
+          const d = l.depth.symbol;
+          if (twoTone && shapes.fill.length) { add('symbol', 'Symbol outline', l.symbol.slot, place(shapes.outline), d, 'symbol'); add('symbol2', 'Symbol fill', l.symbol.slot2, place(shapes.fill), d, 'symbol'); }
+          else add('symbol', 'Symbol', l.symbol.slot, place(shapes.outline), d, 'symbol');
+          symMax = symMax || { w: r2(sb.w * s), h: r2(sb.h * s) };
+        } else if (it.t === 'text') {
+          const wrapped = it.lines.flatMap(str => wrapLine(measure, str, box.w));
+          const blk = textBlock(font, wrapped, size0, align, sp, fake), b = gBounds(blk.paths);
+          if (!b) return;
+          const k = Math.min(1, box.w / b.w, box.h / b.h);
+          const ax = align === 'left' ? box.x0 - b.x0 * k : align === 'right' ? box.x1 - b.x1 * k : box.cx - (b.x0 + b.w / 2) * k;
+          const firstSlot = (elements.find(e => e.kind === 'text') || {}).slot, key = firstSlot === undefined || firstSlot === it.slot ? 'text' : 'text_s' + it.slot;
+          add(key, key === 'text' ? 'Text' : `Text, slot ${it.slot}`, it.slot, gXform(blk.paths, k, ax, box.cy - (b.y0 + b.h / 2) * k), l.depth.text, 'text');
+          if (!info.text) info.text = { size: r2(size0 * k), lines: wrapped.length };
+          if (size0 * k < num(l.text.min, 3) - 1e-6) warnings.push(`The text is ${r2(size0 * k)} mm, smaller than the ${num(l.text.min, 3)} mm minimum. Shorten the text, make the label larger or lower the minimum.`);
+        } else {
+          const n = it.syms.length, s = Math.min(it.size, box.h, box.w / (n + (n - 1) * 0.25)), step = s * 1.25;
+          let mx = box.cx - (n * s + (n - 1) * s * 0.25) / 2 + s / 2;
+          for (const m of it.syms) {
+            const sh = manaShape(m.c, m.style), mb = gBounds(sh.all), k = s / Math.max(mb.w, mb.h);
+            const placed = gXform(sh.paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), k, mx - (mb.x0 + mb.w / 2) * k, box.cy + (mb.y0 + mb.h / 2) * k);
+            add('mana_s' + m.slot, `Mana, slot ${m.slot}`, m.slot, placed, l.depth.symbol, 'mana');
+            mx += step;
+          }
+          info.mana = (info.mana || 0) + n;
+        }
+      });
+    }
+    if (symMax) info.symbol = symMax;
   }
+  for (const e of elements) e.paths = gUnion(e.paths);
+  const R = guides;
+
   // keep every element inside the label (a divider's content stays in its solid top band)
   const keep = isDiv ? gInter(shape, gRect(size.w, num(l.div.band, 12), 0, 0, size.h / 2 - num(l.div.band, 12) / 2)) : outline;
   for (const e of elements) { e.paths = gInter(e.paths, keep); e.side = 'top'; }

@@ -1,6 +1,6 @@
 # Labels and elements
 
-A label is a flat base with up to two elements on it: the symbol and a block of text. This page lists every field of a label as shown in the Properties panel. Dividers have the same Symbol, Text, Depth and Colors fields; their shape fields are on the [Dividers](/about/dividers) page.
+A label is a flat base with its content in rows: the set symbol, text, the set code and mana symbols. This page lists every field of a label as shown in the Properties panel. Dividers have the same Symbol, Text, Depth and Colors fields; their shape fields are on the [Dividers](/about/dividers) page.
 
 ## Label
 
@@ -17,24 +17,14 @@ Scale opens the Size dialog, where the whole label can be scaled by a percentage
 
 Changing the width, height or base selects the matching size preset, or Custom.
 
-## Arrangement
+## Layout
 
-See [Arrangements and auto-fit](/about/arrangements).
-
-| Field | Type | Default | Notes |
-|---|---|---|---|
-| Arrangement | List | Symbol over text | Built-in and saved arrangements; choosing one replaces the values below |
-| Layout | List | Symbol over text | Symbol over text, Text over symbol, Symbol only, Text only, Symbol beside text |
-| Margin (mm) | Number | 7 | Space kept free along every edge |
-| Gap (mm) | Number | 4 | Space between the symbol area and the text area |
-| Text area (%) | Number | 27 | Share of the label kept for the text, 5 to 95 |
-| Symbol size (%) | Number | 90 | How much of its area the symbol fills, 5 to 100 |
+The rows of the label, their items and the margin, gap and symbol size. See [Layout rows and auto-fit](/about/layout).
 
 ## Symbol
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| Show symbol | Check | On | Off leaves the symbol out and gives the text the whole label |
 | Source | Shown only | | The mtg-vectors folder, Scryfall icon, watermark, or that there is no symbol |
 | Rarity | List | Common | Only for sets with an mtg-vectors symbol; lists the rarities the symbol has |
 | Style | List | Detailed | Detailed, Silhouette with border or Two-tone (below) |
@@ -57,19 +47,19 @@ A symbol without a separate border (most watermarks and Scryfall icons) prints t
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| Show text | Check | On | Off leaves the text out and gives the symbol the whole label |
-| Lines | List | Set name, Set code | One row per line: where it comes from, and the text for custom lines. The cross removes a line. Add line adds a custom line. |
 | Font | List | Comic Neue | See [Fonts](/about/fonts) |
 | Bold | Check | On | |
 | Italic | Check | Off | |
 | All capitals | Check | Off | Shows every line in capitals |
-| Size (mm) | Number | 7 | Font size (the height of the font's em square), at least 0.5 mm |
+| Size (mm) | Number | 7 | Font size (the height of the font's em square), at least 0.5 mm; text is never larger, and smaller when it has to fit |
 | Minimum (mm) | Number | 3 | Below this size the label shows a warning |
 | Line spacing | Number | 1.15 | Distance between baselines as a multiple of the size, 0.7 to 3 |
-| Alignment | List | Center | Center, Left or Right within the text area |
-| Color | Slot | 2 | Filament slot of the text |
+| Alignment | List | Center | Center, Left or Right within each text item's space |
+| New text color | Slot | 2 | Filament slot new text items start with; each text item has its own Color in the Layout group |
 
 ### Line sources
+
+Every line of a text item comes from one of these sources:
 
 | Source | Shows |
 |---|---|
@@ -82,7 +72,7 @@ A symbol without a separate border (most watermarks and Scryfall icons) prints t
 | Card count | For example 512 cards |
 | Custom text | The text typed in the row |
 
-Lines that come out empty (for example Set code on a land label) are left out. Long dashes in set names are shown as a hyphen with spaces. Changing a line to Custom text starts it with what the line showed, so it can be edited.
+Lines that come out empty (for example Set code on a land label) are left out, and an item with no lines left is not printed. Long dashes in set names are shown as a hyphen with spaces. Changing a line to Custom text starts it with what the line showed, so it can be edited.
 
 ## Depth
 

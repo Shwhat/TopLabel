@@ -2,6 +2,16 @@
 
 The installed version is shown at the top of this guide.
 
+## 0.3.0 (2026-11-18): Layout rows and mana symbols
+
+- Layout rows replace the arrangement list: the content is a list of rows, top to bottom, each holding items side by side. Items are set symbol, text, set code and mana symbols; rows and items can be added, moved and removed, and a row can have a fixed height.
+- Mana symbols: any number in a row, evenly spaced, each with its own color and its own style, pip (the round symbol with its icon cut out) or icon. Presets fill a row with a single color, a guild, a shard, a wedge or all five colors.
+- The library now also downloads the mana symbols from Scryfall. Refresh the library once after updating to get them.
+- Each text item has its own color; text items are fitted one by one.
+- Layout presets: Symbol over text, Text over symbol, Symbol only, Text only, Symbol beside text and Divider band. Saved layouts keep the rows with their items and colors.
+- Labels and saved layouts from earlier versions are converted to rows with the same content.
+- The Show symbol and Show text settings are replaced by adding and removing rows.
+
 ## 0.2.1 (2026-11-18): Finer number steps
 
 - The arrow keys and arrow buttons in number fields now change millimetre values by 0.1 instead of 1, percentages by 1 and line spacing by 0.05.

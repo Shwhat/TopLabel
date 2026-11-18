@@ -1,6 +1,6 @@
 'use strict';
 // ---------- core: version, helpers, preferences, the open label, undo ----------
-const APP_VERSION = '0.2.1';
+const APP_VERSION = '0.3.0';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

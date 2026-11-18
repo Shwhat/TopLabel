@@ -133,6 +133,23 @@ function symbolShapes(text, style) {
   return { all: glyph, outline: glyph, fill: [], border };
 }
 
+// A Scryfall mana symbol is a colored circle with a dark glyph on it. 'pip' prints the circle with the glyph cut
+// out of it, 'icon' prints the glyph alone. Returned in SVG units with y down; all is the full circle for sizing.
+function manaShapes(text, style) {
+  const els = svgOutlines(text);
+  if (!els.length) return null;
+  const all = gUnion(els.flatMap(e => e.paths));
+  let covered = [], dark = [];
+  for (let i = els.length - 1; i >= 0; i--) {
+    const v = covered.length ? gDiff(els[i].paths, covered) : els[i].paths;
+    if (v.length && fillClass(els[i].fill) === 'dark') dark.push(...v);
+    covered = covered.length ? gUnion(covered.concat(els[i].paths)) : els[i].paths;
+  }
+  const glyph = dark.length ? gUnion(dark) : [];
+  if (!glyph.length || gTotalArea(glyph) > gTotalArea(all) * 0.98) return { all, paths: all };
+  return { all, paths: style === 'icon' ? glyph : gDiff(all, glyph) };
+}
+
 // ---------- text ----------
 function flattenCommands(cmds, S) {
   const rings = []; let cur = null, x = 0, y = 0;

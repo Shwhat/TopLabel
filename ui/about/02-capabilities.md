@@ -21,10 +21,11 @@ This page lists what TopLabel does in the current version, followed by what is p
 ### Labels
 
 - Label size from presets or any width, height, base thickness and corner radius; scale a whole label by percentage.
-- Five arrangements: symbol over text, text over symbol, symbol only, text only, symbol beside text.
-- Margin, gap, text area and symbol size settings, saved as named arrangements shared on the server, with one arrangement as the default for new labels.
+- Layout rows from top to bottom, each with items side by side: set symbol, text, set code and mana symbols; rows and items can be added, moved and removed, and rows can have a fixed height.
+- Mana symbols from Scryfall, any number in a row, evenly spaced, each with its own color and its own style (pip or icon), with presets for single colors, the guilds, shards, wedges and all five colors.
+- Six layout presets (symbol over text, text over symbol, symbol only, text only, symbol beside text, divider band); layouts saved by name and shared on the server, with one as the default for new labels.
 - Symbol by rarity, in three styles: detailed, silhouette and two-tone.
-- Text lines from the set name, code, release year, release date, set type, rarity, card count or custom text, in any order.
+- Text items with lines from the set name, code, release year, release date, set type, rarity, card count or custom text, each item in its own color.
 - Long names wrap at a colon or between words; text shrinks to fit, with a warning below the minimum size.
 - 33 built-in fonts with bold, italic and all capitals.
 - Depth profiles: standard (2 mm base, symbol and text 0.5 mm sunk and 1 mm above, 3 mm in all), low, bold, flush inlay and engraved, saved as named profiles.
@@ -62,5 +63,5 @@ These are part of the release plan and are not available yet.
 
 | Version | Planned features |
 |---|---|
-| 0.3.0 | Drag, resize and rotate elements in the 2D layout; upload your own SVG symbols and fonts; several symbols on one label, each in its own color; a grid arrangement for symbol sheets |
-| 0.4.0 | Batch export of many sets with plate packing; OBJ, AMF, SVG, DXF and PNG export |
+| 0.4.0 | Drag, resize and rotate items in the 2D layout; upload your own SVG symbols and fonts; a grid layout for symbol sheets |
+| 0.5.0 | Batch export of many sets with plate packing; OBJ, AMF, SVG, DXF and PNG export |

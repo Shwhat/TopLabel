@@ -43,6 +43,12 @@ http.createServer((req, res) => {
     sets.push({ code: 'new', name: 'Brand New Set', released_at: '2026-12-04', set_type: 'expansion', card_count: 10, icon_svg_uri: UP + '/sets/zzt.svg?1' });
     res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ object: 'list', data: sets })); return;
   }
+  if (req.url === '/symbology') {
+    const mana = JSON.parse(fs.readFileSync(path.join(FIX, 'mana.json'), 'utf8')).map(m => ({ symbol: m.symbol, english: m.name, svg_uri: UP + '/card-symbols/' + m.code + '.svg', represents_mana: true, colors: m.colors }));
+    res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ object: 'list', data: mana })); return;
+  }
+  const mm = req.url.match(/^\/card-symbols\/([A-Z0-9]+)\.svg/);
+  if (mm && fs.existsSync(path.join(FIX, 'mana', mm[1] + '.svg'))) { res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); res.end(fs.readFileSync(path.join(FIX, 'mana', mm[1] + '.svg'))); return; }
   const m = req.url.match(/^\/sets\/([a-z0-9]+)\.svg/);
   if (m && fs.existsSync(path.join(FIX, 'icons', m[1] + '.svg'))) { res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); res.end(fs.readFileSync(path.join(FIX, 'icons', m[1] + '.svg'))); return; }
   res.writeHead(404); res.end();

@@ -7,6 +7,8 @@ Warnings appear in amber boxes at the top of the Properties panel, and their num
 | Message | Cause | What to do |
 |---|---|---|
 | The symbol file could not be loaded. Refresh the library or pick another rarity. | The symbol file is missing from the library, or the server could not be reached | Refresh the library, or choose another rarity |
+| The library has no mana symbols yet. Refresh the library to download them. | A mana row is used and the library was downloaded before version 0.3.0 | Refresh the library |
+| The mana symbol X could not be loaded. Refresh the library. | The symbol file is missing from the library | Refresh the library, or choose another symbol |
 | This set has no symbol in the library. | Neither mtg-vectors nor Scryfall has a symbol for the set | Use another set, or hide the symbol |
 | No fonts are available. | The font list could not be loaded | Reload the page |
 | The font could not be loaded. | The font file could not be downloaded | Reload the page, or choose another font |
@@ -28,6 +30,7 @@ Shown in the Refresh library window. The current library stays in use after ever
 | the symbols download held no set symbols | The repository in `TOPLABEL_VECTORS_REPO` has no `svg/optimized/set` folder |
 | could not download the set list from Scryfall: ... | Scryfall could not be reached |
 | could not read the Scryfall set list: ... / the Scryfall set list was empty | Scryfall answered with something unexpected |
+| could not download the mana symbols from Scryfall: ... / could not read the Scryfall mana symbols: ... / the Scryfall mana symbols could not be downloaded | Scryfall could not be reached or answered with something unexpected |
 | the download is larger than expected | The download is over 400 MB |
 | A library refresh is already running. | Someone else started a refresh; the window follows it |
 
@@ -38,10 +41,10 @@ Missing Scryfall icons do not stop a refresh; those sets show "No symbol".
 | Question | Asked when |
 |---|---|
 | This label has changes that are not saved. Continue without saving? | Starting a new label, opening another one, opening a demo or signing out with unsaved changes |
-| Reset this label to the default size, arrangement, depth and text? The chosen set stays. | Edit, Reset label to defaults |
+| Reset this label to the default size, arrangement, depth and text? The chosen set stays. | Edit, Reset label to defaults (the arrangement is the default layout) |
 | Delete the saved label "name"? This cannot be undone. | Deleting a saved label |
-| Replace the saved arrangement "name"? / Replace the saved preset "name"? | Saving under a name that exists |
-| Delete the saved arrangement "name"? / Delete the saved preset "name"? | Deleting a saved arrangement or preset |
+| Replace the saved layout "name"? / Replace the saved preset "name"? | Saving under a name that exists |
+| Delete the saved layout "name"? / Delete the saved preset "name"? | Deleting a saved layout or preset |
 
 ## Other messages
 
@@ -55,7 +58,7 @@ Missing Scryfall icons do not stop a refresh; those sets show "No symbol".
 | Save the label first | Renaming a label that is not saved |
 | This label is not saved | Deleting a label that is not saved |
 | No saved labels yet | Opening when nothing is saved |
-| Save the arrangement first | Make default for an arrangement that is not in the list |
+| Save the layout first | Make default for a Custom layout |
 | Open a divider first | Save divider shape while a label is open |
 | Refresh the library first; the demo labels use its symbols | Opening the demos before the library is downloaded |
 | That set is not in the library | A demo label's set is missing |

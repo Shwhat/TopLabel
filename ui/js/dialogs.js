@@ -41,7 +41,7 @@ const posNum = (v, min = 0) => { const n = parseFloat(v); return Number.isFinite
 function confirmDiscard() { return !dirty || confirm('This label has changes that are not saved. Continue without saving?'); }
 
 function shortcuts() {
-  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text line'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
+  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text row'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
   dialog('Keyboard shortcuts', [], null, 'OK', `<div class="kbd">${k.map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join('')}</div>`);
 }
 
@@ -67,40 +67,42 @@ function sizeDlg() {
   }, 'OK', isDiv ? '<div class="note">Scale changes the width, height, corner radius, top band, tab, margins and text size together; the thickness and the pattern stay.</div>' : '<div class="note">Choosing a preset fills in its size. Scale changes the width, height, corner radius, margins and text size together; the base thickness stays.</div>');
 }
 function arrOpts() { return ARRANGEMENTS.concat(SAVED.arrangements || []).map(a => [a.id, a.name + (SAVED.arrangements.includes(a) ? ' (saved)' : '')]); }
-function applyArrangement(a) { L.arr = { id: a.id, name: a.name, kind: a.kind, margin: a.margin, gap: a.gap, band: a.band, symPct: a.symPct }; if (a.text) { Object.assign(L.text, clone(a.text)); } }
+function applyArrangement(a) { L.arr = arrFrom(a); if (a.text) { const tx = clone(a.text); delete tx.lines; Object.assign(L.text, tx); } }
 function arrangementDlg() {
   const a = L.arr;
-  dialog('Arrangement', [['id', 'Arrangement', arrangementById(a.id) ? a.id : 'stack', 'select', arrOpts()], ['kind', 'Layout', a.kind, 'select', ARR_KINDS], ['margin', 'Margin (mm)', a.margin, 'number'], ['gap', 'Gap between symbol and text (mm)', a.gap, 'number'], ['band', 'Text area (% of the label)', a.band, 'number'], ['symPct', 'Symbol size (% of its area)', a.symPct, 'number']], v => {
+  dialog('Layout', [['id', 'Preset', arrangementById(a.id) ? a.id : '', 'select', [['', 'Keep the current rows']].concat(arrOpts())], ['margin', 'Margin (mm)', a.margin, 'number'], ['gap', 'Gap between rows and items (mm)', a.gap, 'number'], ['symPct', 'Symbol size (% of its space)', a.symPct, 'number']], v => {
     const pick = arrangementById(v.id);
     commit(() => {
       if (pick && pick.id !== a.id) { applyArrangement(pick); return; }
-      Object.assign(L.arr, { kind: v.kind, margin: num(v.margin, 7), gap: num(v.gap, 4), band: clamp(num(v.band, 27), 5, 95), symPct: clamp(num(v.symPct, 90), 5, 100) });
+      Object.assign(L.arr, { margin: Math.max(0, num(v.margin, 7)), gap: Math.max(0, num(v.gap, 3)), symPct: clamp(num(v.symPct, 90), 5, 100) });
     });
-    flash('Arrangement: ' + L.arr.name);
-  }, 'OK', '<div class="note">Choosing another arrangement replaces the values below with its own. The text area is the share of the label height (or width, for symbol beside text) kept for the text.</div>');
+    flash('Layout: ' + L.arr.name);
+  }, 'OK', '<div class="note">Choosing a preset replaces the rows with its own. The rows themselves are edited in the Layout group of the Properties panel.</div>');
 }
+const rowsSummary = rows => (rows || []).map(r => r.items.map(itemLabel).join(' + ')).join(' / ');
 function saveArrangementDlg() {
-  dialog('Save arrangement', [['name', 'Name', SAVED.arrangements.find(a => a.id === L.arr.id) ? L.arr.name : '', 'text'], ['font', 'Also keep the text settings (lines, font, size)', true, 'check']], v => {
+  dialog('Save layout', [['name', 'Name', SAVED.arrangements.find(a => a.id === L.arr.id) ? L.arr.name : '', 'text'], ['font', 'Also keep the text settings (font, size, spacing, alignment)', true, 'check']], v => {
     if (!v.name) { alert('Enter a name.'); return false; }
     const ex = SAVED.arrangements.find(a => a.name.toLowerCase() === v.name.toLowerCase());
-    if (ex && !confirm(`Replace the saved arrangement "${ex.name}"?`)) return false;
-    const a = { id: ex ? ex.id : 'a_' + uid(), name: v.name, kind: L.arr.kind, margin: L.arr.margin, gap: L.arr.gap, band: L.arr.band, symPct: L.arr.symPct };
-    if (v.font) a.text = { lines: clone(L.text.lines), font: L.text.font, bold: L.text.bold, italic: L.text.italic, upper: L.text.upper, size: L.text.size, min: L.text.min, spacing: L.text.spacing, align: L.text.align };
+    if (ex && !confirm(`Replace the saved layout "${ex.name}"?`)) return false;
+    const a = { id: ex ? ex.id : 'a_' + uid(), name: v.name, margin: L.arr.margin, gap: L.arr.gap, symPct: L.arr.symPct, rows: clone(L.arr.rows) };
+    if (v.font) a.text = { font: L.text.font, bold: L.text.bold, italic: L.text.italic, upper: L.text.upper, size: L.text.size, min: L.text.min, spacing: L.text.spacing, align: L.text.align };
     SAVED.arrangements = SAVED.arrangements.filter(x => x !== ex).concat([a]);
-    host.write('arrangements.json', SAVED.arrangements).then(() => flash('Arrangement saved')).catch(e => flash(e.message));
+    host.write('arrangements.json', SAVED.arrangements).then(() => flash('Layout saved')).catch(e => flash(e.message));
     commit(() => { L.arr.id = a.id; L.arr.name = a.name; });
-  }, 'Save', '<div class="note">Saved arrangements are shared with everyone on this server and work with any set. They keep the layout and margins, and optionally the text lines and font, but not the set or the symbol.</div>');
+  }, 'Save', '<div class="note">Saved layouts are shared with everyone on this server and work with any set. They keep the rows with their items, colors and mana symbols, the margin, gap and symbol size, and optionally the text settings; not the set or the symbol.</div>');
 }
 function setDefaultArr() {
-  if (!arrangementById(L.arr.id)) { flash('Save the arrangement first'); saveArrangementDlg(); return; }
+  if (!arrangementById(L.arr.id)) { flash('Save the layout first'); saveArrangementDlg(); return; }
   PREFS.defaultArr = L.arr.id; savePrefs(); flash(`New labels use "${L.arr.name}"`);
 }
 function manageArrangements() {
-  const rows = () => SAVED.arrangements.length ? `<table class="dtab"><tr><th>Name</th><th>Layout</th><th></th></tr>${SAVED.arrangements.map(a => `<tr><td>${esc(a.name)}${PREFS.defaultArr === a.id ? ' <span class="badge">default</span>' : ''}</td><td>${esc((ARR_KINDS.find(k => k[0] === a.kind) || [0, ''])[1])}</td><td><button type="button" class="lnk" data-del="${a.id}">Delete</button></td></tr>`).join('')}</table>` : '<div class="note">No saved arrangements yet. Use Label, Save arrangement.</div>';
-  dialog('Saved arrangements', [], null, 'OK', `<div id="marr">${rows()}</div>`);
+  const rows = () => SAVED.arrangements.length ? `<table class="dtab"><tr><th>Name</th><th>Rows</th><th></th></tr>${SAVED.arrangements.map(a => `<tr><td>${esc(a.name)}${PREFS.defaultArr === a.id ? ' <span class="badge">default</span>' : ''}</td><td>${esc(rowsSummary(arrFrom(a).rows))}</td><td><button type="button" class="lnk" data-del="${a.id}">Delete</button></td></tr>`).join('')}</table>` : '<div class="note">No saved layouts yet. Use Label, Save layout.</div>';
+  dialog('Saved layouts', [], null, 'OK', `<div id="marr">${rows()}</div>`);
+  $('#dlg').style.width = '600px';
   $('#dlgbody').onclick = e => {
     const d = e.target.closest('[data-del]'); if (!d) return;
-    const a = SAVED.arrangements.find(x => x.id === d.dataset.del); if (!a || !confirm(`Delete the saved arrangement "${a.name}"?`)) return;
+    const a = SAVED.arrangements.find(x => x.id === d.dataset.del); if (!a || !confirm(`Delete the saved layout "${a.name}"?`)) return;
     SAVED.arrangements = SAVED.arrangements.filter(x => x !== a); if (PREFS.defaultArr === a.id) { PREFS.defaultArr = 'stack'; savePrefs(); }
     host.write('arrangements.json', SAVED.arrangements).catch(er => flash(er.message)); $('#marr').innerHTML = rows(); renderProps();
   };
@@ -256,10 +258,16 @@ function normalizeLabel(l) {
   const d = l.kind === 'divider' ? newDivider() : newLabel();
   l.kind = d.kind;
   const hadSync = l.depth && typeof l.depth.sync === 'boolean';
+  // labels from before version 0.3.0: a layout kind and one list of text lines become rows
+  if (l.arr && !Array.isArray(l.arr.rows)) {
+    const tx = l.text || {}, sy = l.symbol || {};
+    l.arr.rows = rowsFromKind(l.arr.kind || 'stack', tx.lines || [{ src: 'name' }, { src: 'code' }], sy.show !== false, tx.show !== false, tx.slot || 2);
+    if (!arrangementById(l.arr.id) || l.arr.kind !== undefined) { const a = arrangementById(l.arr.id); if (!a || !a.rows) { l.arr.id = 'custom'; l.arr.name = l.arr.name || 'Custom'; } }
+    delete l.arr.kind; delete l.arr.band; delete tx.lines; delete tx.show; delete sy.show;
+  }
   for (const k of ['size', 'arr', 'depth', 'base', 'symbol', 'text']) l[k] = Object.assign({}, d[k], l[k] || {});
   l.depth.symbol = Object.assign({}, d.depth.symbol, l.depth.symbol); l.depth.text = Object.assign({}, d.depth.text, l.depth.text);
   if (!hadSync) l.depth.sync = JSON.stringify(l.depth.symbol) === JSON.stringify(l.depth.text);
-  if (!Array.isArray(l.text.lines)) l.text.lines = d.text.lines;
   if (d.div) { l.div = Object.assign({}, d.div, l.div || {}); l.div.pattern = Object.assign({}, d.div.pattern, l.div.pattern || {}); l.div.back = Object.assign({}, d.div.back, l.div.back || {}); }
   return l;
 }

@@ -6,7 +6,7 @@ TopLabel is a self-hosted program that makes 3D-printable labels and dividers fo
 |---|---|
 | **Sets panel** | Every Magic set from Scryfall with its symbol, plus basic lands and watermarks |
 | **Work area** | The label as a 2D layout and as a 3D preview |
-| **Properties panel** | Size or divider shape, pattern, arrangement, symbol, text, depth and colors of the open label or divider |
+| **Properties panel** | Size or divider shape, pattern, layout rows, symbol, text, depth and colors of the open label or divider |
 | **Saved labels panel** | The labels and dividers saved under your account |
 | **Library** | The set symbols from mtg-vectors, the set list from Scryfall and the built-in fonts |
 
@@ -14,8 +14,8 @@ The library feeds the Sets panel. Picking a set fills the open label with that s
 
 ## Principles
 
-1. **Choose a set, get a label.** Every label is built automatically from the set and the chosen arrangement; nothing has to be drawn by hand.
-2. **Everything scales to fit.** Symbols and text are sized to the space the arrangement gives them, on any label size.
+1. **Choose a set, get a label.** Every label is built automatically from the set and its layout rows; nothing has to be drawn by hand.
+2. **Everything scales to fit.** Symbols, text and mana symbols are sized to the space their row gives them, on any label size.
 3. **One part per color.** Each part of a label (base, symbol, text) is a separate solid on its own filament slot, so multi-color printing needs no painting in the slicer.
 4. **Printable meshes.** Every exported part is a closed solid.
 5. **Up-to-date symbols.** The library refreshes from its sources with one button and keeps working if a refresh fails.
@@ -30,7 +30,7 @@ The library feeds the Sets panel. Picking a set fills the open label with that s
 | [Screen layout](/about/screen-layout) | Menus, ribbon, panels, views and the status bar |
 | [Sets and the symbol library](/about/sets-and-library) | Where symbols and sets come from, refreshing, the Sets panel |
 | [Labels and elements](/about/labels-and-elements) | What a label is made of and every label field |
-| [Arrangements and auto-fit](/about/arrangements) | How symbol and text are placed and sized |
+| [Layout rows and auto-fit](/about/layout) | Rows of set symbols, text, set codes and mana symbols, and how they are sized |
 | [Sizes and depth](/about/sizes-and-depth) | Size presets, depth profiles and how parts are stacked |
 | [Dividers](/about/dividers) | Divider shapes, patterns, top band content and both faces |
 | [Colors and filament slots](/about/colors) | Filament slots, the color palette and saved color sets |

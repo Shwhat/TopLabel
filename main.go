@@ -154,6 +154,9 @@ func (s *server) routes() http.Handler {
 	m.HandleFunc("GET /api/library/watermark/{file}", s.auth(func(w http.ResponseWriter, r *http.Request, u *User) {
 		s.serveLib(w, "vectors/watermark", r.PathValue("file"))
 	}))
+	m.HandleFunc("GET /api/library/mana/{file}", s.auth(func(w http.ResponseWriter, r *http.Request, u *User) {
+		s.serveLib(w, "mana", r.PathValue("file"))
+	}))
 	m.HandleFunc("GET /api/library/icon/{file}", s.auth(func(w http.ResponseWriter, r *http.Request, u *User) {
 		s.serveLib(w, "icons", r.PathValue("file"))
 	}))

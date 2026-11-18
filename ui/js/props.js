@@ -2,7 +2,7 @@
 const getP = (o, p) => p.split('.').reduce((a, k) => a == null ? a : a[k], o);
 const setP = (o, p, v) => { const ks = p.split('.'), last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
 // arrow keys and spinner buttons: 0.1 per step for millimetres, 1 for percentages, 0.05 for line spacing
-const stepFor = path => /^arr\.(band|symPct)$/.test(path) ? 1 : path === 'text.spacing' ? 0.05 : 0.1;
+const stepFor = path => /^arr\.symPct$/.test(path) ? 1 : path === 'text.spacing' ? 0.05 : 0.1;
 function pIn(label, path, type = 'num', extra = '') {
   const v = getP(L, path);
   if (type === 'bool') return `<div class="prow"><label>${label}</label><input type="checkbox" data-p="${path}" data-t="bool" ${v ? 'checked' : ''} ${extra}></div>`;
@@ -30,19 +30,19 @@ function renderProps() {
   ${isDiv ? dividerProps() : `<div class="pgrp"><h4>Label</h4>${pIn('Name', 'name', 'str', `placeholder="${esc(st ? fixDashes(st.name) : 'Label name')}"`)}
     ${pSel('Size', 'size.preset', sizeOpts())}${pIn('Width (mm)', 'size.w')}${pIn('Height (mm)', 'size.h')}${pIn('Base (mm)', 'size.t')}${pIn('Corners (mm)', 'size.r')}
     <div class="btnrow"><button class="btn small" data-act="sizeDlg">Scale...</button><button class="btn small" data-act="saveSize">Save size...</button></div></div>`}
-  <div class="pgrp"><h4>Arrangement <button class="lnk" data-act="saveArrangement">Save...</button></h4>${pSel('Arrangement', 'arr.id', arrList)}${pSel('Layout', 'arr.kind', ARR_KINDS)}
-    ${pIn('Margin (mm)', 'arr.margin')}${pIn('Gap (mm)', 'arr.gap')}${pIn('Text area (%)', 'arr.band')}${pIn('Symbol size (%)', 'arr.symPct')}
+  <div class="pgrp"><h4>Layout <button class="lnk" data-act="saveArrangement">Save...</button></h4>${pSel('Preset', 'arr.id', arrList)}
+    ${pIn('Margin (mm)', 'arr.margin')}${pIn('Gap (mm)', 'arr.gap')}${pIn('Symbol size (%)', 'arr.symPct')}
+    ${rowsHTML()}
     <div class="btnrow"><button class="btn small" data-act="setDefaultArr">Make default</button><button class="btn small" data-act="manageArrangements">Manage...</button></div></div>
-  <div class="pgrp"><h4>Symbol</h4>${pIn('Show symbol', 'symbol.show', 'bool')}<div class="prow"><label>Source</label><span class="note" style="margin:0">${esc(symSrc)}</span></div>
+  <div class="pgrp"><h4>Symbol</h4><div class="prow"><label>Source</label><span class="note" style="margin:0">${esc(symSrc)}</span></div>
     ${rarities.length ? pSel('Rarity', 'symbol.rarity', rarities.map(r => [r, rarityName(r)])) : ''}
     ${pSel('Style', 'symbol.style', SYMBOL_STYLES)}
     ${slotSel(sy.style === 'twotone' ? 'Outline color' : 'Color', 'symbol.slot')}${sy.style === 'twotone' ? slotSel('Fill color', 'symbol.slot2') : ''}</div>
-  <div class="pgrp"><h4>Text <button class="lnk" data-act="addLine">Add line</button></h4>${pIn('Show text', 'text.show', 'bool')}
-    <div id="lines">${tx.lines.map((ln, i) => `<div class="lnrow"><select data-ln="${i}" data-lf="src">${LINE_SOURCES.map(([k, n]) => `<option value="${k}" ${k === ln.src ? 'selected' : ''}>${n}</option>`).join('')}</select><input data-ln="${i}" data-lf="text" value="${esc(ln.src === 'custom' ? ln.text : resolveLines({ ...L, text: { ...tx, upper: false, lines: [ln] } })[0] || '')}" ${ln.src === 'custom' ? 'placeholder="Type the text"' : 'disabled'}><button class="xbtn" data-rmline="${i}" title="Remove this line">&times;</button></div>`).join('')}</div>
+  <div class="pgrp"><h4>Text</h4>
     <div class="prow"><label>Font</label><select data-p="text.font" data-t="str">${fontOpts()}</select></div>
     ${pIn('Bold', 'text.bold', 'bool')}${pIn('Italic', 'text.italic', 'bool')}${pIn('All capitals', 'text.upper', 'bool')}
     ${pIn('Size (mm)', 'text.size')}${pIn('Minimum (mm)', 'text.min')}${pIn('Line spacing', 'text.spacing')}
-    ${pSel('Alignment', 'text.align', [['center', 'Center'], ['left', 'Left'], ['right', 'Right']])}${slotSel('Color', 'text.slot')}</div>
+    ${pSel('Alignment', 'text.align', [['center', 'Center'], ['left', 'Left'], ['right', 'Right']])}${slotSel('New text color', 'text.slot')}</div>
   <div class="pgrp"><h4>${isDiv ? 'Depth (front)' : 'Depth'} <button class="lnk" data-act="saveDepth">Save...</button></h4>${pSel('Profile', 'depth.id', depthOpts())}
     ${pIn('Same depth for symbol and text', 'depth.sync', 'bool')}
     ${dp.sync ? `${pIn('Above (mm)', 'depth.symbol.raise')}${pIn('Sunk (mm)', 'depth.symbol.sink')}${pIn('Engrave', 'depth.symbol.engrave', 'bool')}`
@@ -81,6 +81,7 @@ function matchSize() { if (L.kind === 'divider') return; const m = SIZE_PRESETS.
 const propsEl = $('#props');
 propsEl.addEventListener('change', e => {
   const t = e.target, p = t.dataset.p;
+  if (rowsChange(t)) return;
   if (p) {
     let v = t.dataset.t === 'bool' ? t.checked : t.value;
     if (t.dataset.t === 'num') { v = Math.round(parseFloat(v) * 1e4) / 1e4; if (!Number.isFinite(v) || v < 0) { flash('Enter a number of 0 or more'); renderProps(); return; } }
@@ -96,7 +97,6 @@ propsEl.addEventListener('change', e => {
       if (p === 'size.t') v = Math.max(0.2, v);
       if (p === 'text.size' || p === 'text.min') v = Math.max(0.5, v);
       if (p === 'text.spacing') v = clamp(v, 0.7, 3);
-      if (p === 'arr.band') v = clamp(v, 5, 95);
       if (p === 'arr.symPct') v = clamp(v, 5, 100);
       setP(L, p, v);
       if (L.depth.sync && /^depth\.(symbol|text)\./.test(p)) { const k = p.split('.')[2]; L.depth.symbol[k] = v; L.depth.text[k] = v; }
@@ -107,12 +107,6 @@ propsEl.addEventListener('change', e => {
     });
     return;
   }
-  if (t.dataset.ln !== undefined) {
-    const i = +t.dataset.ln, f = t.dataset.lf;
-    commit(() => { const ln = L.text.lines[i]; if (f === 'src') { if (t.value === 'custom' && ln.src !== 'custom') ln.text = resolveLines({ ...L, text: { ...L.text, upper: false, lines: [ln] } })[0] || ''; ln.src = t.value; } else ln.text = t.value; });
-  }
 });
-propsEl.addEventListener('click', e => {
-  const r = e.target.closest('[data-rmline]'); if (r) commit(() => { L.text.lines.splice(+r.dataset.rmline, 1); });
-});
+propsEl.addEventListener('click', e => { rowsClick(e.target); });
 propsEl.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.target.blur(); });

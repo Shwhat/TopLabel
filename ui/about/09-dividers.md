@@ -50,7 +50,7 @@ The 2D layout shows the pattern area in green when Layout guides is on.
 
 ## Content
 
-The symbol and the text are placed in the top band with the **Divider band** arrangement: symbol on the left, text on the right, 1.5 mm margin, 2 mm gap, 78% of the band for the text. Any other arrangement can be chosen; it is applied inside the band. Show symbol and Show text turn each one off, and the other then uses the whole band. New dividers show one text line, the set name.
+The layout rows are placed in the top band. New dividers use the **Divider band** layout: one row with the set symbol and the set name side by side, 1.5 mm margin and 2 mm gap. Rows and items can be changed like on a label (see [Layout rows and auto-fit](/about/layout)), for example to add a row of mana symbols.
 
 ## Faces
 

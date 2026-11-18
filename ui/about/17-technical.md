@@ -44,12 +44,12 @@ TopLabel runs as a Docker Compose stack, normally deployed with Dockhand as a Gi
 
 ## Network
 
-The server contacts api.github.com and codeload.github.com (symbols), api.scryfall.com (set list) and svgs.scryfall.io (icons), only during a library refresh. The browser talks only to the TopLabel server.
+The server contacts api.github.com and codeload.github.com (symbols), api.scryfall.com (set list and mana symbols) and svgs.scryfall.io (icons and mana symbols), only during a library refresh. The browser talks only to the TopLabel server.
 
 ## Limits
 
-- Elements cannot yet be dragged in the 2D layout; their place comes from the arrangement.
-- One symbol and one text block per label or divider.
+- Items cannot yet be dragged in the 2D layout; their place comes from the layout rows.
+- The set symbol is the symbol of the label's set, land or watermark; other symbols cannot be uploaded yet.
 - Own SVG files and fonts cannot be uploaded yet.
 - One label per export; batch export is planned.
 - Panels can be resized and hidden but not moved to other edges.

@@ -3,7 +3,7 @@
 // saved data goes to the browser's local storage, and the library is read from the same addresses if reachable.
 const SERVER = window.TL_SERVER || null;
 let SAVED = { labels: [], arrangements: [], presets: { sizes: [], depths: [], palettes: [], dividers: [] } };
-let LIB = { ready: false, meta: {}, sets: [], watermarks: [], fonts: [] };
+let LIB = { ready: false, meta: {}, sets: [], watermarks: [], mana: [], fonts: [] };
 
 async function api(method, url, body) {
   const o = { method, headers: { 'X-TopLabel': '1' } };
@@ -28,7 +28,7 @@ const host = {
   },
   async library() {
     try { const j = await api('GET', '/api/library'); if (j) LIB = j; } catch (e) { LIB = { ready: false, meta: {}, sets: [], watermarks: [], fonts: LIB.fonts || [] }; }
-    LIB.sets = LIB.sets || []; LIB.watermarks = LIB.watermarks || []; LIB.fonts = LIB.fonts || [];
+    LIB.sets = LIB.sets || []; LIB.watermarks = LIB.watermarks || []; LIB.mana = LIB.mana || []; LIB.fonts = LIB.fonts || [];
     SETS_BY_CODE = new Map(LIB.sets.map(s => [s.code, s]));
   },
   refresh() { return api('POST', '/api/library/refresh'); },

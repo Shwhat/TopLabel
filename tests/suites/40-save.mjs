@@ -30,12 +30,12 @@ export const tests = {
   },
   'saved arrangements are shared, include text settings, and one can be the default': async t => {
     await t.open(); await t.pickSet('SOS');
-    await t.prop('arr.kind', 'stackrev'); await t.prop('arr.margin', 5); await t.prop('text.font', 'cinzel');
+    await t.prop('arr.id', 'stackrev'); await t.prop('arr.margin', 5); await t.prop('text.font', 'cinzel');
     await t.act('saveArrangement'); await t.page.fill('#dlg input[name=name]', 'Top text Cinzel'); await t.enter();
     await t.page.waitForFunction(() => SAVED.arrangements.length === 1);
     await t.act('setDefaultArr');
     await t.act('newLabel');
-    t.eq(await t.eval(() => [L.arr.name, L.arr.kind, L.arr.margin]), ['Top text Cinzel', 'stackrev', 5]);
+    t.eq(await t.eval(() => [L.arr.name, L.arr.rows[0].items[0].t, L.arr.rows[2].items[0].t, L.arr.margin, L.text.font]), ['Top text Cinzel', 'text', 'symbol', 5, 'cinzel']);
     const second = await t.page.context().browser().newContext(); const p2 = await second.newPage();
     await p2.request.post(t.url + '/api/signup', { headers: t.H, data: { name: 'other' + Date.now() % 100000, password: 'password123' } });
     const shared = await (await p2.request.get(t.url + '/api/data/arrangements.json')).json();

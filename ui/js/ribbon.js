@@ -19,6 +19,8 @@ const RI = {
   saveDepth: `<path d="M2.5 11l6-3 6 3-6 3z" fill="#dbe6f7" ${S_}/><path d="M2.5 11v2.5l6 3 6-3V11" ${S_}/><path d="M13 18l5-5-1.5-1.5-5 5V18z" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1.1"/>`,
   palette: `<path d="M10 2.5a7.5 7.5 0 100 15c1.2 0 1.6-1 1-2s-.2-2.2 1.2-2.2H15a2.5 2.5 0 002.5-2.5c0-4.6-3.4-8.3-7.5-8.3z" fill="#fff" ${S_}/><circle cx="6" cy="9" r="1.4" fill="#c12e1f"/><circle cx="8.5" cy="5.5" r="1.4" fill="#f4d58d"/><circle cx="12.5" cy="5.5" r="1.4" fill="#0078bf"/><circle cx="14.5" cy="9" r="1.4" fill="#057748"/>`,
   twoTone: `<path d="M10 2.5l7 7-7 8-7-8z" fill="#2b3442"/><path d="M10 6l3.8 3.8L10 14l-3.8-4.2z" fill="#e3cd99"/>`,
+  addRowMana: `<circle cx="7" cy="10" r="4.5" fill="#443089"/><circle cx="14" cy="10" r="4.5" fill="#c12e1f"/><path d="M14 15.5h5M16.5 13v5" stroke="#2f7d32" stroke-width="1.8"/>`,
+  addRowCode: `<path d="M2.5 14l3-8h1l3 8M3.6 11.5h4.8M11 6h3.5a2 2 0 010 4H11zM11 10h4a2 2 0 010 4h-4z" ${S_}/>`,
   addLine: `<path d="M3 5h10M3 9h8M3 13h6" ${S_}/><path d="M13 14.5h5M15.5 12v5" stroke="#2f7d32" stroke-width="1.8" stroke-linecap="round"/>`,
   toggleSymbol: `<path d="M10 3l2.2 4.5 4.8.7-3.5 3.4.8 4.8L10 14.1l-4.3 2.3.8-4.8L3 8.2l4.8-.7z" fill="#dbe6f7" ${S_}/>`,
   toggleText: `<path d="M4 4.5h12M10 4.5v12M7.5 16.5h5" ${S_}/>`,
@@ -40,18 +42,18 @@ const RI = {
 };
 const RLABEL = {
   newLabel: 'New label', newDivider: 'New divider', openDlg: 'Open', save: 'Save', saveAs: 'Save as', undo: 'Undo', redo: 'Redo',
-  exportBambu: 'Bambu 3MF', exportStl: 'STL', exportDlg: 'Export...', sizeDlg: 'Size...', arrangementDlg: 'Arrangement...',
-  saveArrangement: 'Save arrangement', setDefaultArr: 'Make default', depthDlg: 'Depth...', saveDepth: 'Save depth', saveDivider: 'Save divider shape', paletteDlg: 'Filament colors',
-  toggleTwoTone: 'Two-tone symbol', addLine: 'Add text line', toggleSymbol: 'Symbol', toggleText: 'Text',
+  exportBambu: 'Bambu 3MF', exportStl: 'STL', exportDlg: 'Export...', sizeDlg: 'Size...', arrangementDlg: 'Layout...',
+  saveArrangement: 'Save layout', setDefaultArr: 'Make default', depthDlg: 'Depth...', saveDepth: 'Save depth', saveDivider: 'Save divider shape', paletteDlg: 'Filament colors',
+  toggleTwoTone: 'Two-tone symbol', addLine: 'Text row', addRowSymbol: 'Symbol row', addRowText: 'Text row', addRowCode: 'Set code row', addRowMana: 'Mana row',
   refreshLibrary: 'Refresh library', libraryInfo: 'Library info', fontsDlg: 'Fonts', showWatermarks: 'Lands and watermarks', showSets: 'Sets',
   view2d: '2D layout', view3d: '3D preview', viewBoth: 'Both', fitView: 'Fit', toggleGuides: 'Layout guides', toggleTheme: 'Dark theme', toggleSurface: 'Dark work surface',
   togglePanels: 'Panels', about: 'About', shortcuts: 'Shortcuts', demo: 'Demo labels',
 };
-const RICON = { openDlg: 'open', saveDivider: 'newDivider', exportBambu: 'export3mf', exportStl: 'exportStl', sizeDlg: 'size', arrangementDlg: 'arrangement', saveArrangement: 'saveArr', setDefaultArr: 'defaultArr', depthDlg: 'depth', saveDepth: 'saveDepth', paletteDlg: 'palette', toggleTwoTone: 'twoTone', refreshLibrary: 'refresh', libraryInfo: 'libInfo', fontsDlg: 'fonts', showWatermarks: 'watermarks', showSets: 'libInfo', toggleGuides: 'guides', toggleTheme: 'theme', toggleSurface: 'surface', togglePanels: 'panels' };
+const RICON = { openDlg: 'open', addRowSymbol: 'toggleSymbol', addRowText: 'addLine', saveDivider: 'newDivider', exportBambu: 'export3mf', exportStl: 'exportStl', sizeDlg: 'size', arrangementDlg: 'arrangement', saveArrangement: 'saveArr', setDefaultArr: 'defaultArr', depthDlg: 'depth', saveDepth: 'saveDepth', paletteDlg: 'palette', toggleTwoTone: 'twoTone', refreshLibrary: 'refresh', libraryInfo: 'libInfo', fontsDlg: 'fonts', showWatermarks: 'watermarks', showSets: 'libInfo', toggleGuides: 'guides', toggleTheme: 'theme', toggleSurface: 'surface', togglePanels: 'panels' };
 const DEFAULT_RIBBON = [
   { id: 'home', name: 'Home', groups: [{ name: 'Label', items: ['newLabel', 'newDivider', 'save', 'saveAs', 'openDlg'] }, { name: 'Edit', items: ['undo', 'redo'] }, { name: 'Export', items: ['exportBambu', 'exportStl', 'exportDlg'] }, { name: 'View', items: ['view2d', 'view3d', 'viewBoth'] }] },
-  { id: 'label', name: 'Label', groups: [{ name: 'Size', items: ['sizeDlg'] }, { name: 'Arrangement', items: ['arrangementDlg', 'saveArrangement', 'setDefaultArr'] }, { name: 'Depth', items: ['depthDlg', 'saveDepth'] }, { name: 'Divider', items: ['saveDivider'] }, { name: 'Colors', items: ['paletteDlg', 'toggleTwoTone'] }] },
-  { id: 'insert', name: 'Insert', groups: [{ name: 'Elements', items: ['toggleSymbol', 'toggleText', 'addLine'] }, { name: 'Symbols', items: ['showSets', 'showWatermarks'] }] },
+  { id: 'label', name: 'Label', groups: [{ name: 'Size', items: ['sizeDlg'] }, { name: 'Layout', items: ['arrangementDlg', 'saveArrangement', 'setDefaultArr'] }, { name: 'Depth', items: ['depthDlg', 'saveDepth'] }, { name: 'Divider', items: ['saveDivider'] }, { name: 'Colors', items: ['paletteDlg', 'toggleTwoTone'] }] },
+  { id: 'insert', name: 'Insert', groups: [{ name: 'Rows', items: ['addRowSymbol', 'addRowText', 'addRowCode', 'addRowMana'] }, { name: 'Symbols', items: ['showSets', 'showWatermarks'] }] },
   { id: 'library', name: 'Library', groups: [{ name: 'Library', items: ['refreshLibrary', 'libraryInfo', 'fontsDlg'] }] },
   { id: 'view', name: 'View', groups: [{ name: 'Views', items: ['view2d', 'view3d', 'viewBoth', 'fitView'] }, { name: 'Show', items: ['toggleGuides', 'togglePanels'] }, { name: 'Theme', items: ['toggleTheme', 'toggleSurface'] }] },
   { id: 'help', name: 'Help', groups: [{ name: 'Help', items: ['about', 'shortcuts', 'demo'] }] },
@@ -60,7 +62,7 @@ const DEFAULT_RIBBON = [
 const RON = {
   view2d: () => PREFS.view === '2d', view3d: () => PREFS.view === '3d', viewBoth: () => PREFS.view === 'both', toggleGuides: () => !!PREFS.guides,
   toggleTheme: () => document.documentElement.dataset.theme === 'dark', toggleSurface: () => PREFS.surface === 'dark',
-  toggleTwoTone: () => L && L.symbol.style === 'twotone', toggleSymbol: () => L && L.symbol.show, toggleText: () => L && L.text.show,
+  toggleTwoTone: () => L && L.symbol.style === 'twotone',
   showSets: () => PREFS.setsView !== 'wm', showWatermarks: () => PREFS.setsView === 'wm',
 };
 const ricon = a => `<svg viewBox="0 0 20 20">${RI[RICON[a] || a] || RI.about}</svg>`;

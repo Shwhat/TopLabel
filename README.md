@@ -11,7 +11,8 @@ The full user guide is built into the program: Help, About TopLabel.
 - Symbol library from mtg-vectors and Scryfall: Refresh library button, automatic first download, Scryfall icons for sets mtg-vectors does not have yet, every rarity, basic lands and watermarks.
 - Sets panel: search by name or code, sort by code, name or date, filter by set type, year and symbol.
 - Automatic labels: pick a set and the label is built; symbol and text scale to fit any label size; long names wrap.
-- Arrangements: symbol over text, text over symbol, symbol only, text only, symbol beside text; margins, gap, text area and symbol size; save arrangements by name and pick a default.
+- Layout rows: each row holds set symbols, text, set codes or mana symbols side by side; add, move and remove rows and items; six presets; save layouts by name and pick a default.
+- Mana symbols from Scryfall, any number in a row, each with its own color and pip or icon style, with guild, shard and wedge presets.
 - Sizes: toploader replacement (76 x 100 mm), card size, small card, square tile, mini tile, or any custom size; scale by percentage.
 - Depth profiles: standard (2 mm base, symbol and text 0.5 mm sunk and 1 mm above, 3 mm in all), low, bold, flush inlay, engraved; the symbol and text share one depth unless Same depth is turned off; save profiles by name.
 - Dividers: Card catalog divider shape (71.92 x 72 x 2.16 mm with a narrower tab), hexagon, circle, square, diamond, slot or solid patterns, symbol and text in the top band on one or both faces (flush by default), saved divider shapes.
@@ -22,7 +23,7 @@ The full user guide is built into the program: Help, About TopLabel.
 - Export: Bambu Studio and OrcaSlicer 3MF project (parts on their filament slots), standard 3MF, STL, STL per color.
 - Accounts, saved labels and preferences on the server, undo and redo, keyboard shortcuts.
 
-Planned: drag editing, own SVG and font upload and multi-symbol labels (0.3.0); batch export with plate packing, OBJ, AMF, SVG, DXF and PNG (0.4.0).
+Planned: drag editing, own SVG and font upload and a grid layout (0.4.0); batch export with plate packing, OBJ, AMF, SVG, DXF and PNG (0.5.0).
 
 ## Keyboard shortcuts
 
@@ -32,7 +33,7 @@ Planned: drag editing, own SVG and font upload and multi-symbol labels (0.3.0); 
 | Ctrl+Shift+N | New divider |
 | Ctrl+E | Export |
 | Ctrl+Z, Ctrl+Y | Undo, redo |
-| Ctrl+L | Add a text line |
+| Ctrl+L | Add a text row |
 | 2, 3, B | 2D layout, 3D preview, both |
 | F | Fit the label in the view |
 | G | Layout guides on or off |

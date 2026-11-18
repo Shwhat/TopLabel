@@ -7,8 +7,8 @@ TopLabel has a menu bar and ribbon at the top, the Sets panel on the left, the w
 | Menu | Items |
 |---|---|
 | File | New label, New divider, Open saved label, Save, Save as, Rename label, Delete saved label, Export, Export Bambu Studio 3MF, Export STL, Change password, Sign out |
-| Edit | Undo, Redo, Add text line, Show or hide the symbol, Show or hide the text, Reset label to defaults |
-| Label | Size, Arrangement, Save arrangement, Make arrangement the default, Manage arrangements, Depth, Save depth profile, Save size preset, Save divider shape, Manage presets, Filament colors, Two-tone symbol on or off |
+| Edit | Undo, Redo, Add a set symbol row, Add a text row, Add a set code row, Add a mana symbols row, Reset label to defaults |
+| Label | Size, Layout, Save layout, Make layout the default, Manage layouts, Depth, Save depth profile, Save size preset, Save divider shape, Manage presets, Filament colors, Two-tone symbol on or off |
 | Library | Refresh library, Library information, Fonts, Show sets, Show lands and watermarks |
 | Export | Export (the dialog), and one item per format |
 | View | 2D layout, 3D preview, Both views, Fit the label in the view, Layout guides on or off, Dark theme on or off, Dark work surface on or off, and show or hide each panel |
@@ -21,8 +21,8 @@ The name of the open label is shown to the right of the menus, with "(not saved)
 | Tab | Groups and buttons |
 |---|---|
 | Home | Label: New label, New divider, Save, Save as, Open. Edit: Undo, Redo. Export: Bambu 3MF, STL, Export. View: 2D layout, 3D preview, Both |
-| Label | Size: Size. Arrangement: Arrangement, Save arrangement, Make default. Depth: Depth, Save depth. Divider: Save divider shape. Colors: Filament colors, Two-tone symbol |
-| Insert | Elements: Symbol, Text, Add text line. Symbols: Sets, Lands and watermarks |
+| Label | Size: Size. Layout: Layout, Save layout, Make default. Depth: Depth, Save depth. Divider: Save divider shape. Colors: Filament colors, Two-tone symbol |
+| Insert | Rows: Symbol row, Text row, Set code row, Mana row. Symbols: Sets, Lands and watermarks |
 | Library | Refresh library, Library info, Fonts |
 | View | Views: 2D layout, 3D preview, Both, Fit. Show: Layout guides, Panels. Theme: Dark theme, Dark work surface |
 | Help | About, Shortcuts, Demo labels |
@@ -35,7 +35,7 @@ The Sets panel has two views, chosen at its top: **Sets** and **Lands and waterm
 
 ## Work area
 
-The header shows the label name, its set code and date, the arrangement, the text size used and the symbol size. On the right, the view switch chooses **2D layout**, **3D preview** or **Both**, and **Fit** brings the whole label back into view.
+The header shows the label name, its set code and date, the layout, the text size used, the symbol size and the number of mana symbols. On the right, the view switch chooses **2D layout**, **3D preview** or **Both**, and **Fit** brings the whole label back into view.
 
 | View | Shows |
 |---|---|
@@ -44,11 +44,11 @@ The header shows the label name, its set code and date, the arrangement, the tex
 
 ## Properties panel
 
-The Properties panel shows the open label: its name and set at the top, warnings in amber boxes, then the groups Label, Arrangement, Symbol, Text, Depth and Colors. For a divider, the Label group is replaced by Divider and Pattern, and a Back face group follows Depth (see [Dividers](/about/dividers)). Every change applies at once and can be undone. In number fields, the Up and Down arrow keys and the small arrow buttons change millimetre values by 0.1, percentages by 1 and line spacing by 0.05. The fields are described in [Labels and elements](/about/labels-and-elements).
+The Properties panel shows the open label: its name and set at the top, warnings in amber boxes, then the groups Label, Layout (with the rows), Symbol, Text, Depth and Colors. For a divider, the Label group is replaced by Divider and Pattern, and a Back face group follows Depth (see [Dividers](/about/dividers)). Every change applies at once and can be undone. In number fields, the Up and Down arrow keys and the small arrow buttons change millimetre values by 0.1, percentages by 1 and line spacing by 0.05. The fields are described in [Labels and elements](/about/labels-and-elements).
 
 ## Saved labels panel
 
-Lists the labels saved under your account with their set, size, arrangement and when they were saved. Click a row to open that label; Delete removes it after asking.
+Lists the labels saved under your account with their set, size, layout and when they were saved. Click a row to open that label; Delete removes it after asking.
 
 ## Panels
 

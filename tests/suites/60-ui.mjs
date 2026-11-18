@@ -13,7 +13,7 @@ export const tests = {
     await t.open(); await t.page.click('#workhead .whname');
     await t.key('2'); t.eq(await t.eval(() => [$('#work').dataset.view, getComputedStyle($('#pane3d')).display]), ['2d', 'none']);
     await t.key('b'); t.eq(await t.eval(() => [getComputedStyle($('#pane2d')).display, getComputedStyle($('#pane3d')).display]), ['block', 'block']);
-    t.ok(await t.eval(() => document.querySelectorAll('#view2d .v2guide').length === 3), 'guides drawn');
+    t.ok(await t.eval(() => document.querySelectorAll('#view2d .v2guide').length === 4), 'guides drawn: the content area and three items');
     await t.key('g'); t.ok(await t.eval(() => document.querySelectorAll('#view2d .v2guide').length === 0), 'guides off');
     await t.key('3'); t.eq(await t.eval(() => $('#work').dataset.view), '3d');
     t.ok(await t.eval(() => V3.renderer && V3.group.children.length === MESHES.length), '3D meshes shown');
@@ -37,7 +37,7 @@ export const tests = {
     await t.open(); await t.pickSet('NEO');
     await t.page.focus('#props [data-p="depth.symbol.raise"]'); await t.key('ArrowUp'); await t.key('ArrowUp'); await t.key('Enter'); await t.built();
     t.eq(await t.eval(() => [L.depth.symbol.raise, L.depth.text.raise]), [1.2, 1.2]);
-    t.eq(await t.eval(() => [$('#props [data-p="size.w"]').step, $('#props [data-p="arr.band"]').step, $('#props [data-p="text.spacing"]').step]), ['0.1', '1', '0.05']);
+    t.eq(await t.eval(() => [$('#props [data-p="size.w"]').step, $('#props [data-p="arr.symPct"]').step, $('#props [data-p="text.spacing"]').step]), ['0.1', '1', '0.05']);
     await t.act('sizeDlg');
     t.eq(await t.eval(() => [$('#dlg input[name=w]').step, $('#dlg input[name=scale]').step]), ['0.1', '1']);
     await t.key('Escape');
