@@ -1,10 +1,12 @@
 // ---------- Properties panel ----------
 const getP = (o, p) => p.split('.').reduce((a, k) => a == null ? a : a[k], o);
 const setP = (o, p, v) => { const ks = p.split('.'), last = ks.pop(); ks.reduce((a, k) => a[k], o)[last] = v; };
+// arrow keys and spinner buttons: 0.1 per step for millimetres, 1 for percentages, 0.05 for line spacing
+const stepFor = path => /^arr\.(band|symPct)$/.test(path) ? 1 : path === 'text.spacing' ? 0.05 : 0.1;
 function pIn(label, path, type = 'num', extra = '') {
   const v = getP(L, path);
   if (type === 'bool') return `<div class="prow"><label>${label}</label><input type="checkbox" data-p="${path}" data-t="bool" ${v ? 'checked' : ''} ${extra}></div>`;
-  return `<div class="prow"><label>${label}</label><input ${type === 'num' ? 'type="number" step="any"' : ''} data-p="${path}" data-t="${type}" value="${esc(v)}" ${extra}></div>`;
+  return `<div class="prow"><label>${label}</label><input ${type === 'num' ? `type="number" step="${stepFor(path)}"` : ''} data-p="${path}" data-t="${type}" value="${esc(v)}" ${extra}></div>`;
 }
 function pSel(label, path, opts, type = 'str', after = '') {
   const v = String(getP(L, path));
@@ -81,7 +83,7 @@ propsEl.addEventListener('change', e => {
   const t = e.target, p = t.dataset.p;
   if (p) {
     let v = t.dataset.t === 'bool' ? t.checked : t.value;
-    if (t.dataset.t === 'num') { v = parseFloat(v); if (!Number.isFinite(v) || v < 0) { flash('Enter a number of 0 or more'); renderProps(); return; } }
+    if (t.dataset.t === 'num') { v = Math.round(parseFloat(v) * 1e4) / 1e4; if (!Number.isFinite(v) || v < 0) { flash('Enter a number of 0 or more'); renderProps(); return; } }
     if (t.dataset.t === 'int') v = parseInt(v, 10) || 1;
     commit(() => {
       if (p === 'size.preset') { const s = sizeById(v); if (s) applySize(s); else L.size.preset = 'custom'; matchDepth(); return; }

@@ -42,6 +42,7 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Keys | Action |
 |---|---|
 | Enter | Confirm a dialog; in the Properties panel, apply the field |
+| Up, Down in a number field | Change the value by 0.1 mm (1 for percentages, 0.05 for line spacing) |
 | Esc | Close a menu, a dialog or the About screen |
 | F1 | Keyboard shortcuts |
 

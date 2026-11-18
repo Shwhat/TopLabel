@@ -1,6 +1,6 @@
 # TopLabel handoff
 
-Version 0.2.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
+Version 0.2.1, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
 
 ## Project
 
@@ -68,7 +68,7 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Tests
 
-- `go test ./...` and `npm test` (55 browser tests) pass at 0.2.0.
+- `go test ./...` and `npm test` (56 browser tests) pass at 0.2.1.
 - The browser tests use one account (`tester`) and reset its data per test, because sign-ups are rate limited per address.
 - Exports are checked with Python: XML well formed, every mesh edge shared by exactly two triangles, filament slots, placement.
 
@@ -93,4 +93,4 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Where work stopped
 
-0.2.0 is built, tested and pushed to `main`: new depth defaults (2 mm base, 0.5 mm sunk, 1 mm above; Flush inlay and Engraved now 0.5 mm), the Same depth checkbox, the Box divider preset removed, and dividers. Next: Devon to deploy, print a label and a divider on the H2D, and report anything that looks wrong; then plan 0.3.0.
+0.2.1 is built, tested and pushed to `main` (number fields step by 0.1 mm). 0.2.0 brought new depth defaults (2 mm base, 0.5 mm sunk, 1 mm above; Flush inlay and Engraved now 0.5 mm), the Same depth checkbox, the Box divider preset removed, and dividers. Next: Devon to deploy, print a label and a divider on the H2D, and report anything that looks wrong; then plan 0.3.0.

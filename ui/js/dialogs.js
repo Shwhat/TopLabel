@@ -8,7 +8,7 @@ function dialog(title, fields, onOk, okLabel = 'OK', extraHTML = '') {
   for (const [k, label, v, type, opt] of fields) {
     if (type === 'check') s += `<div class="prow"><label for="f_${k}">${label}</label><input id="f_${k}" type="checkbox" name="${k}" ${v ? 'checked' : ''}></div>`;
     else if (type === 'select') s += `<div class="prow"><label for="f_${k}">${label}</label><select id="f_${k}" name="${k}">${opt.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(ov) === String(v) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select></div>`;
-    else s += `<div class="prow"><label for="f_${k}">${label}</label><input id="f_${k}" name="${k}" value="${esc(v)}" ${type === 'number' ? 'type="number" step="any"' : type === 'password' ? 'type="password" autocomplete="off"' : ''}></div>`;
+    else s += `<div class="prow"><label for="f_${k}">${label}</label><input id="f_${k}" name="${k}" value="${esc(v)}" ${type === 'number' ? `type="number" step="${/%/.test(label) ? 1 : 0.1}"` : type === 'password' ? 'type="password" autocomplete="off"' : ''}></div>`;
   }
   $('#dlgbody').innerHTML = s + extraHTML;
   $('#dlgbtns').innerHTML = onOk ? `<button type="button" class="btn" onclick="document.getElementById('dlg').close('cancel')">Cancel</button><button class="btn primary" value="ok">${okLabel}</button>` : `<button class="btn primary" value="cancel">${okLabel === 'OK' ? 'Close' : okLabel}</button>`;

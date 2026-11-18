@@ -44,7 +44,7 @@ The header shows the label name, its set code and date, the arrangement, the tex
 
 ## Properties panel
 
-The Properties panel shows the open label: its name and set at the top, warnings in amber boxes, then the groups Label, Arrangement, Symbol, Text, Depth and Colors. For a divider, the Label group is replaced by Divider and Pattern, and a Back face group follows Depth (see [Dividers](/about/dividers)). Every change applies at once and can be undone. The fields are described in [Labels and elements](/about/labels-and-elements).
+The Properties panel shows the open label: its name and set at the top, warnings in amber boxes, then the groups Label, Arrangement, Symbol, Text, Depth and Colors. For a divider, the Label group is replaced by Divider and Pattern, and a Back face group follows Depth (see [Dividers](/about/dividers)). Every change applies at once and can be undone. In number fields, the Up and Down arrow keys and the small arrow buttons change millimetre values by 0.1, percentages by 1 and line spacing by 0.05. The fields are described in [Labels and elements](/about/labels-and-elements).
 
 ## Saved labels panel
 

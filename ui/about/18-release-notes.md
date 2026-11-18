@@ -2,6 +2,10 @@
 
 The installed version is shown at the top of this guide.
 
+## 0.2.1 (2026-11-18): Finer number steps
+
+- The arrow keys and arrow buttons in number fields now change millimetre values by 0.1 instead of 1, percentages by 1 and line spacing by 0.05.
+
 ## 0.2.0 (2026-11-18): Dividers and new depth defaults
 
 - Dividers: New divider makes a drawer divider for the open set, with the symbol and text in a solid top band. The default Card catalog divider shape is 71.92 x 72 x 2.16 mm with a narrower tab; every dimension can be changed and saved as a named shape.

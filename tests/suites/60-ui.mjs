@@ -33,6 +33,15 @@ export const tests = {
     await t.page.mouse.move(box.x + 3, box.y + 200); await t.page.mouse.down(); await t.page.mouse.move(box.x - 77, box.y + 200, { steps: 4 }); await t.page.mouse.up();
     t.near(await t.eval(() => PREFS.sizes.right), 410, 3, 'wider');
   },
+  'arrow keys step millimetres by 0.1': async t => {
+    await t.open(); await t.pickSet('NEO');
+    await t.page.focus('#props [data-p="depth.symbol.raise"]'); await t.key('ArrowUp'); await t.key('ArrowUp'); await t.key('Enter'); await t.built();
+    t.eq(await t.eval(() => [L.depth.symbol.raise, L.depth.text.raise]), [1.2, 1.2]);
+    t.eq(await t.eval(() => [$('#props [data-p="size.w"]').step, $('#props [data-p="arr.band"]').step, $('#props [data-p="text.spacing"]').step]), ['0.1', '1', '0.05']);
+    await t.act('sizeDlg');
+    t.eq(await t.eval(() => [$('#dlg input[name=w]').step, $('#dlg input[name=scale]').step]), ['0.1', '1']);
+    await t.key('Escape');
+  },
   'keyboard shortcuts dialog and menus open by keyboard': async t => {
     await t.open();
     await t.key('F1');
