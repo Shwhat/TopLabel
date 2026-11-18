@@ -1,0 +1,388 @@
+[
+ {
+  "id": "comic-neue",
+  "name": "Comic Neue",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "comic-relief",
+  "name": "Comic Relief",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "patrick-hand",
+  "name": "Patrick Hand",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "short-stack",
+  "name": "Short Stack",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "gochi-hand",
+  "name": "Gochi Hand",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "kalam",
+  "name": "Kalam",
+  "cat": "Casual",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "roboto",
+  "name": "Roboto",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "open-sans",
+  "name": "Open Sans",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "lato",
+  "name": "Lato",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "montserrat",
+  "name": "Montserrat",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "poppins",
+  "name": "Poppins",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "nunito",
+  "name": "Nunito",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "inter",
+  "name": "Inter",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "source-sans-3",
+  "name": "Source Sans 3",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.1",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "work-sans",
+  "name": "Work Sans",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "rubik",
+  "name": "Rubik",
+  "cat": "Sans",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "oswald",
+  "name": "Oswald",
+  "cat": "Condensed and display",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "bebas-neue",
+  "name": "Bebas Neue",
+  "cat": "Condensed and display",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "anton",
+  "name": "Anton",
+  "cat": "Condensed and display",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "barlow-condensed",
+  "name": "Barlow Condensed",
+  "cat": "Condensed and display",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "archivo-black",
+  "name": "Archivo Black",
+  "cat": "Condensed and display",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "cinzel",
+  "name": "Cinzel",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "cinzel-decorative",
+  "name": "Cinzel Decorative",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "medievalsharp",
+  "name": "MedievalSharp",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "uncial-antiqua",
+  "name": "Uncial Antiqua",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "im-fell-english",
+  "name": "IM Fell English",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "400i": "400i.woff"
+  }
+ },
+ {
+  "id": "cormorant-garamond",
+  "name": "Cormorant Garamond",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "merriweather",
+  "name": "Merriweather",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "spectral",
+  "name": "Spectral",
+  "cat": "Fantasy and serif",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ },
+ {
+  "id": "fredoka",
+  "name": "Fredoka",
+  "cat": "Rounded and technical",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "varela-round",
+  "name": "Varela Round",
+  "cat": "Rounded and technical",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff"
+  }
+ },
+ {
+  "id": "quicksand",
+  "name": "Quicksand",
+  "cat": "Rounded and technical",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff"
+  }
+ },
+ {
+  "id": "roboto-mono",
+  "name": "Roboto Mono",
+  "cat": "Rounded and technical",
+  "license": "OFL-1.1",
+  "version": "5.3.0",
+  "files": {
+   "400": "400.woff",
+   "700": "700.woff",
+   "400i": "400i.woff",
+   "700i": "700i.woff"
+  }
+ }
+]

@@ -1,0 +1,26 @@
+# Script load order. The server and the tests both inline these into index.html in this order.
+# app.js must stay last: it starts the application.
+vendor/three.min.js
+vendor/OrbitControls.js
+vendor/SVGLoader.js
+vendor/opentype.min.js
+vendor/clipper.js
+js/core.js
+js/presets.js
+js/host.js
+js/geom.js
+js/layout.js
+js/mesh.js
+js/views.js
+js/export.js
+js/ribbon.js
+js/menus.js
+js/dialogs.js
+js/about-pages.js
+js/about.js
+js/sets.js
+js/props.js
+js/labels.js
+js/theme.js
+js/demo.js
+js/app.js

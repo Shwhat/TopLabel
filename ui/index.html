@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TopLabel</title>
+<link rel="icon" href="/logo.svg">
+<style>/*CSS*/</style>
+</head>
+<body>
+<div id="app">
+  <div id="menubar">
+    <div class="menu" data-menu="file">File</div>
+    <div class="menu" data-menu="edit">Edit</div>
+    <div class="menu" data-menu="label">Label</div>
+    <div class="menu" data-menu="library">Library</div>
+    <div class="menu" data-menu="export">Export</div>
+    <div class="menu" data-menu="view">View</div>
+    <div class="menu" data-menu="help">Help</div>
+    <div id="docname"></div>
+    <div class="menu account hidden" id="accountmenu" data-menu="account"></div>
+  </div>
+  <div id="toolbar"></div>
+  <div id="main">
+    <aside id="dock-left" class="dock"><div class="dtitle">Sets</div><div id="setspanel" class="dbody"></div><div class="dedge" data-edge="left"></div></aside>
+    <div id="dockmid">
+      <section id="center">
+        <div id="workhead">
+          <span class="whname" id="whname"></span><span class="whsub" id="whsub"></span>
+          <span class="whsp"></span>
+          <div class="seg" id="viewtabs"><button data-view="2d" data-act="view2d">2D layout</button><button data-view="3d" data-act="view3d">3D preview</button><button data-view="both" data-act="viewBoth">Both</button></div>
+          <button class="btn small" data-act="fitView" title="Fit the label in the view (F)">Fit</button>
+        </div>
+        <div id="work" data-view="3d">
+          <div id="pane2d" class="pane"><svg id="view2d" xmlns="http://www.w3.org/2000/svg"></svg></div>
+          <div id="pane3d" class="pane"><div id="view3d"></div><div id="parttoggles"></div></div>
+          <div id="aboutview" class="hidden"></div>
+        </div>
+      </section>
+      <div id="dock-bottom" class="dock"><div class="dtitle">Saved labels</div><div id="labelspanel" class="dbody"></div><div class="dedge" data-edge="bottom"></div></div>
+    </div>
+    <aside id="dock-right" class="dock"><div class="dtitle">Properties</div><div id="props" class="dbody"></div><div class="dedge" data-edge="right"></div></aside>
+  </div>
+  <div id="status">
+    <span id="st-size"></span>
+    <span id="st-parts"></span>
+    <span id="st-warn"></span>
+    <span id="st-lib"></span>
+    <span id="st-msg"></span>
+  </div>
+</div>
+<div id="dropdown" class="hidden"></div>
+<dialog id="dlg"><form method="dialog" id="dlgform"><div class="dlghead" id="dlgtitle"></div><div id="dlgbody"></div><div class="dlgbtns" id="dlgbtns"></div></form></dialog>
+<script>/*JS*/</script>
+</body>
+</html>

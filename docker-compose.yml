@@ -1,0 +1,23 @@
+name: toplabel
+
+services:
+  app:
+    image: ghcr.io/shwhat/toplabel:latest
+    container_name: toplabel
+    restart: unless-stopped
+    ports:
+      - "${TOPLABEL_PORT:-8431}:8080"
+    environment:
+      TZ: America/Los_Angeles
+      TOPLABEL_SIGNUP: ${TOPLABEL_SIGNUP:-false}
+      TOPLABEL_SECURE_COOKIE: ${TOPLABEL_SECURE_COOKIE:-auto}
+      TOPLABEL_VECTORS_REPO: ${TOPLABEL_VECTORS_REPO:-Investigamer/mtg-vectors}
+      TOPLABEL_AUTO_REFRESH: ${TOPLABEL_AUTO_REFRESH:-true}
+    volumes:
+      - ${TOPLABEL_DATA_DIR:-/opt/toplabel/data}:/data
+    healthcheck:
+      test: ["CMD", "/toplabel", "-healthcheck"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5s
+      retries: 3

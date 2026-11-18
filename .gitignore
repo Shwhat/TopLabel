@@ -1,0 +1,7 @@
+build/
+node_modules/
+data/
+.env
+*.tmp
+toplabel
+toplabel-test

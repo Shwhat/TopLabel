@@ -1,0 +1,132 @@
+[
+ {
+  "code": "neo",
+  "name": "Kamigawa: Neon Dynasty",
+  "released_at": "2022-02-18",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 512,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/neo.svg?1700000000"
+ },
+ {
+  "code": "pneo",
+  "name": "Kamigawa: Neon Dynasty Promos",
+  "released_at": "2022-02-18",
+  "set_type": "promo",
+  "parent_set_code": "neo",
+  "card_count": 120,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/neo.svg?1700000000"
+ },
+ {
+  "code": "ltr",
+  "name": "The Lord of the Rings: Tales of Middle-earth",
+  "released_at": "2023-06-23",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 452,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/ltr.svg?1700000000"
+ },
+ {
+  "code": "tla",
+  "name": "Avatar: The Last Airbender",
+  "released_at": "2025-11-21",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 394,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/tla.svg?1700000000"
+ },
+ {
+  "code": "fdn",
+  "name": "Foundations",
+  "released_at": "2024-11-15",
+  "set_type": "core",
+  "parent_set_code": "",
+  "card_count": 730,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/fdn.svg?1700000000"
+ },
+ {
+  "code": "tfdn",
+  "name": "Foundations Tokens",
+  "released_at": "2024-11-15",
+  "set_type": "token",
+  "parent_set_code": "fdn",
+  "card_count": 60,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/fdn.svg?1700000000"
+ },
+ {
+  "code": "blb",
+  "name": "Bloomburrow",
+  "released_at": "2024-08-02",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 398,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/blb.svg?1700000000"
+ },
+ {
+  "code": "ecl",
+  "name": "Lorwyn Eclipsed",
+  "released_at": "2026-01-23",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 300,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/ecl.svg?1700000000"
+ },
+ {
+  "code": "sos",
+  "name": "Secrets of Strixhaven",
+  "released_at": "2026-04-24",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 300,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/sos.svg?1700000000"
+ },
+ {
+  "code": "hob",
+  "name": "The Hobbit",
+  "released_at": "2026-08-14",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 280,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/hob.svg?1700000000"
+ },
+ {
+  "code": "con",
+  "name": "Conflux",
+  "released_at": "2009-02-06",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 145,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/con.svg?1700000000"
+ },
+ {
+  "code": "zzt",
+  "name": "Test Set With Scryfall Icon",
+  "released_at": "2026-10-02",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 100,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/zzt.svg?1700000000"
+ },
+ {
+  "code": "zzn",
+  "name": "Test Set Without Symbol",
+  "released_at": "2026-10-09",
+  "set_type": "expansion",
+  "parent_set_code": "",
+  "card_count": 90,
+  "digital": false,
+  "icon_svg_uri": "https://svgs.scryfall.io/sets/zzn.svg?1700000000"
+ }
+]
