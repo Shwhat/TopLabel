@@ -58,7 +58,7 @@ This page lists what TopLabel does in the current version, followed by what is p
 - Standard 3MF with one colored object per part.
 - STL as one combined mesh, or one STL per filament slot in a zip file.
 - OBJ and AMF with colors, SVG top view, DXF outlines and a PNG picture of the 3D preview.
-- Export many sets at once: one Bambu project with the labels packed onto plates or one plate per set, or a zip with one file per set.
+- Export many at once: sets, basic lands and watermarks together, built from the open label, a saved label or a divider shape, as one Bambu project with the labels packed onto plates or one plate per item, or a zip with one file per item.
 - File names from a pattern with the set code, name and rarity.
 
 ### Saving

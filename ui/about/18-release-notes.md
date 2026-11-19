@@ -2,6 +2,13 @@
 
 The installed version is shown at the top of this guide.
 
+## 0.5.0 (2026-11-18): Export many with dividers, lands and watermarks
+
+- Export many sets is now Export many (still Ctrl+Shift+E).
+- Build: Export many makes its copies from the open label or divider, any saved label, or any divider shape, built in or saved.
+- Export many has Sets, Basic lands and Watermarks tabs; items ticked on every tab are exported together, and each tab shows how many of its items are chosen.
+- Lands and watermarks in Export many get their symbol and name, and a land its filament color, as when picked in the Sets panel.
+
 ## 0.4.0 (2026-11-18): Moving items, more symbols, uploads, edges, batch export and new formats
 
 - Items can be moved, scaled and turned: with the Position fields of each item, or in the 2D layout by dragging an item and its square (scale) and round (turn) handles. Arrow keys move the picked item and Delete removes it.

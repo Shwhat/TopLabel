@@ -35,6 +35,6 @@ On a new server the symbol library downloads by itself when the server starts. T
 | Add mana symbols | Layout group, Add a row, Mana symbols, then a preset such as Rakdos |
 | Add a second symbol | Layout group, Add a row, Set symbol, then Source: Another set and its set code |
 | Move or turn an item | 2D layout: click it and drag it, or use its square and round handles |
-| Label many sets at once | Export, Export many sets, then tick the sets |
+| Label many sets, lands or watermarks at once | Export, Export many, choose what to build, then tick the items on the Sets, Basic lands and Watermarks tabs |
 | Make a drawer divider | Pick a set, then New divider on the Home tab |
 | See demo labels | Help, Open demo labels |

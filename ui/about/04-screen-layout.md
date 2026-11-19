@@ -6,11 +6,11 @@ TopLabel has a menu bar and ribbon at the top, the Sets panel on the left, the w
 
 | Menu | Items |
 |---|---|
-| File | New label, New divider, Open saved label, Save, Save as, Rename label, Delete saved label, Export, Export Bambu Studio 3MF, Export STL, Export many sets, Change password, Sign out |
+| File | New label, New divider, Open saved label, Save, Save as, Rename label, Delete saved label, Export, Export Bambu Studio 3MF, Export STL, Export many, Change password, Sign out |
 | Edit | Undo, Redo, Add a set symbol row, Add a text row, Add a set code row, Add a mana symbols row, Add a symbol grid row, Reset label to defaults |
 | Label | Size, Layout, Save layout, Make layout the default, Manage layouts, Depth, Save depth profile, Save size preset, Save divider shape, Manage presets, Filament colors, Two-tone symbol on or off |
 | Library | Refresh library, Library information, Fonts, Upload SVG symbol, Upload font, Uploads, Show sets, Show lands and watermarks |
-| Export | Export (the dialog), Export many sets, and one item per format |
+| Export | Export (the dialog), Export many, and one item per format |
 | View | 2D layout, 3D preview, Both views, Fit the label in the view, Front of the divider (2D), Back of the divider (2D), Layout guides on or off, Dark theme on or off, Dark work surface on or off, show or hide each panel, Reset panel layout |
 | Help | Keyboard shortcuts, Open demo labels, About TopLabel |
 

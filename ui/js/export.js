@@ -271,7 +271,7 @@ async function exportLabel(fmt = PREFS.exportFmt) {
   return file;
 }
 
-// ---------- batch export: the open label's design for many sets ----------
+// ---------- batch export: one design for many sets, lands and watermarks ----------
 // Every chosen set gets a copy of the open label with that set applied. 'project' makes one Bambu 3MF with one
 // plate per label ('plates') or the labels packed onto as few plates as fit ('packed'); 'files' makes a zip with
 // one file per label in the chosen format.
@@ -286,16 +286,42 @@ function packPlates(sizes, bed, gap = 4, margin = 5) {
   }
   return out;
 }
-async function batchExport(codes, opt, progress = () => {}) {
-  const labels = [];
-  for (let i = 0; i < codes.length; i++) {
-    const st = SETS_BY_CODE.get(codes[i]); if (!st) continue;
-    progress(i, codes.length, st);
-    const l = normalizeLabel(clone(L)); const rar = l.symbol.rarity; applySet(l, st); l.symbol.rarity = (st.rarities || []).includes(rar) ? rar : l.symbol.rarity;
+// what Export many builds from: 'open' (the open label or divider), 'l:<saved label id>' or 'd:<divider shape id>'.
+// A divider shape on a label uses the Divider band layout with the label's colors, depth and text settings.
+function batchTemplate(build) {
+  build = build || 'open';
+  if (build.startsWith('l:')) { const it = SAVED.labels.find(x => x.id === build.slice(2)); if (it) return normalizeLabel(clone(it.label)); }
+  if (build.startsWith('d:')) {
+    const d = dividerShapeById(build.slice(2));
+    if (d) {
+      let l;
+      if (L.kind === 'divider') l = normalizeLabel(clone(L));
+      else { l = newDivider(); l.depth = clone(L.depth); l.base = clone(L.base); l.symbol = clone(L.symbol); l.text = clone(L.text); l.set = L.set ? clone(L.set) : null; }
+      applyDividerShape(l, d); return l;
+    }
+  }
+  return normalizeLabel(clone(L));
+}
+// one entry of Export many: 'set:<code>' (or a bare code), 'land:<id>' or 'wm:<name>'
+function batchItem(tpl, key) {
+  const i = key.indexOf(':'), k = i > 0 ? key.slice(0, i) : 'set', v = i > 0 ? key.slice(i + 1) : key;
+  const l = clone(tpl);
+  if (k === 'land') { const land = LANDS.find(x => x.id === v); if (!land || !LIB.watermarks.includes(v)) return null; applyLand(l, land); return { l, label: land.name }; }
+  if (k === 'wm') { if (!LIB.watermarks.includes(v)) return null; applyWatermark(l, v); return { l, label: l.name }; }
+  const st = SETS_BY_CODE.get(v); if (!st) return null;
+  const rar = l.symbol.rarity; applySet(l, st); l.symbol.rarity = (st.rarities || []).includes(rar) ? rar : l.symbol.rarity;
+  return { l, label: st.code };
+}
+async function batchExport(keys, opt, progress = () => {}) {
+  const labels = [], tpl = batchTemplate(opt.build);
+  for (let i = 0; i < keys.length; i++) {
+    const it = batchItem(tpl, keys[i]); if (!it) continue;
+    progress(i, keys.length, it.label);
+    const l = it.l;
     const model = await buildLabel(l), meshes = partMeshes(model);
     if (meshes.length) labels.push({ l, model, meshes });
   }
-  progress(codes.length, codes.length, null);
+  progress(keys.length, keys.length, null);
   if (!labels.length) { flash('Nothing to export'); return null; }
   const stamp = new Date().toISOString().slice(0, 10), title = `TopLabel ${labels.length} labels ${stamp}`;
   let file;

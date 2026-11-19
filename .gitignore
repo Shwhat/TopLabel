@@ -1,6 +1,6 @@
 build/
 node_modules/
-data/
+/data/
 .env
 *.tmp
 toplabel

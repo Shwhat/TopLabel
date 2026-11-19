@@ -19,7 +19,7 @@
 | Library | The set symbols, watermarks, set list and icons kept on the server |
 | mtg-vectors | The open repository of Magic set symbols on GitHub that TopLabel downloads |
 | Mana symbol | A Magic mana symbol from Scryfall, printed as a pip or an icon |
-| Packed plates | Labels of Export many sets placed side by side on as few printer plates as fit |
+| Packed plates | Labels of Export many placed side by side on as few printer plates as fit |
 | Palette | The list of filament slots with their names and colors |
 | Picked item | The item clicked in the 2D layout, outlined in blue with handles to scale and turn it |
 | Pip | The round mana symbol with its icon cut out of it |

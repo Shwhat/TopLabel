@@ -1,6 +1,6 @@
 # Export
 
-Export turns the open label into a file for the slicer, a drawing program or a picture. The Bambu 3MF and STL buttons on the Home tab export straight away; File, Export (Ctrl+E) opens the Export dialog, and the Export menu has one item per format. Export many sets (Ctrl+Shift+E) makes the open label's design for many sets at once.
+Export turns the open label into a file for the slicer, a drawing program or a picture. The Bambu 3MF and STL buttons on the Home tab export straight away; File, Export (Ctrl+E) opens the Export dialog, and the Export menu has one item per format. Export many (Ctrl+Shift+E) makes one design for many sets, basic lands and watermarks at once.
 
 ## Formats
 
@@ -29,19 +29,23 @@ Sizes are in millimetres. The label lies flat with its base on the bed and its t
 
 The options are kept per user.
 
-## Export many sets
+## Export many
 
-Export many sets makes a copy of the open label for every chosen set, with that set's symbol and text; the size, layout, depth, colors and positions stay the same. The rarity stays when the set has it, otherwise the set's common symbol is used.
+Export many makes a copy of one design for every chosen set, basic land and watermark. A set gets its symbol and text; a land or watermark gets its symbol and its name as the text, and a land also its filament color, as when it is picked in the Sets panel. The size, layout, depth, colors and positions stay the same. The rarity stays when the set has it, otherwise the set's common symbol is used.
 
 | Option | Default | Notes |
 |---|---|---|
-| Output | One Bambu Studio project (.3mf) | Or One file per set (.zip) |
-| Plates in the project | Packed onto the printer bed | Packed: the labels are placed in rows from the top left of the bed, 4 mm apart and 5 mm from the edges, and a new plate starts when a plate is full. One plate per set: each label in the middle of its own plate. |
-| Format of the files | STL, one combined mesh | For One file per set: every format except the Bambu project and PNG |
+| Build | The open label (or The open divider) | What each copy is made from: the open label or divider, any saved label (Saved label: name), or any divider shape, built in or saved (Divider: name). A divider shape used while a divider is open keeps that divider's layout and takes the shape's size, band, tab and pattern. A divider shape used while a label is open gives a divider with the Divider band layout and the label's colors, depth and text settings. |
+| Output | One Bambu Studio project (.3mf) | Or One file per item (.zip) |
+| Plates in the project | Packed onto the printer bed | Packed: the labels are placed in rows from the top left of the bed, 4 mm apart and 5 mm from the edges, and a new plate starts when a plate is full. One plate per item: each label in the middle of its own plate. |
+| Format of the files | STL, one combined mesh | For One file per item: every format except the Bambu project and PNG |
 | Printer bed | As in the Export dialog | Bed size used for the plates |
-| Sets | The open label's set | The list shows the sets of the Sets panel filter that have a symbol. Filter narrows it by name or code; Choose all shown and Choose none tick or clear the sets shown. |
+| Choose | Sets | Three tabs: **Sets** (the sets of the Sets panel filter that have a symbol), **Basic lands** (Plains, Island, Swamp, Mountain, Forest and Wastes, when the library has them) and **Watermarks** (every other watermark). Each tab shows how many of its items are chosen. Ticks on every tab are kept and exported together. |
+| Filter | Empty | Narrows the tab shown by name or code |
+| Choose all shown, Choose none | | Tick or clear the items shown on the tab shown |
+| Items chosen at the start | The open label's set, land or watermark | The count beside the buttons is the total over all three tabs |
 
-In the project, each label is one object named with its set code and name, with its parts on their filament slots, and the plates are laid out the way Bambu Studio lays them out. The status bar shows which set is being built. The open label is not changed. The choices are kept per user.
+In the project, each label is one object named with its set code and name, or with the land or watermark name, with its parts on their filament slots, and the plates are laid out the way Bambu Studio lays them out. In the zip, each file is named with the File name pattern of the Export dialog. The status bar shows which item is being built. The open label is not changed. The choices, including Build and the tab shown, are kept per user; a saved label that was deleted falls back to the open label.
 
 ## What the export contains
 

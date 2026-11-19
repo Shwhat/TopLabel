@@ -12,7 +12,7 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Ctrl+S | Save the label |
 | Ctrl+Shift+S | Save the label under a new name |
 | Ctrl+E | Export |
-| Ctrl+Shift+E | Export many sets |
+| Ctrl+Shift+E | Export many |
 | Ctrl+Z | Undo |
 | Ctrl+Y or Ctrl+Shift+Z | Redo |
 | Ctrl+L | Add a text row |

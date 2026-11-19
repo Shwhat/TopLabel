@@ -24,7 +24,7 @@ The full user guide is built into the program: Help, About TopLabel.
 - Filament palette of up to 16 slots with saved color sets.
 - 2D layout with guides and dimensions, 3D preview, or both; light and dark theme and a dark work surface; panels dock left, right or bottom, as tabs.
 - Export: Bambu Studio and OrcaSlicer 3MF project (parts on their filament slots), standard 3MF, STL, STL per color, OBJ and AMF with colors, SVG top view, DXF outlines, PNG picture.
-- Export many sets at once: one Bambu project with labels packed onto plates or one plate per set, or a zip of files.
+- Export many at once: sets, basic lands and watermarks together, built from the open label, a saved label or a divider shape, as one Bambu project with labels packed onto plates or one plate per item, or a zip of files.
 - Accounts, saved labels and preferences on the server, undo and redo, keyboard shortcuts.
 
 Planned for later: floating panels and saved workspaces; several styles of one uploaded font; WOFF2 fonts.
@@ -36,7 +36,7 @@ Planned for later: floating panels and saved workspaces; several styles of one u
 | Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New label, open, save, save as |
 | Ctrl+Shift+N | New divider |
 | Ctrl+E | Export |
-| Ctrl+Shift+E | Export many sets |
+| Ctrl+Shift+E | Export many |
 | Ctrl+Z, Ctrl+Y | Undo, redo |
 | Ctrl+L | Add a text row |
 | 2, 3, B | 2D layout, 3D preview, both |

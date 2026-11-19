@@ -1,6 +1,6 @@
 # TopLabel handoff
 
-Version 0.4.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
+Version 0.5.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
 
 ## Project
 
@@ -41,10 +41,10 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `ui/js/layout.js` | Text lines (short names), wrapping, content area (`contentArea`: label or divider top band), row heights and item widths, symbol item sources, symbol grids, `itemXform` (move, scale, turn), top edge steps (`edgeSteps`), divider outline and pattern holes, auto-fit, depth, front and back pockets: `buildLabel()` |
 | `ui/js/mesh.js` | Closed meshes: base solid with holes, pockets on both faces and a stepped top edge from shared rings, slab solids, vertex welding |
 | `ui/js/views.js` | Build scheduling, 2D layout (SVG) with picking, dragging, scale and turn handles, arrow keys and the divider back, 3D preview (three.js), part toggles, view switching |
-| `ui/js/export.js` | Zip writer, binary STL, Bambu project with many objects and plates (`bambuProject`), standard 3MF, OBJ, AMF, SVG, DXF, PNG, `exportFile()`, `exportLabel()`, batch export with plate packing (`packPlates`, `batchExport`) |
+| `ui/js/export.js` | Zip writer, binary STL, Bambu project with many objects and plates (`bambuProject`), standard 3MF, OBJ, AMF, SVG, DXF, PNG, `exportFile()`, `exportLabel()`, batch export with plate packing (`packPlates`, `batchTemplate` for the Build choice, `batchItem` for sets, lands and watermarks, `batchExport`) |
 | `ui/js/ribbon.js` | Icons, ribbon tabs and groups |
 | `ui/js/menus.js` | Menus, the ACTIONS map, keyboard shortcuts |
-| `ui/js/dialogs.js` | `dialog()` helper and every dialog (size, layout, depth, presets, palette, refresh, library, fonts, export, save, account, uploads, export many sets) |
+| `ui/js/dialogs.js` | `dialog()` helper and every dialog (size, layout, depth, presets, palette, refresh, library, fonts, export, save, account, uploads, Export many with its Build choice and Sets, Basic lands and Watermarks tabs) |
 | `ui/js/about.js`, `ui/js/about-pages.js`, `ui/about/*.md` | About screen, generated page bundle (`python3 tools/about.py`), guide pages |
 | `ui/js/sets.js` | Sets panel: sets table, filters, sorting, keyboard, lands and watermarks |
 | `ui/js/props.js` | Properties panel and its change handling |
@@ -54,8 +54,8 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `ui/js/demo.js` | Demo labels (one per feature) |
 | `ui/js/app.js` | Startup (last in the manifest), docking panels (`PREFS.dock`, `PREFS.dockTab`), status bar |
 | `tests/run.mjs` | Builds the server, starts it with the fixture library and a fake GitHub and Scryfall, runs the Playwright suites |
-| `tests/suites/` | 00-static, 10-label, 15-divider, 17-design (0.4.0 features), 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
-| `tests/fixtures/library/current/` | A small real library (9 symbol folders, watermarks, code lists, 13 sets) |
+| `tests/suites/` | 00-static, 10-label, 15-divider, 17-design (0.4.0 features), 18-batch (Export many: Build, tabs), 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
+| `tests/fixtures/library/current/` | A small real library (9 symbol folders, watermarks, code lists in `vectors/data`, 13 sets) |
 | `Dockerfile`, `docker-compose.yml`, `.env.example`, `.github/workflows/docker.yml` | Image (scratch, CA certificates, UID 65532), Dockhand-ready stack, CI publishing to GHCR |
 
 ## How it works
@@ -70,12 +70,13 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 - Short names: line source 'short'; saved names in `presets.json` under `shortNames`.
 - Mana: SVGs come from the library (`/api/library/mana/<code>.svg`). Pip = circle minus the dark glyph; icon = the glyph. Default colors W yellow, U blue, B purple, R red, G green, others grey.
 - Dividers: `L.kind = 'divider'` with `L.div` (shape id, band, tabH, tabInset, pattern, back). Rows are placed inside the top band (Divider band layout by default). Saved divider shapes are in `presets.json` under `dividers`.
+- Export many: `PREFS.batchBuild` is 'open', 'l:<saved label id>' or 'd:<divider shape id>' (falls back to 'open' when gone); checklist values are 'set:<code>', 'land:<id>', 'wm:<name>'. A divider shape on an open label makes a new divider (Divider band layout) carrying the label's depth, base, symbol and text settings. `PREFS.batchTab` remembers the tab.
 - The open label autosaves into `prefs.json` (`autosave`) 1.5 s after each change.
 - Library refresh downloads into `library/new-<time>`, swaps it with `library/current` only when every step worked, and removes leftovers on start.
 
 ## Tests
 
-- `go test ./...` and `npm test` (68 browser tests) pass at 0.4.0.
+- `go test ./...` and `npm test` (72 browser tests) pass at 0.5.0.
 - The browser tests use one account (`tester`) and reset its data per test, because sign-ups are rate limited per address.
 - Exports are checked with Python: XML well formed, every mesh edge shared by exactly two triangles, filament slots, placement.
 
@@ -98,4 +99,4 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Where work stopped
 
-0.4.0 is built, tested and pushed to `main`. It brings everything that was planned: moving, scaling and turning items (fields and 2D dragging), symbol items from other sets, lands, watermarks or uploaded SVGs, symbol grids, SVG and font uploads, rounded or chamfered top edges, short set names, the divider back in 2D, export many sets (packed or one plate each, or a zip), OBJ, AMF, SVG, DXF and PNG export, and docking panels. Defaults chosen without Devon's answer: rotation is clockwise; uploads are shared with everyone on the server; packed plates use 5 mm from the edges and 4 mm between labels; the edge is on the top face only; short names drop "The" and a subtitle only when two or more words remain. Next: Devon to deploy, print a label with a rounded edge and try Export many sets in Bambu Studio, and report anything that looks wrong.
+0.5.0 is built and tested, not committed. Export many sets became Export many: a Build choice (the open label or divider, a saved label, or a divider shape) and Sets, Basic lands and Watermarks tabs whose picks export together. The test fixture code lists (`tests/fixtures/library/current/vectors/data/alias.yml` and `routes.yml`) were missing from the repository because `.gitignore` held `data/`; it now holds `/data/`, and the two files were recreated (CON to CONF, PNEO to NEO, TFDN to FDN). Earlier 0.4.0 defaults chosen without Devon's answer still stand: rotation is clockwise; uploads are shared with everyone on the server; packed plates use 5 mm from the edges and 4 mm between labels; the edge is on the top face only; short names drop "The" and a subtitle only when two or more words remain. Next: Devon to deploy, try Export many with a divider shape and with lands, and open the project in Bambu Studio.

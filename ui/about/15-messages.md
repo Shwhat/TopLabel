@@ -65,11 +65,11 @@ Missing Scryfall icons do not stop a refresh; those sets show "No symbol".
 | Save the layout first | Make default for a Custom layout |
 | Open a divider first | Save divider shape while a label is open |
 | The back is shown for dividers | Back of the divider (2D) while a label is open |
-| Choose a file. / Choose at least one set. | Uploading without a file; Export many sets without a set |
+| Choose a file. / Choose at least one set, land or watermark. | Uploading without a file; Export many with nothing ticked |
 | The file is not an SVG image. / The SVG is larger than 2 MB. | Upload SVG symbol with a wrong or too large file |
 | The file is not a font. Upload a TTF, OTF or WOFF file. / WOFF2 fonts cannot be used. Upload the TTF, OTF or WOFF file of the font. / The font is larger than 8 MB. | Upload font with a wrong or too large file |
 | Uploads need the TopLabel server | Uploading in a page opened without the server |
-| The library has no sets yet | Export many sets before the library is downloaded |
+| The library has no sets yet | Export many before the library is downloaded |
 | Refresh the library first; the demo labels use its symbols | Opening the demos before the library is downloaded |
 | That set is not in the library | A demo label's set is missing |
 | Could not save in this browser | The page runs without a server and the browser refused to store data |

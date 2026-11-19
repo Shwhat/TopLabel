@@ -162,17 +162,17 @@ for o in m.iter(NS+'object'):
   bad+=sum(1 for v in e.values() if v!=2)
 print(json.dumps([[len(p.findall('model_instance')) for p in r.iter('plate')],[o.find("metadata[@key='name']").get('value') for o in r.iter('object')],bad]))`;
     await t.act('batchDlg');
-    for (const c of ['BLB', 'LTR']) await t.page.check(`#bxlist input[value="${c}"]`);
+    for (const c of ['BLB', 'LTR']) await t.page.check(`#bxlist input[value="set:${c}"]`);
     t.eq(await t.page.textContent('#bxcount'), '3 chosen');
     await t.page.fill('#bxq', 'lord'); t.eq(await t.eval(() => $$('#bxlist label:not(.hidden)').length), 1, 'filter');
     let d = await t.download(() => t.page.click('#dlgbtns .primary'));
     t.eq(py(plates, save(d)), [[3], ['BLB Bloomburrow', 'LTR The Lord of the Rings: Tales of Middle-earth', 'NEO Kamigawa: Neon Dynasty'], 0], 'packed on one H2D plate');
     await t.act('batchDlg'); await t.page.selectOption('#dlg select[name=plates]', 'plates');
-    for (const c of ['BLB', 'LTR']) await t.page.check(`#bxlist input[value="${c}"]`);
+    for (const c of ['BLB', 'LTR']) await t.page.check(`#bxlist input[value="set:${c}"]`);
     d = await t.download(() => t.page.click('#dlgbtns .primary'));
     t.eq(py(plates, save(d))[0], [1, 1, 1], 'one plate each');
     await t.act('batchDlg'); await t.page.selectOption('#dlg select[name=mode]', 'files'); await t.page.selectOption('#dlg select[name=fmt]', 'stl');
-    await t.page.check('#bxlist input[value="BLB"]');
+    await t.page.check('#bxlist input[value="set:BLB"]');
     d = await t.download(() => t.page.click('#dlgbtns .primary'));
     t.eq(py(`import sys,zipfile,json;print(json.dumps(sorted(zipfile.ZipFile(sys.argv[1]).namelist())))`, save(d)), ['BLB - Bloomburrow.stl', 'NEO - Kamigawa Neon Dynasty.stl']);
     t.eq(await t.eval(() => [PREFS.batchMode, PREFS.batchFmt]), ['files', 'stl'], 'remembered');

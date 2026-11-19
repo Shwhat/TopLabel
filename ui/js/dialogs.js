@@ -41,7 +41,7 @@ const posNum = (v, min = 0) => { const n = parseFloat(v); return Number.isFinite
 function confirmDiscard() { return !dirty || confirm('This label has changes that are not saved. Continue without saving?'); }
 
 function shortcuts() {
-  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Shift+E', 'Export many sets...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text row'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Click, drag (2D)', 'Pick and move an item; its square handle scales it, its round handle turns it'], ['Arrows, Shift+arrows (2D)', 'Move the picked item by 0.1 mm or 1 mm'], ['Delete (2D)', 'Remove the picked item'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
+  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Shift+E', 'Export many...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text row'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Click, drag (2D)', 'Pick and move an item; its square handle scales it, its round handle turns it'], ['Arrows, Shift+arrows (2D)', 'Move the picked item by 0.1 mm or 1 mm'], ['Delete (2D)', 'Remove the picked item'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
   dialog('Keyboard shortcuts', [], null, 'OK', `<div class="kbd">${k.map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join('')}</div>`);
 }
 
@@ -327,27 +327,57 @@ function manageUploads() {
 }
 
 // ---------- batch export ----------
+// Export many: what to build (the open item, a saved label or a divider shape), and a checklist with tabs for
+// sets, basic lands and watermarks; picks on every tab export together
+function batchBuildOpts() {
+  return [['open', L.kind === 'divider' ? 'The open divider' : 'The open label']]
+    .concat(SAVED.labels.slice().sort((a, b) => natCmp(a.name, b.name)).map(x => ['l:' + x.id, 'Saved label: ' + x.name]))
+    .concat(DIVIDER_SHAPES.concat((SAVED.presets && SAVED.presets.dividers) || []).map(d => ['d:' + d.id, 'Divider: ' + d.name]));
+}
 function batchDlg() {
   if (!LIB.sets.length) { flash('The library has no sets yet'); return; }
   const shown = filteredSets().filter(s => s.src !== 'none');
-  const chosen = new Set(L.set ? [L.set.code] : []);
+  const has = n => LIB.watermarks.includes(n);
+  const lands = LANDS.filter(l => has(l.id)), wms = LIB.watermarks.filter(n => !LANDS.some(l => l.id === n)).sort(natCmp);
+  const chosen = new Set(L.set ? ['set:' + L.set.code] : L.symbol.src === 'wm' && L.symbol.wm ? [(LANDS.some(l => l.id === L.symbol.wm) ? 'land:' : 'wm:') + L.symbol.wm] : []);
   const fmts = EXPORT_FORMATS.filter(([k]) => k !== 'bambu' && k !== 'png');
-  dialog('Export many sets', [['mode', 'Output', PREFS.batchMode || 'project', 'select', [['project', 'One Bambu Studio project (.3mf)'], ['files', 'One file per set (.zip)']]],
-    ['plates', 'Plates in the project', PREFS.batchPlates || 'packed', 'select', [['packed', 'Packed onto the printer bed'], ['plates', 'One plate per set']]],
+  const builds = batchBuildOpts(), build = builds.some(([k]) => k === PREFS.batchBuild) ? PREFS.batchBuild : 'open';
+  const tab = ['sets', 'lands', 'wm'].includes(PREFS.batchTab) ? PREFS.batchTab : 'sets';
+  const row = (key, q, html) => `<label data-q="${esc(q.toLowerCase())}"><input type="checkbox" value="${esc(key)}" ${chosen.has(key) ? 'checked' : ''}>${html}</label>`;
+  const img = f => `<img class="bxicon" loading="lazy" src="/api/library/watermark/${encodeURIComponent(f)}.svg" alt="">`;
+  const groups = {
+    sets: shown.map(s => row('set:' + s.code, s.code + ' ' + s.name, `<b>${esc(s.code)}</b> ${esc(fixDashes(s.name))} <span class="note" style="margin:0">${esc((s.date || '').slice(0, 4))}</span>`)).join(''),
+    lands: lands.map(l => row('land:' + l.id, l.name, img(l.id) + esc(l.name))).join(''),
+    wm: wms.map(n => { const nm = n.replace(/^./, c => c.toUpperCase()); return row('wm:' + n, nm, img(n) + esc(nm)); }).join(''),
+  };
+  const empty = { sets: 'No sets match the Sets panel filter.', lands: 'The library has no basic land symbols.', wm: 'The library has no watermarks.' };
+  dialog('Export many', [['build', 'Build', build, 'select', builds], ['mode', 'Output', PREFS.batchMode || 'project', 'select', [['project', 'One Bambu Studio project (.3mf)'], ['files', 'One file per item (.zip)']]],
+    ['plates', 'Plates in the project', PREFS.batchPlates || 'packed', 'select', [['packed', 'Packed onto the printer bed'], ['plates', 'One plate per item']]],
     ['fmt', 'Format of the files', PREFS.batchFmt || 'stl', 'select', fmts], ['bed', 'Printer bed', PREFS.bed, 'select', BEDS.map(b => [b.id, b.name])]], v => {
-    const codes = [...$$('#bxlist input:checked')].map(x => x.value);
-    if (!codes.length) { alert('Choose at least one set.'); return false; }
-    PREFS.batchMode = v.mode; PREFS.batchPlates = v.plates; PREFS.batchFmt = v.fmt; PREFS.bed = v.bed; savePrefs();
+    const keys = [...$$('#bxlist input:checked')].map(x => x.value);
+    if (!keys.length) { alert('Choose at least one set, land or watermark.'); return false; }
+    PREFS.batchBuild = v.build; PREFS.batchMode = v.mode; PREFS.batchPlates = v.plates; PREFS.batchFmt = v.fmt; PREFS.bed = v.bed; PREFS.batchTab = $('#bxtabs .on').dataset.bxtab; savePrefs();
     const st = $('#st-msg');
-    batchExport(codes, { mode: v.mode, plates: v.plates, fmt: v.fmt }, (i, n, s) => { if (st) st.textContent = s ? `Building ${i + 1} of ${n}: ${s.code}` : ''; });
-  }, 'Export', `<div class="prow"><label for="bxq">Sets</label><input id="bxq" placeholder="Filter by name or code"></div>
+    batchExport(keys, { build: v.build, mode: v.mode, plates: v.plates, fmt: v.fmt }, (i, n, s) => { if (st) st.textContent = s ? `Building ${i + 1} of ${n}: ${s}` : ''; });
+  }, 'Export', `<div class="prow"><label>Choose</label><div class="seg" id="bxtabs">${[['sets', 'Sets'], ['lands', 'Basic lands'], ['wm', 'Watermarks']].map(([k, n]) => `<button type="button" data-bxtab="${k}" class="${k === tab ? 'on' : ''}">${n} <span data-bxn="${k}"></span></button>`).join('')}</div></div>
+    <div class="prow"><label for="bxq">Filter</label><input id="bxq" placeholder="Filter by name or code"></div>
     <div class="btnrow"><button type="button" class="btn small" data-bx="all">Choose all shown</button><button type="button" class="btn small" data-bx="none">Choose none</button><span class="note" id="bxcount" style="margin:0"></span></div>
-    <div class="bxlist" id="bxlist">${shown.map(s => `<label data-q="${esc((s.code + ' ' + s.name).toLowerCase())}"><input type="checkbox" value="${esc(s.code)}" ${chosen.has(s.code) ? 'checked' : ''}><b>${esc(s.code)}</b> ${esc(fixDashes(s.name))} <span class="note" style="margin:0">${esc((s.date || '').slice(0, 4))}</span></label>`).join('')}</div>
-    <div class="note">Each set gets a copy of the open label with that set's symbol and text; size, layout, depth and colors stay the same. The list shows the sets of the Sets panel filter.</div>`);
+    <div class="bxlist" id="bxlist">${Object.entries(groups).map(([k, h]) => `<div data-bxg="${k}" class="${k === tab ? '' : 'hidden'}">${h || `<div class="note" style="margin:4px 6px">${empty[k]}</div>`}</div>`).join('')}</div>
+    <div class="note">Each item gets a copy of what Build names, with that set's symbol and text, or the land's or watermark's symbol and name; size, layout, depth and colors stay the same. A divider shape used with an open label gets the Divider band layout with the label's colors, depth and text settings. The Sets tab shows the sets of the Sets panel filter.</div>`);
   $('#dlg').style.width = '620px';
-  const count = () => { $('#bxcount').textContent = `${$$('#bxlist input:checked').length} chosen`; };
+  const cur = () => $('#bxlist [data-bxg]:not(.hidden)');
+  const count = () => {
+    $('#bxcount').textContent = `${$$('#bxlist input:checked').length} chosen`;
+    $$('#bxtabs [data-bxn]').forEach(x => { const n = $$(`#bxlist [data-bxg="${x.dataset.bxn}"] input:checked`).length; x.textContent = n ? `(${n})` : ''; });
+  };
+  const filter = () => { const q = $('#bxq').value.trim().toLowerCase(); $$('#bxlist label').forEach(l => l.classList.toggle('hidden', !!q && !l.dataset.q.includes(q))); };
   count();
-  $('#dlgbody').oninput = e => { if (e.target.id === 'bxq') { const q = e.target.value.trim().toLowerCase(); $$('#bxlist label').forEach(l => l.classList.toggle('hidden', !!q && !l.dataset.q.includes(q))); } };
+  $('#dlgbody').oninput = e => { if (e.target.id === 'bxq') filter(); };
   $('#dlgbody').onchange = count;
-  $('#dlgbody').onclick = e => { const b = e.target.closest('[data-bx]'); if (!b) return; $$('#bxlist label').forEach(l => { if (!l.classList.contains('hidden')) l.querySelector('input').checked = b.dataset.bx === 'all'; }); count(); };
+  $('#dlgbody').onclick = e => {
+    const t = e.target.closest('[data-bxtab]');
+    if (t) { $$('#bxtabs button').forEach(b => b.classList.toggle('on', b === t)); $$('#bxlist [data-bxg]').forEach(g => g.classList.toggle('hidden', g.dataset.bxg !== t.dataset.bxtab)); return; }
+    const b = e.target.closest('[data-bx]'); if (!b) return;
+    cur().querySelectorAll('label').forEach(l => { if (!l.classList.contains('hidden')) l.querySelector('input').checked = b.dataset.bx === 'all'; }); count();
+  };
 }
