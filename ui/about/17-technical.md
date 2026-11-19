@@ -8,8 +8,8 @@
 | Interface | HTML, CSS and JavaScript in the browser, no build step |
 | Label geometry | Built in the browser: SVG and font outlines are turned into polygons, combined, fitted and extruded into closed meshes |
 | 3D preview | three.js |
-| Exports | Written in the browser (3MF, STL and zip) |
-| Data | JSON files in the data folder |
+| Exports | Written in the browser (3MF, STL, OBJ, AMF, SVG, DXF, PNG and zip) |
+| Data | JSON files in the data folder; uploads as files in `shared/uploads` |
 | Container | `FROM scratch` image, runs as user 65532, data in `/data`, built-in health check |
 
 ## Installation
@@ -48,12 +48,12 @@ The server contacts api.github.com and codeload.github.com (symbols), api.scryfa
 
 ## Limits
 
-- Items cannot yet be dragged in the 2D layout; their place comes from the layout rows.
-- The set symbol is the symbol of the label's set, land or watermark; other symbols cannot be uploaded yet.
-- Own SVG files and fonts cannot be uploaded yet.
-- One label per export; batch export is planned.
-- Panels can be resized and hidden but not moved to other edges.
-- Text uses the Latin characters of the built-in fonts.
+- Uploaded SVGs up to 2 MB and fonts up to 8 MB; WOFF2 fonts cannot be read. Uploaded fonts have one style.
+- Text uses the characters of the chosen font; the built-in fonts cover Latin characters.
+- The top edge is rounded or chamfered on the top face only; the face on the bed stays square.
+- The SVG and DXF exports show the front of the label; the PNG of a batch export is not offered.
+- Panels move between three docks; floating panels and saved workspaces are not offered.
+- Items move within the label; parts moved outside it are cut off.
 - The 3D preview needs WebGL; without it the 2D layout and exports still work.
 
 ## Third-party components

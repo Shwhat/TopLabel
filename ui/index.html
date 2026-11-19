@@ -22,13 +22,14 @@
   </div>
   <div id="toolbar"></div>
   <div id="main">
-    <aside id="dock-left" class="dock"><div class="dtitle">Sets</div><div id="setspanel" class="dbody"></div><div class="dedge" data-edge="left"></div></aside>
+    <aside id="dock-left" class="dock" data-dock="left"><div class="dtabs"></div><div id="setspanel" class="dbody" data-panel="left"></div><div class="dedge" data-edge="left"></div></aside>
     <div id="dockmid">
       <section id="center">
         <div id="workhead">
           <span class="whname" id="whname"></span><span class="whsub" id="whsub"></span>
           <span class="whsp"></span>
           <div class="seg" id="viewtabs"><button data-view="2d" data-act="view2d">2D layout</button><button data-view="3d" data-act="view3d">3D preview</button><button data-view="both" data-act="viewBoth">Both</button></div>
+          <div class="seg hidden" id="sidetabs"><button data-side="front" data-act="side2dFront">Front</button><button data-side="back" data-act="side2dBack">Back</button></div>
           <button class="btn small" data-act="fitView" title="Fit the label in the view (F)">Fit</button>
         </div>
         <div id="work" data-view="3d">
@@ -37,9 +38,9 @@
           <div id="aboutview" class="hidden"></div>
         </div>
       </section>
-      <div id="dock-bottom" class="dock"><div class="dtitle">Saved labels</div><div id="labelspanel" class="dbody"></div><div class="dedge" data-edge="bottom"></div></div>
+      <div id="dock-bottom" class="dock" data-dock="bottom"><div class="dtabs"></div><div id="labelspanel" class="dbody" data-panel="bottom"></div><div class="dedge" data-edge="bottom"></div></div>
     </div>
-    <aside id="dock-right" class="dock"><div class="dtitle">Properties</div><div id="props" class="dbody"></div><div class="dedge" data-edge="right"></div></aside>
+    <aside id="dock-right" class="dock" data-dock="right"><div class="dtabs"></div><div id="props" class="dbody" data-panel="right"></div><div class="dedge" data-edge="right"></div></aside>
   </div>
   <div id="status">
     <span id="st-size"></span>

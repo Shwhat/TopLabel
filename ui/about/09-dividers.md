@@ -21,6 +21,7 @@ The default shape, **Card catalog divider**, is a 71.92 x 72 x 2.16 mm plate. It
 | Height (mm) | 72 | Total height, tab included |
 | Thickness (mm) | 2.16 | |
 | Corners (mm) | 0.6 | Corner radius of the outline |
+| Top edge | Square | Square, Rounded or Chamfered, with Edge size (mm), as on a label; only the front edge, the face on the bed stays square |
 | Top band (mm) | 12 | Solid band along the top edge that holds the symbol and text |
 | Tab height (mm) | 20.4 | Height of the narrower lower part; 0 for no tab |
 | Tab inset (mm) | 2.5 | How much narrower the tab is on each side; 0 for no tab |
@@ -63,4 +64,4 @@ The back carries the same symbol and text as the front, mirrored so they read co
 
 ## How a divider is built
 
-The divider is one closed solid with the pattern holes through it and pockets cut into the front and the back. The symbol and text on each face are separate parts on their filament slots. In the 2D layout only the front is shown; the 3D preview shows both faces, and the boxes at the bottom left show or hide each part, including the back ones.
+The divider is one closed solid with the pattern holes through it and pockets cut into the front and the back. The symbol and text on each face are separate parts on their filament slots. In the 2D layout, **Front** and **Back** at the top of the work area (or View, Front of the divider (2D) and Back of the divider (2D)) choose the face; the back is shown as seen from behind, so its content reads the right way round. The 3D preview shows both faces, and the boxes at the bottom left show or hide each part, including the back ones.

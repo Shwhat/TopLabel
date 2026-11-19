@@ -10,6 +10,9 @@ The content of a label or divider is a list of rows, from top to bottom. Each ro
 | Text | One or more lines, each from the set name, set code, release year, release date, set type, rarity, card count or custom text | Its lines (Add line, and the cross to remove one) and its Color; font and size in the Text group |
 | Set code | A text item that starts with one line, the set code | As Text |
 | Mana symbols | Any number of mana symbols in a row, evenly spaced | Each symbol: which symbol, Pip or Icon, and its color. Add adds one, the cross removes one, Preset fills the row. Size (mm) of the symbols, default 8 mm |
+| Symbol grid | The symbols of several sets in rows and columns, for symbol sheets | Sets (set codes separated by commas or spaces), Columns (empty for Auto), Rarity, Style and colors |
+
+Every item also has a **Position** section, described below under Moving, scaling and turning items.
 
 ## Editing rows
 
@@ -22,10 +25,10 @@ The Layout group of the Properties panel lists the rows:
 | Cross on a row | Remove the row |
 | Left and right arrows on an item | Move the item left or right in its row |
 | Cross on an item | Remove the item; a row left empty is removed |
-| Add to this row | Add a set symbol, text, set code or mana symbols item at the end of the row |
+| Add to this row | Add a set symbol, text, set code, mana symbols or symbol grid item at the end of the row |
 | Add a row | Add a row at the bottom with one item |
 
-Insert, Symbol row, Text row, Set code row and Mana row (and the same commands in the Edit menu: Add a set symbol row, Add a text row, Add a set code row, Add a mana symbols row) add a row at the bottom. Any change to the rows makes the layout Custom.
+Insert, Symbol row, Text row, Set code row, Mana row and Symbol grid (and the same commands in the Edit menu: Add a set symbol row, Add a text row, Add a set code row, Add a mana symbols row, Add a symbol grid row) add a row at the bottom. Any change to the rows makes the layout Custom.
 
 ## Layout settings
 
@@ -48,6 +51,7 @@ Label, Layout opens the same settings as a dialog.
 | Text only | Set name / set code | 7 mm | 3 mm |
 | Symbol beside text | Set symbol + text with the set name and set code | 6 mm | 4 mm |
 | Divider band | Set symbol + set name | 1.5 mm | 2 mm |
+| Symbol grid | Symbol grid / custom text | 5 mm | 3 mm |
 
 New labels use the default layout, Symbol over text unless another one was made the default, with its text settings when it keeps them. New dividers use Divider band.
 
@@ -56,14 +60,14 @@ New labels use the default layout, Symbol over text unless another one was made 
 1. The content area is the label minus the margin on every side; on a divider it is the top band minus the margin.
 2. A row with a percentage gets that share of the content area height.
 3. A text row gets the height its lines need at the chosen text size (long lines wrapped), and a mana row the height of its symbols.
-4. Rows with a set symbol share the height that is left. They always keep at least 30% of the space; when the other rows need more, those rows are made smaller in proportion.
+4. Rows with a set symbol or a symbol grid share the height that is left. They always keep at least 30% of the space; when the other rows need more, those rows are made smaller in proportion.
 5. When no row has a set symbol, the space left over is shared out among the automatic rows, and every row is centred in its height.
 
 Example: a 76 x 100 mm label with Symbol over text. The content area is 62 x 86 mm with two 3 mm gaps, leaving 80 mm. "Kamigawa: Neon Dynasty" wraps to two lines at 7 mm with 1.15 spacing (16.1 mm); "NEO" needs 8.05 mm. The symbol row gets 80 - 16.1 - 8.05 = 55.85 mm.
 
 ## Widths in a row
 
-1. A set symbol takes the width it needs at the row height (its proportions times the row height); mana symbols take their count times their size, plus a quarter of their size between each.
+1. A set symbol takes the width it needs at the row height (its proportions times the row height), a symbol grid its columns divided by its rows times the row height; mana symbols take their count times their size, plus a quarter of their size between each.
 2. Text items share the rest equally. Text always keeps at least a quarter of the row; when symbols need more, they are made narrower.
 3. A row without text is centred.
 
@@ -71,9 +75,47 @@ Example: a 76 x 100 mm label with Symbol over text. The content area is 62 x 86 
 
 - **Set symbol:** scaled to the largest size that fits its space times the symbol size percentage, keeping its proportions, and centred.
 - **Text:** a line wider than its space is split in two: at the first colon (the colon is dropped), else at the first spaced hyphen, else between the two words that make the two halves most even. The lines are stacked with the line spacing and aligned left, centre or right. If the block is wider or higher than its space it is scaled down: scale = min(1, space width / block width, space height / block height). Each text item is fitted on its own, so the set code can stay larger than a long set name. The size actually used (of the first text item) is shown in the work area header; when any text is smaller than the Minimum, a warning says so.
+- **Symbol grid:** the space holds square cells, as large as fit, Columns across (Auto: the square root of the number of sets, rounded up) and as many rows as needed, with the block centred; a last row that is not full is centred. Each symbol fills its cell times the symbol size percentage.
 - **Mana symbols:** the symbol size is the item's Size, or smaller when the row is lower or narrower than the symbols need. They are centred in their space.
 
 The 2D layout shows each item's space when Layout guides is on: set symbols in blue, text in orange and mana in violet, inside the content area in white.
+
+## Set symbol items
+
+A set symbol item shows the label's own symbol unless its **Source** says otherwise:
+
+| Source | Shows | Settings |
+|---|---|---|
+| This label's symbol | The symbol of the label's set, land or watermark | Rarity, style and colors in the Symbol group |
+| Another set | The symbol of any set in the library | Set code, Rarity, Style and colors of its own |
+| Land or watermark | A basic land symbol or an mtg-vectors watermark | Symbol, Style and colors of its own |
+| Uploaded SVG | An SVG uploaded to the server (Library, Upload SVG symbol; see [Sets and the symbol library](/about/sets-and-library)) | SVG (Upload... adds one), Style and colors of its own |
+
+So one label can carry several symbols, each in its own color, for example a main set and its companion set. When a set does not have the chosen rarity, its common symbol is used, or its first one. Symbols from another source are their own parts in the exports, named "Symbol" and the set code, watermark or upload name.
+
+## Moving, scaling and turning items
+
+Every item can be moved away from its place in the row, made larger or smaller and turned. The place the row gives it stays the starting point, so the label still fits when the set changes.
+
+| Field (Position) | Default | Notes |
+|---|---|---|
+| Move x, y (mm) | 0, 0 | Right and up are positive |
+| Scale (%) | 100 | 5 to 1000, about the centre of the item's space |
+| Rotate (degrees) | 0 | Clockwise, about the centre of the item's space |
+| Reset | | Puts the item back in its place |
+
+In the 2D layout, click an item to pick it: its space is outlined in blue with a square handle at the bottom right and a round handle above it.
+
+| Action | Does |
+|---|---|
+| Drag the item | Moves it |
+| Drag the square handle | Scales it |
+| Drag the round handle | Turns it; hold Shift for steps of 15 degrees |
+| Arrow keys | Move the picked item by 0.1 mm, with Shift by 1 mm |
+| Delete | Removes the picked item |
+| Esc, or click outside the label | Lets go of the item |
+
+Each move is one step to undo. Moving an item makes the layout Custom. Anything moved outside the label (on a divider, outside the top band) is cut off.
 
 ## Mana symbols
 

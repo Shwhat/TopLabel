@@ -1,11 +1,11 @@
 // ---------- menus, actions and keyboard shortcuts ----------
 const MENUS = {
-  file: () => [['New label', 'newLabel', 'Ctrl+N'], ['New divider', 'newDivider', 'Ctrl+Shift+N'], ['Open saved label...', 'openDlg', 'Ctrl+O'], ['Save', 'save', 'Ctrl+S'], ['Save as...', 'saveAs', 'Ctrl+Shift+S'], ['Rename label...', 'renameLabel'], ['Delete saved label...', 'deleteLabel'], '-', ['Export...', 'exportDlg', 'Ctrl+E'], ['Export Bambu Studio 3MF', 'exportBambu'], ['Export STL', 'exportStl'], ...(host.has ? ['-', ['Change password...', 'changePassword'], ['Sign out', 'signOut']] : [])],
-  edit: () => [['Undo', 'undo', 'Ctrl+Z'], ['Redo', 'redo', 'Ctrl+Y'], '-', ['Add a set symbol row', 'addRowSymbol'], ['Add a text row', 'addRowText', 'Ctrl+L'], ['Add a set code row', 'addRowCode'], ['Add a mana symbols row', 'addRowMana'], '-', ['Reset label to defaults', 'resetLabel']],
+  file: () => [['New label', 'newLabel', 'Ctrl+N'], ['New divider', 'newDivider', 'Ctrl+Shift+N'], ['Open saved label...', 'openDlg', 'Ctrl+O'], ['Save', 'save', 'Ctrl+S'], ['Save as...', 'saveAs', 'Ctrl+Shift+S'], ['Rename label...', 'renameLabel'], ['Delete saved label...', 'deleteLabel'], '-', ['Export...', 'exportDlg', 'Ctrl+E'], ['Export Bambu Studio 3MF', 'exportBambu'], ['Export STL', 'exportStl'], ['Export many sets...', 'batchDlg'], ...(host.has ? ['-', ['Change password...', 'changePassword'], ['Sign out', 'signOut']] : [])],
+  edit: () => [['Undo', 'undo', 'Ctrl+Z'], ['Redo', 'redo', 'Ctrl+Y'], '-', ['Add a set symbol row', 'addRowSymbol'], ['Add a text row', 'addRowText', 'Ctrl+L'], ['Add a set code row', 'addRowCode'], ['Add a mana symbols row', 'addRowMana'], ['Add a symbol grid row', 'addRowGrid'], '-', ['Reset label to defaults', 'resetLabel']],
   label: () => [['Size...', 'sizeDlg'], ['Layout...', 'arrangementDlg'], ['Save layout...', 'saveArrangement'], ['Make layout the default', 'setDefaultArr'], ['Manage layouts...', 'manageArrangements'], '-', ['Depth...', 'depthDlg'], ['Save depth profile...', 'saveDepth'], ['Save size preset...', 'saveSize'], ['Save divider shape...', 'saveDivider'], ['Manage presets...', 'managePresets'], '-', ['Filament colors...', 'paletteDlg'], ['Two-tone symbol on or off', 'toggleTwoTone']],
-  library: () => [['Refresh library', 'refreshLibrary'], ['Library information...', 'libraryInfo'], ['Fonts...', 'fontsDlg'], '-', ['Show sets', 'showSets'], ['Show lands and watermarks', 'showWatermarks']],
-  export: () => [['Export...', 'exportDlg', 'Ctrl+E'], '-', ...EXPORT_FORMATS.map(([k, n]) => [n, 'exp_' + k])],
-  view: () => [['2D layout', 'view2d', '2'], ['3D preview', 'view3d', '3'], ['Both views', 'viewBoth', 'B'], ['Fit the label in the view', 'fitView', 'F'], '-', ['Layout guides on or off', 'toggleGuides', 'G'], ['Dark theme on or off', 'toggleTheme'], ['Dark work surface on or off', 'toggleSurface'], '-', [(PREFS.panels.left ? 'Hide' : 'Show') + ' the Sets panel', 'panelLeft'], [(PREFS.panels.right ? 'Hide' : 'Show') + ' the Properties panel', 'panelRight'], [(PREFS.panels.bottom ? 'Hide' : 'Show') + ' the Saved labels panel', 'panelBottom']],
+  library: () => [['Refresh library', 'refreshLibrary'], ['Library information...', 'libraryInfo'], ['Fonts...', 'fontsDlg'], '-', ['Upload SVG symbol...', 'uploadSvg'], ['Upload font...', 'uploadFont'], ['Uploads...', 'manageUploads'], '-', ['Show sets', 'showSets'], ['Show lands and watermarks', 'showWatermarks']],
+  export: () => [['Export...', 'exportDlg', 'Ctrl+E'], ['Export many sets...', 'batchDlg', 'Ctrl+Shift+E'], '-', ...EXPORT_FORMATS.map(([k, n]) => [n, 'exp_' + k])],
+  view: () => [['2D layout', 'view2d', '2'], ['3D preview', 'view3d', '3'], ['Both views', 'viewBoth', 'B'], ['Fit the label in the view', 'fitView', 'F'], ['Front of the divider (2D)', 'side2dFront'], ['Back of the divider (2D)', 'side2dBack'], '-', ['Layout guides on or off', 'toggleGuides', 'G'], ['Dark theme on or off', 'toggleTheme'], ['Dark work surface on or off', 'toggleSurface'], '-', [(PREFS.panels.left ? 'Hide' : 'Show') + ' the Sets panel', 'panelLeft'], [(PREFS.panels.right ? 'Hide' : 'Show') + ' the Properties panel', 'panelRight'], [(PREFS.panels.bottom ? 'Hide' : 'Show') + ' the Saved labels panel', 'panelBottom'], ['Reset panel layout', 'resetDock']],
   help: () => [['Keyboard shortcuts', 'shortcuts', 'F1'], ['Open demo labels', 'demo'], '-', ['About TopLabel', 'about']],
   account: () => [['About TopLabel', 'about'], '-', ['Change password...', 'changePassword'], ['Sign out', 'signOut']],
 };
@@ -25,9 +25,10 @@ document.addEventListener('mousedown', e => { if (!e.target.closest('#dropdown')
 
 function addRow(type) {
   commit(() => { L.arr.rows.push(row(newItem(type, L))); L.arr.id = 'custom'; L.arr.name = 'Custom'; });
-  PREFS.panels.right = true; applyPanels();
+  showPanel('right');
   flash('Added a ' + ITEM_TYPES.find(x => x[0] === type)[1].toLowerCase() + ' row');
 }
+function setSide(v) { if (L.kind !== 'divider') { flash('The back is shown for dividers'); return; } PREFS.side2d = v; savePrefs(); if (PREFS.view === '3d') setView('2d'); draw2D(); renderRibbon(); flash(v === 'back' ? 'Back of the divider' : 'Front of the divider'); }
 function togglePanel(k) { PREFS.panels[k] = !PREFS.panels[k]; savePrefs(); applyPanels(); }
 // a new divider starts with the set (or land and watermark) of the label that is open
 function keepSet(l) {
@@ -43,15 +44,17 @@ const ACTIONS = {
   openDlg: () => openDlg(), save: () => saveLabel(false), saveAs: () => saveLabel(true), renameLabel: () => renameLabel(), deleteLabel: () => deleteLabelDlg(),
   undo, redo,
   exportDlg: () => exportDlg(), exportBambu: () => exportLabel('bambu'), exportStl: () => exportLabel('stl'),
-  exp_bambu: () => exportLabel('bambu'), exp_3mf: () => exportLabel('3mf'), exp_stl: () => exportLabel('stl'), exp_stlcolors: () => exportLabel('stlcolors'),
-  addLine: () => addRow('text'), addRowSymbol: () => addRow('symbol'), addRowText: () => addRow('text'), addRowCode: () => addRow('code'), addRowMana: () => addRow('mana'),
+  ...Object.fromEntries(EXPORT_FORMATS.map(([k]) => ['exp_' + k, () => exportLabel(k)])),
+  addLine: () => addRow('text'), addRowSymbol: () => addRow('symbol'), addRowText: () => addRow('text'), addRowCode: () => addRow('code'), addRowMana: () => addRow('mana'), addRowGrid: () => addRow('grid'),
+  batchDlg: () => batchDlg(), uploadSvg: () => uploadDlg('svg'), uploadFont: () => uploadDlg('font'), manageUploads: () => manageUploads(), resetDock: () => resetDock(),
+  side2dFront: () => setSide('front'), side2dBack: () => setSide('back'),
   resetLabel: () => { if (!confirm('Reset this label to the default size, arrangement, depth and text? The chosen set stays.')) return; commit(() => { const keep = L.set, wm = L.symbol.src === 'wm' ? L.symbol.wm : '', name = L.name; L = L.kind === 'divider' ? newDivider() : newLabel(); if (keep) applySet(L, keep); else if (wm) { L.symbol.src = 'wm'; L.symbol.wm = wm; L.name = name; } }); },
   sizeDlg: () => sizeDlg(), arrangementDlg: () => arrangementDlg(), saveArrangement: () => saveArrangementDlg(), setDefaultArr: () => setDefaultArr(), manageArrangements: () => manageArrangements(),
   depthDlg: () => depthDlg(), saveDepth: () => saveDepthDlg(), saveSize: () => saveSizeDlg(), managePresets: () => managePresets(),
   paletteDlg: () => paletteDlg(), toggleTwoTone: () => { commit(() => { L.symbol.style = L.symbol.style === 'twotone' ? 'detail' : 'twotone'; }); flash(L.symbol.style === 'twotone' ? 'Two-tone symbol' : 'Detailed symbol'); },
   refreshLibrary: () => refreshDlg(), libraryInfo: () => libraryInfo(), fontsDlg: () => fontsDlg(),
-  showSets: () => { PREFS.setsView = 'sets'; savePrefs(); PREFS.panels.left = true; applyPanels(); renderSets(true); renderRibbon(); },
-  showWatermarks: () => { PREFS.setsView = 'wm'; savePrefs(); PREFS.panels.left = true; applyPanels(); renderSets(true); renderRibbon(); },
+  showSets: () => { PREFS.setsView = 'sets'; savePrefs(); showPanel('left'); renderSets(true); renderRibbon(); },
+  showWatermarks: () => { PREFS.setsView = 'wm'; savePrefs(); showPanel('left'); renderSets(true); renderRibbon(); },
   view2d: () => { setView('2d'); renderRibbon(); }, view3d: () => { setView('3d'); renderRibbon(); }, viewBoth: () => { setView('both'); renderRibbon(); },
   fitView: () => { fit3D(); draw2D(); flash('Fit to view'); },
   toggleGuides: () => { PREFS.guides = !PREFS.guides; savePrefs(); draw2D(); renderRibbon(); flash(PREFS.guides ? 'Layout guides on' : 'Layout guides off'); },
@@ -75,12 +78,12 @@ document.addEventListener('keydown', e => {
   if (ctrl && k === 's') return go(e.shiftKey ? 'saveAs' : 'save');
   if (ctrl && k === 'o') return go('openDlg');
   if (ctrl && k === 'n') return go(e.shiftKey ? 'newDivider' : 'newLabel');
-  if (ctrl && k === 'e') return go('exportDlg');
+  if (ctrl && k === 'e') return go(e.shiftKey ? 'batchDlg' : 'exportDlg');
   if (ctrl && k === 'l') return go('addLine');
   if (e.key === 'F1') return go('shortcuts');
   if (e.key === 'Escape') { if (!$('#aboutview').classList.contains('hidden')) closeAbout(); closeMenus(); return; }
   if (typing || ctrl || e.altKey) return;
   if (k === '2') return go('view2d'); if (k === '3') return go('view3d'); if (k === 'b') return go('viewBoth');
   if (k === 'f') return go('fitView'); if (k === 'g') return go('toggleGuides');
-  if (k === '/') { e.preventDefault(); PREFS.panels.left = true; applyPanels(); const s = $('#setsearch'); if (s) s.focus(); }
+  if (k === '/') { e.preventDefault(); showPanel('left'); const s = $('#setsearch'); if (s) s.focus(); }
 });

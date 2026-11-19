@@ -1,6 +1,6 @@
 # Labels and elements
 
-A label is a flat base with its content in rows: the set symbol, text, the set code and mana symbols. This page lists every field of a label as shown in the Properties panel. Dividers have the same Symbol, Text, Depth and Colors fields; their shape fields are on the [Dividers](/about/dividers) page.
+A label is a flat base with its content in rows: set symbols, text, the set code, mana symbols and symbol grids. This page lists every field of a label as shown in the Properties panel. Dividers have the same Symbol, Text, Depth and Colors fields; their shape fields are on the [Dividers](/about/dividers) page.
 
 ## Label
 
@@ -12,6 +12,8 @@ A label is a flat base with its content in rows: the set symbol, text, the set c
 | Height (mm) | Number | 100 | At least 5 mm |
 | Base (mm) | Number | 2 | Thickness of the base, at least 0.2 mm |
 | Corners (mm) | Number | 0 | Corner radius; 0 is square |
+| Top edge | List | Square | Square, Rounded or Chamfered: the edge around the top face of the base |
+| Edge size (mm) | Number | 0.5 | Only for Rounded and Chamfered; how far the edge reaches in and down. At most the base thickness less 0.1 mm. |
 
 Scale opens the Size dialog, where the whole label can be scaled by a percentage: width, height, corner radius, margin, gap and text size change together; the base thickness stays. Save size keeps the current size as a preset.
 
@@ -22,6 +24,8 @@ Changing the width, height or base selects the matching size preset, or Custom.
 The rows of the label, their items and the margin, gap and symbol size. See [Layout rows and auto-fit](/about/layout).
 
 ## Symbol
+
+The label's own symbol. Symbol items with another source (another set, a land or watermark, an uploaded SVG) and symbol grids have their own style and colors in the Layout group.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
@@ -64,6 +68,7 @@ Every line of a text item comes from one of these sources:
 | Source | Shows |
 |---|---|
 | Set name | The Scryfall set name; for a label without a set, the label name |
+| Short set name | A shorter set name (below); for a label without a set, the label name |
 | Set code | The set code, for example NEO |
 | Release year | For example 2022 |
 | Release date | For example 2022-02-18 |
@@ -73,6 +78,10 @@ Every line of a text item comes from one of these sources:
 | Custom text | The text typed in the row |
 
 Lines that come out empty (for example Set code on a land label) are left out, and an item with no lines left is not printed. Long dashes in set names are shown as a hyphen with spaces. Changing a line to Custom text starts it with what the line showed, so it can be edited.
+
+### Short set names
+
+A Short set name line drops a leading "The" and a subtitle after a colon when at least two words are left: "The Lord of the Rings: Tales of Middle-earth" becomes "Lord of the Rings". Names whose first part is one word, such as "Kamigawa: Neon Dynasty", stay whole. To choose the short name of a set yourself, type it into the line; it is kept for that set and used by everyone on the server. Clearing the line, or typing the automatic name, goes back to the automatic short name.
 
 ## Depth
 

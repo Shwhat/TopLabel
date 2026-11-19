@@ -2,6 +2,20 @@
 
 The installed version is shown at the top of this guide.
 
+## 0.4.0 (2026-11-18): Moving items, more symbols, uploads, edges, batch export and new formats
+
+- Items can be moved, scaled and turned: with the Position fields of each item, or in the 2D layout by dragging an item and its square (scale) and round (turn) handles. Arrow keys move the picked item and Delete removes it.
+- Set symbol items have a Source: the label's own symbol, another set, a land or watermark, or an uploaded SVG, each with its own style and colors. One label can carry several symbols.
+- Symbol grid: a new item and layout preset that shows the symbols of many sets in rows and columns.
+- Uploads: SVG symbols and fonts (TTF, OTF, WOFF) can be uploaded and are shared with everyone on the server (Library, Upload SVG symbol, Upload font, Uploads).
+- Rounded or chamfered top edge for labels and dividers (Top edge and Edge size).
+- Short set name: a new line source, automatic or typed once per set for everyone.
+- The 2D layout shows the front or the back of a divider.
+- Export many sets: one Bambu Studio project with the labels packed onto plates or one plate per set, or a zip with one file per set.
+- New export formats: OBJ and AMF with colors, SVG top view, DXF outlines and a PNG picture of the 3D preview.
+- Panels can be moved to the left, right or bottom dock and share a dock as tabs; View, Reset panel layout puts them back.
+- New demo labels for two symbols, a symbol grid and a turned symbol.
+
 ## 0.3.0 (2026-11-18): Layout rows and mana symbols
 
 - Layout rows replace the arrangement list: the content is a list of rows, top to bottom, each holding items side by side. Items are set symbol, text, set code and mana symbols; rows and items can be added, moved and removed, and a row can have a fixed height.

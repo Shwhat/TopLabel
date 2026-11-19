@@ -8,7 +8,7 @@ TopLabel is a self-hosted program that makes 3D-printable labels and dividers fo
 | **Work area** | The label as a 2D layout and as a 3D preview |
 | **Properties panel** | Size or divider shape, pattern, layout rows, symbol, text, depth and colors of the open label or divider |
 | **Saved labels panel** | The labels and dividers saved under your account |
-| **Library** | The set symbols from mtg-vectors, the set list from Scryfall and the built-in fonts |
+| **Library** | The set symbols from mtg-vectors, the set list and mana symbols from Scryfall, the built-in fonts, and SVG symbols and fonts uploaded to the server |
 
 The library feeds the Sets panel. Picking a set fills the open label with that set's symbol and text, the Properties panel adjusts it, the views show it, and Export turns it into a file for the printer.
 
@@ -35,7 +35,7 @@ The library feeds the Sets panel. Picking a set fills the open label with that s
 | [Dividers](/about/dividers) | Divider shapes, patterns, top band content and both faces |
 | [Colors and filament slots](/about/colors) | Filament slots, the color palette and saved color sets |
 | [Fonts](/about/fonts) | The built-in fonts and how styles are chosen |
-| [Export](/about/export) | Every export format and its options |
+| [Export](/about/export) | Every export format and its options, and exporting many sets at once |
 | [Keyboard shortcuts](/about/keyboard-shortcuts) | Every shortcut |
 | [Accounts and storage](/about/accounts-and-storage) | Sign-in, what is saved where, backups |
 | [Messages](/about/messages) | Every warning and error and what to do about it |

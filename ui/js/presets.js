@@ -17,15 +17,19 @@ const DEPTH_PROFILES = [
 ];
 // ---------- layouts: rows from top to bottom, each holding items side by side ----------
 // items: { t: 'symbol' } | { t: 'text', lines: [{ src, text }], slot } | { t: 'mana', syms: [{ c, slot, style }], size }
-const ITEM_TYPES = [['symbol', 'Set symbol'], ['text', 'Text'], ['code', 'Set code'], ['mana', 'Mana symbols']];
+const ITEM_TYPES = [['symbol', 'Set symbol'], ['text', 'Text'], ['code', 'Set code'], ['mana', 'Mana symbols'], ['grid', 'Symbol grid']];
+// a symbol item's source: the label's own symbol (src 'label'), another set, a land or watermark, or an uploaded SVG
+const SYMBOL_SOURCES = [['label', "This label's symbol"], ['set', 'Another set'], ['wm', 'Land or watermark'], ['upload', 'Uploaded SVG']];
 const symItem = () => ({ t: 'symbol' });
 const textItem = (src = 'name', slot = 2) => ({ t: 'text', lines: [{ src, text: '' }], slot });
 const manaItem = () => ({ t: 'mana', syms: [], size: 8 });
+const gridItem = (codes = []) => ({ t: 'grid', codes, cols: 0, rarity: 'C', style: 'detail', slot: 2, slot2: 3 });
 function newItem(type, l) {
   const slot = l && l.text ? l.text.slot : 2;
   if (type === 'symbol') return symItem();
   if (type === 'code') return textItem('code', slot);
   if (type === 'mana') return manaItem();
+  if (type === 'grid') return gridItem(l && l.set ? [l.set.code] : []);
   return textItem(l && l.set ? 'name' : 'custom', slot);
 }
 const row = (...items) => ({ h: '', items });
@@ -37,6 +41,7 @@ const ARRANGEMENTS = [
   { id: 'text', name: 'Text only', margin: 7, gap: 3, symPct: 90, rows: () => [row(textItem('name')), row(textItem('code'))] },
   { id: 'side', name: 'Symbol beside text', margin: 6, gap: 4, symPct: 90, rows: () => [row(symItem(), { t: 'text', lines: [{ src: 'name', text: '' }, { src: 'code', text: '' }], slot: 2 })] },
   { id: 'divband', name: 'Divider band', margin: 1.5, gap: 2, symPct: 90, rows: () => [row(symItem(), textItem('name'))] },
+  { id: 'grid', name: 'Symbol grid', margin: 5, gap: 3, symPct: 85, rows: () => [row(gridItem()), row(textItem('custom'))] },
 ];
 const layoutRows = a => typeof a.rows === 'function' ? a.rows() : clone(a.rows || []);
 // labels and saved arrangements from before version 0.3.0 kept a layout kind and one list of text lines
@@ -79,7 +84,7 @@ function manaDefaultSlot(code) {
   return nearestSlot(MANA_COLORS[c] || '#A6A9AA');
 }
 const newMana = code => ({ c: code, slot: manaDefaultSlot(code), style: 'pip' });
-const LINE_SOURCES = [['name', 'Set name'], ['code', 'Set code'], ['year', 'Release year'], ['date', 'Release date'], ['type', 'Set type'], ['rarity', 'Rarity'], ['count', 'Card count'], ['custom', 'Custom text']];
+const LINE_SOURCES = [['name', 'Set name'], ['short', 'Short set name'], ['code', 'Set code'], ['year', 'Release year'], ['date', 'Release date'], ['type', 'Set type'], ['rarity', 'Rarity'], ['count', 'Card count'], ['custom', 'Custom text']];
 const DEFAULT_FONT = 'comic-neue';
 const SYMBOL_STYLES = [['detail', 'Detailed'], ['silhouette', 'Silhouette with border'], ['twotone', 'Two-tone']];
 
@@ -107,7 +112,7 @@ function newLabel() {
   const d = DEPTH_PROFILES[0];
   return {
     v: 1, kind: 'label', name: '', set: null,
-    size: { preset: 'toploader', w: 76, h: 100, t: d.t, r: 0 },
+    size: { preset: 'toploader', w: 76, h: 100, t: d.t, r: 0, edge: 'none', edgeR: 0.5 },
     arr: arrFrom(arr),
     depth: { id: d.id, sync: true, symbol: clone(d.symbol), text: clone(d.text) },
     base: { slot: 1 },
@@ -169,7 +174,7 @@ const DIVIDER_SHAPES = [
 ];
 function dividerShapeById(id) { return DIVIDER_SHAPES.find(d => d.id === id) || ((SAVED.presets && SAVED.presets.dividers) || []).find(d => d.id === id) || null; }
 function applyDividerShape(l, d) {
-  l.size = { preset: d.id, w: d.w, h: d.h, t: d.t, r: d.r };
+  l.size = { preset: d.id, w: d.w, h: d.h, t: d.t, r: d.r, edge: (l.size && l.size.edge) || 'none', edgeR: (l.size && l.size.edgeR) || 0.5 };
   l.div.shape = d.id; l.div.band = d.band; l.div.tabH = d.tabH; l.div.tabInset = d.tabInset;
   l.div.pattern = clone(d.pattern);
 }
@@ -183,3 +188,15 @@ function newDivider() {
   l.depth = { id: d.id, sync: true, symbol: clone(d.symbol), text: clone(d.text) };
   return l;
 }
+
+// ---------- short set names ----------
+// A saved short name (shared on the server) wins. Otherwise a leading "The" and a subtitle after a colon are
+// dropped when what is left has at least two words: "The Lord of the Rings: Tales of Middle-earth" becomes
+// "Lord of the Rings", while "Kamigawa: Neon Dynasty" stays as it is.
+function autoShort(name) {
+  let n = fixDashes(name || '').trim();
+  const i = n.indexOf(': ');
+  if (i > 0) { const head = n.slice(0, i).replace(/^The\s+/i, ''); if (head.split(/\s+/).length >= 2) return head; }
+  return n.replace(/^The\s+(?=\S+\s+\S)/i, '');
+}
+function shortName(st) { const m = (SAVED.presets && SAVED.presets.shortNames) || {}; return m[st.code] || autoShort(st.name); }

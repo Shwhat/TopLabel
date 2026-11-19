@@ -46,5 +46,6 @@ Choosing a profile also sets the base thickness of a label; a divider keeps its 
 
 - Every part is a closed solid: the base, the symbol (or its outline and fill in two-tone) and the text.
 - The base is one solid with the pockets cut into it (and, on dividers, the pattern holes through it). When pockets overlap each other or reach the edge of the label, the base is built as stacked layers instead.
-- Elements are trimmed to the label outline.
+- Elements are trimmed to the label outline, and with a rounded or chamfered top edge to the flat part of the top face.
+- **Top edge.** A rounded or chamfered edge steps in from the full outline to the top face in steps of about 0.1 mm of height (2 to 12 steps). Rounded follows a quarter circle, chamfered a straight 45 degree line for an equal size. The bottom of the base stays square so it lies flat on the bed. The steps are finer than a print layer, so the slicer prints them as a smooth edge.
 - An element with no height (above and sunk both 0, not engraved) is not printed and a warning says so.

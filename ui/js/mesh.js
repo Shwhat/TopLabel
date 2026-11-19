@@ -84,9 +84,25 @@ function baseSolid(solid) {
     for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) if (gTotalArea(gInter(rs[i].paths, rs[j].paths)) > 1e-6) return null;
   }
   for (const a of regions.top) for (const b of regions.bottom) if (b.z >= a.z - 1e-6 && gTotalArea(gInter(a.paths, b.paths)) > 1e-6) return null;
+  // a rounded or chamfered top edge: the outer wall steps in ring by ring up to the top face
+  const rings = [out.ring], zs = [0];
+  if (solid.edge) {
+    const lim = gOffset(outerOnly(outline), -(solid.edge.r + 0.05));
+    for (const r of [...regions.top, ...regions.bottom]) if (gTotalArea(gDiff(r.paths, lim)) > 1e-6) return null;
+    for (const h of out.holes) if (gTotalArea(gDiff([h.ring.map(([x, y]) => ({ X: Math.round(x * GU), Y: Math.round(y * GU) }))], lim)) > 1e-6) return null;
+    for (const st of solid.edge.steps.slice(1)) {
+      const tr = ringTree(gOffset(outerOnly(outline), -st.d)); if (tr.length !== 1 || tr[0].holes.length) return null;
+      rings.push(tr[0].ring); zs.push(st.z);
+    }
+  }
   const W = welder();
   const holes = out.holes.map(h => h.ring);
-  wallsOf(W, { outer: out.ring, holes }, 0, t, true);
+  zs.push(t);
+  for (let k = 0; k < rings.length; k++) {
+    wallsOf(W, { outer: rings[k], holes: [] }, zs[k], zs[k + 1], true);
+    if (k) faceAt(W, { outer: rings[k - 1], holes: [rings[k]] }, zs[k], true);
+  }
+  if (holes.length) wallsOf(W, { outer: [], holes }, 0, t, true);
   for (const side of ['top', 'bottom']) {
     const top = side === 'top', zFace = top ? t : 0;
     const faces = [], pocketOuters = [];
@@ -101,7 +117,7 @@ function baseSolid(solid) {
       ringTree(r.paths).forEach(walk);
     }
     const nested = new Set(faces.flatMap(f => f.holes));
-    faces.push({ outer: out.ring, holes: holes.concat(pocketOuters.filter(r => !nested.has(r))) });
+    faces.push({ outer: top ? rings[rings.length - 1] : out.ring, holes: holes.concat(pocketOuters.filter(r => !nested.has(r))) });
     for (const f of faces) faceAt(W, f, zFace, top);
   }
   return W;

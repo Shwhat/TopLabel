@@ -1,6 +1,6 @@
 # TopLabel handoff
 
-Version 0.3.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
+Version 0.4.0, 2026-11-18. This document is kept identical in the claude.ai project (MTG Top oad Labels) and in `docs/HANDOFF.md`, and is updated with every build.
 
 ## Project
 
@@ -27,6 +27,7 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `main.go` | Config from environment, page assembly, routes, accounts, data files, health check |
 | `auth.go` | Password hashing (PBKDF2), session token hashing, rate limiter (copied from OpenSchem) |
 | `store.go` | Users, sessions and the allow-listed data files (`labels.json`, `prefs.json` per user; `arrangements.json`, `presets.json` shared) |
+| `uploads.go` | Uploaded SVG symbols and fonts in `shared/uploads` with `uploads.json`; routes `/api/uploads` (list, POST with `?kind=svg|font&name=`, GET file, DELETE) |
 | `library.go` | Symbol library: refresh (GitHub tarball, Scryfall sets, Scryfall mana symbols to `mana/` and `mana.json`, Scryfall icons), atomic swap, set index with alias and route matching |
 | `server_test.go` | Go tests with a fake GitHub and Scryfall |
 | `assets/fonts/` | 33 Fontsource font families (WOFF, latin) and `fonts.json`; rebuilt by `tools/fonts.mjs` |
@@ -35,25 +36,25 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 | `ui/vendor/` | three.js 0.147 (classic build) with OrbitControls and SVGLoader, opentype.js 1.3.4, Clipper 6.4.2, licenses |
 | `ui/js/core.js` | APP_VERSION, helpers, PREFS defaults, the open label `L`, `commit()`, undo and redo, `flash()`, `render()` |
 | `ui/js/presets.js` | Size presets, depth profiles, item types, layout presets (`ARRANGEMENTS` with row functions), `rowsFromKind()` migration, mana colors and presets, palette, rarities, lands, line sources, `newLabel()`, `applySet()`, divider patterns and shapes, `newDivider()` |
-| `ui/js/host.js` | API calls, data load and save (server or local storage), library index, symbol and font loading |
+| `ui/js/host.js` | API calls, data load and save (server or local storage), library index, uploads (`UPLOADS`, uploaded fonts join `LIB.fonts` as `u-<id>`), symbol URLs per item, symbol and font loading |
 | `ui/js/geom.js` | Clipper wrappers, SVG to outlines, symbol styles (detailed, silhouette, two-tone), mana shapes (pip, icon), text to outlines |
-| `ui/js/layout.js` | Text lines, wrapping, content area (`contentArea`: label or divider top band), row heights and item widths, divider outline and pattern holes, auto-fit, depth, front and back pockets: `buildLabel()` |
-| `ui/js/mesh.js` | Closed meshes: base solid with holes and pockets on both faces from shared rings, slab solids, vertex welding |
-| `ui/js/views.js` | Build scheduling, 2D layout (SVG), 3D preview (three.js), part toggles, view switching |
-| `ui/js/export.js` | Zip writer, binary STL, Bambu 3MF, standard 3MF, `exportLabel()` |
+| `ui/js/layout.js` | Text lines (short names), wrapping, content area (`contentArea`: label or divider top band), row heights and item widths, symbol item sources, symbol grids, `itemXform` (move, scale, turn), top edge steps (`edgeSteps`), divider outline and pattern holes, auto-fit, depth, front and back pockets: `buildLabel()` |
+| `ui/js/mesh.js` | Closed meshes: base solid with holes, pockets on both faces and a stepped top edge from shared rings, slab solids, vertex welding |
+| `ui/js/views.js` | Build scheduling, 2D layout (SVG) with picking, dragging, scale and turn handles, arrow keys and the divider back, 3D preview (three.js), part toggles, view switching |
+| `ui/js/export.js` | Zip writer, binary STL, Bambu project with many objects and plates (`bambuProject`), standard 3MF, OBJ, AMF, SVG, DXF, PNG, `exportFile()`, `exportLabel()`, batch export with plate packing (`packPlates`, `batchExport`) |
 | `ui/js/ribbon.js` | Icons, ribbon tabs and groups |
 | `ui/js/menus.js` | Menus, the ACTIONS map, keyboard shortcuts |
-| `ui/js/dialogs.js` | `dialog()` helper and every dialog (size, arrangement, depth, presets, palette, refresh, library, fonts, export, save, account) |
+| `ui/js/dialogs.js` | `dialog()` helper and every dialog (size, layout, depth, presets, palette, refresh, library, fonts, export, save, account, uploads, export many sets) |
 | `ui/js/about.js`, `ui/js/about-pages.js`, `ui/about/*.md` | About screen, generated page bundle (`python3 tools/about.py`), guide pages |
 | `ui/js/sets.js` | Sets panel: sets table, filters, sorting, keyboard, lands and watermarks |
 | `ui/js/props.js` | Properties panel and its change handling |
-| `ui/js/rows.js` | Layout rows editor in the Properties panel: rows, items, text lines, mana symbols and presets |
+| `ui/js/rows.js` | Layout rows editor in the Properties panel: rows, items, text lines, short names, symbol sources, grids, Position fields, mana symbols and presets |
 | `ui/js/labels.js` | Saved labels panel |
 | `ui/js/theme.js` | Light, dark and system theme; dark work surface |
 | `ui/js/demo.js` | Demo labels (one per feature) |
-| `ui/js/app.js` | Startup (last in the manifest), panels, status bar |
+| `ui/js/app.js` | Startup (last in the manifest), docking panels (`PREFS.dock`, `PREFS.dockTab`), status bar |
 | `tests/run.mjs` | Builds the server, starts it with the fixture library and a fake GitHub and Scryfall, runs the Playwright suites |
-| `tests/suites/` | 00-static, 10-label, 15-divider, 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
+| `tests/suites/` | 00-static, 10-label, 15-divider, 17-design (0.4.0 features), 20-sets, 30-export, 40-save, 50-library, 54-about, 60-ui, 91-server |
 | `tests/fixtures/library/current/` | A small real library (9 symbol folders, watermarks, code lists, 13 sets) |
 | `Dockerfile`, `docker-compose.yml`, `.env.example`, `.github/workflows/docker.yml` | Image (scratch, CA certificates, UID 65532), Dockhand-ready stack, CI publishing to GHCR |
 
@@ -64,6 +65,9 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 - Pockets: elements with Sunk > 0 cut the base from the top; a divider's back elements (mirrored copies) cut it from the bottom. The base is one solid when pockets are inside the outline, apart on each side and do not meet across the plate (pockets at the same depth are merged); otherwise stacked slabs.
 - Depth: `L.depth.sync` (Same depth for symbol and text) links the symbol and text values in the Properties panel and the Depth dialog. Labels saved before 0.2.0 get `sync` only when their two depths are equal.
 - Layout: `L.arr = {id, name, margin, gap, symPct, rows:[{h, items:[...]}]}`. Item types: `symbol`, `text` (`lines`, `slot`), `code`, `mana` (`syms:[{c, slot, style:'pip'|'icon'}]`, `size`). Rows without a fixed height share the space; rows with a symbol flex and keep at least 30%. Labels and layouts saved before 0.3.0 are converted in `normalizeLabel()` with `rowsFromKind()`.
+- Items: every item may carry `x`, `y` (mm), `scale` (%) and `rot` (degrees, clockwise), applied about the centre of its space. Symbol items have `src` ('label' or missing = the label's symbol and Symbol group; 'set' with `set` code and `rarity`; 'wm' with `wm`; 'upload' with `up`) plus `style`, `slot`, `slot2`. Grid items: `{t:'grid', codes, cols, rarity, style, slot, slot2}`. Other symbols are parts `sym_<row>_<item>`, grids `grid_<row>_<item>`.
+- Top edge: `L.size.edge` ('none', 'round', 'chamfer') and `L.size.edgeR`; the base steps in ring by ring (about 0.1 mm per step) in `baseSolid`, or by slabs in the fallback.
+- Short names: line source 'short'; saved names in `presets.json` under `shortNames`.
 - Mana: SVGs come from the library (`/api/library/mana/<code>.svg`). Pip = circle minus the dark glyph; icon = the glyph. Default colors W yellow, U blue, B purple, R red, G green, others grey.
 - Dividers: `L.kind = 'divider'` with `L.div` (shape id, band, tabH, tabInset, pattern, back). Rows are placed inside the top band (Divider band layout by default). Saved divider shapes are in `presets.json` under `dividers`.
 - The open label autosaves into `prefs.json` (`autosave`) 1.5 s after each change.
@@ -71,7 +75,7 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Tests
 
-- `go test ./...` and `npm test` (58 browser tests) pass at 0.3.0.
+- `go test ./...` and `npm test` (68 browser tests) pass at 0.4.0.
 - The browser tests use one account (`tester`) and reset its data per test, because sign-ups are rate limited per address.
 - Exports are checked with Python: XML well formed, every mesh edge shared by exactly two triangles, filament slots, placement.
 
@@ -81,19 +85,17 @@ The design follows the program-design-guide skill (OpenSchem structure and theme
 
 ## Open ideas
 
-- Release 0.4.0: drag, resize and rotate items in the 2D layout; upload own SVGs and fonts; several set symbols per label with their own colors (the Landing Party label); grid layout for marketing-style symbol sheets.
-- Release 0.5.0: batch export of many sets with one plate per label or plates packed to the bed (useful for printing a set of dividers); OBJ, AMF, SVG, DXF and PNG export.
-- Rounded or chamfered plate edges like the example divider (about 0.5 mm); dividers are flat-edged now.
-- A short-name option for set names (the example labels used "Lord of the Rings" instead of the full Scryfall name; today this is a custom line).
+- Floating panels and saved workspaces (OpenSchem style).
+- Several styles (bold, italic) of one uploaded font; WOFF2 support.
+- A picker for a symbol item's set instead of typing the code.
 
 ## Known limits
 
-- The set symbol is always the label's set, land or watermark; no drag editing yet.
-- The 2D layout shows only the front of a divider; the back parts are in the 3D preview.
-- Panels can be resized and hidden but not docked elsewhere (no OpenSchem docking or workspaces).
+- Panels dock left, right or bottom (as tabs); no floating panels or workspaces.
+- Uploads need the server (not available when the page is opened from disk).
 - The Bambu 3MF writes a minimal project settings file (filament colors and types only). It has not yet been opened in Bambu Studio by Devon; if the slicer complains, export with "Include filament colors" off.
 - GitHub limits anonymous downloads to 60 per hour per address, which only matters for repeated refreshes.
 
 ## Where work stopped
 
-0.3.0 is built, tested and pushed to `main`: layout rows (set symbol, text, set code and mana symbol items side by side, rows added, moved and removed in the Properties panel) and mana symbols from Scryfall with per-symbol color, pip or icon style, and guild, shard and wedge presets. Defaults chosen without Devon's answer: items sit side by side in a row; mana colors as above. Next: Devon to deploy, Refresh library once (to download the mana symbols), try a Rakdos label and report anything that looks wrong.
+0.4.0 is built, tested and pushed to `main`. It brings everything that was planned: moving, scaling and turning items (fields and 2D dragging), symbol items from other sets, lands, watermarks or uploaded SVGs, symbol grids, SVG and font uploads, rounded or chamfered top edges, short set names, the divider back in 2D, export many sets (packed or one plate each, or a zip), OBJ, AMF, SVG, DXF and PNG export, and docking panels. Defaults chosen without Devon's answer: rotation is clockwise; uploads are shared with everyone on the server; packed plates use 5 mm from the edges and 4 mm between labels; the edge is on the top face only; short names drop "The" and a subtitle only when two or more words remain. Next: Devon to deploy, print a label with a rounded edge and try Export many sets in Bambu Studio, and report anything that looks wrong.

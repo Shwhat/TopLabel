@@ -16,9 +16,10 @@
 |---|---|---|
 | Saved labels and dividers | On the server, per account | No |
 | The open label (including unsaved changes) | On the server, per account, a moment after each change | No |
-| Preferences: theme, work surface, view, panels and their sizes, ribbon tab, Sets panel search, filter and sort, export options, palette, default layout | On the server, per account | No |
+| Preferences: theme, work surface, view, panels and their sizes, ribbon tab, Sets panel search, filter and sort, export options (also for Export many sets), palette, default layout, where each panel is docked | On the server, per account | No |
 | Saved layouts | On the server | Yes, everyone on the server |
-| Saved size presets, depth profiles, color sets and divider shapes | On the server | Yes |
+| Saved size presets, depth profiles, color sets, divider shapes and short set names | On the server | Yes |
+| Uploaded SVG symbols and fonts | On the server | Yes |
 | Symbol library | On the server | Yes |
 
 When TopLabel opens, it reopens the label that was open last, with its unsaved changes. A label never saved shows "(not saved)" next to its name.
@@ -42,7 +43,8 @@ All data lives in the server's data folder (`/opt/toplabel/data` on the Docker h
 | `users/<id>/labels.json` | Saved labels and dividers of one account |
 | `users/<id>/prefs.json` | Preferences and the open label of one account |
 | `shared/arrangements.json` | Saved layouts |
-| `shared/presets.json` | Saved sizes, depth profiles, color sets and divider shapes |
+| `shared/presets.json` | Saved sizes, depth profiles, color sets, divider shapes and short set names |
+| `shared/uploads/` | Uploaded SVG symbols and fonts, and `uploads.json`, the list of them |
 | `library/current/` | The symbol library; it can always be downloaded again with Refresh library |
 
 Every file is written to a temporary file first and then renamed, so a crash never leaves half a file.

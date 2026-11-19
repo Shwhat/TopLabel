@@ -28,7 +28,7 @@ function renderProps() {
   const symSrc = sy.src === 'wm' ? `Watermark: ${sy.wm || 'none'}` : !st ? 'No set chosen' : st.src === 'vectors' ? `mtg-vectors, folder ${st.folder}` : st.src === 'scryfall' ? 'Scryfall icon (no mtg-vectors symbol yet)' : 'No symbol for this set';
   el.innerHTML = `<div class="ident">${esc(labelTitle(L))}</div><div class="sub">${esc(subtitle)}</div><div id="propwarn"></div>
   ${isDiv ? dividerProps() : `<div class="pgrp"><h4>Label</h4>${pIn('Name', 'name', 'str', `placeholder="${esc(st ? fixDashes(st.name) : 'Label name')}"`)}
-    ${pSel('Size', 'size.preset', sizeOpts())}${pIn('Width (mm)', 'size.w')}${pIn('Height (mm)', 'size.h')}${pIn('Base (mm)', 'size.t')}${pIn('Corners (mm)', 'size.r')}
+    ${pSel('Size', 'size.preset', sizeOpts())}${pIn('Width (mm)', 'size.w')}${pIn('Height (mm)', 'size.h')}${pIn('Base (mm)', 'size.t')}${pIn('Corners (mm)', 'size.r')}${pSel('Top edge', 'size.edge', EDGE_OPTS)}${(L.size.edge || 'none') !== 'none' ? pIn('Edge size (mm)', 'size.edgeR') : ''}
     <div class="btnrow"><button class="btn small" data-act="sizeDlg">Scale...</button><button class="btn small" data-act="saveSize">Save size...</button></div></div>`}
   <div class="pgrp"><h4>Layout <button class="lnk" data-act="saveArrangement">Save...</button></h4>${pSel('Preset', 'arr.id', arrList)}
     ${pIn('Margin (mm)', 'arr.margin')}${pIn('Gap (mm)', 'arr.gap')}${pIn('Symbol size (%)', 'arr.symPct')}
@@ -62,7 +62,7 @@ function dividerShapeOpts() { return DIVIDER_SHAPES.concat(SAVED.presets.divider
 function dividerProps() {
   const st = L.set, pt = L.div.pattern || {}, solid = !pt.kind || pt.kind === 'solid', info = (MODEL && MODEL.info && MODEL.info.pattern) || null;
   return `<div class="pgrp"><h4>Divider <button class="lnk" data-act="saveDivider">Save shape...</button></h4>${pIn('Name', 'name', 'str', `placeholder="${esc(st ? fixDashes(st.name) : 'Divider name')}"`)}
-    ${pSel('Shape', 'div.shape', dividerShapeOpts())}${pIn('Width (mm)', 'size.w')}${pIn('Height (mm)', 'size.h')}${pIn('Thickness (mm)', 'size.t')}${pIn('Corners (mm)', 'size.r')}
+    ${pSel('Shape', 'div.shape', dividerShapeOpts())}${pIn('Width (mm)', 'size.w')}${pIn('Height (mm)', 'size.h')}${pIn('Thickness (mm)', 'size.t')}${pIn('Corners (mm)', 'size.r')}${pSel('Top edge', 'size.edge', EDGE_OPTS)}${(L.size.edge || 'none') !== 'none' ? pIn('Edge size (mm)', 'size.edgeR') : ''}
     ${pIn('Top band (mm)', 'div.band')}${pIn('Tab height (mm)', 'div.tabH')}${pIn('Tab inset (mm)', 'div.tabInset')}</div>
   <div class="pgrp"><h4>Pattern</h4>${pSel('Pattern', 'div.pattern.kind', PATTERN_OPTS)}
     ${solid ? '' : `${pIn('Hole width (mm)', 'div.pattern.w')}${pIn('Hole height (mm)', 'div.pattern.h')}${pIn('Columns every (mm)', 'div.pattern.cx')}${pIn('Rows every (mm)', 'div.pattern.cy')}${pIn('Stagger rows', 'div.pattern.stagger', 'bool')}${pIn('Border (mm)', 'div.pattern.border')}
@@ -78,6 +78,7 @@ function matchDepth() {
   L.depth.id = m ? m.id : 'custom';
 }
 function matchSize() { if (L.kind === 'divider') return; const m = SIZE_PRESETS.concat(SAVED.presets.sizes || []).find(q => q.w === L.size.w && q.h === L.size.h && q.t === L.size.t); L.size.preset = m ? m.id : 'custom'; }
+const EDGE_OPTS = [['none', 'Square'], ['round', 'Rounded'], ['chamfer', 'Chamfered']];
 const propsEl = $('#props');
 propsEl.addEventListener('change', e => {
   const t = e.target, p = t.dataset.p;
@@ -100,8 +101,8 @@ propsEl.addEventListener('change', e => {
       if (p === 'arr.symPct') v = clamp(v, 5, 100);
       setP(L, p, v);
       if (L.depth.sync && /^depth\.(symbol|text)\./.test(p)) { const k = p.split('.')[2]; L.depth.symbol[k] = v; L.depth.text[k] = v; }
-      if (L.kind === 'divider' && (p.startsWith('div.') || p.startsWith('size.')) && !p.startsWith('div.back')) { L.div.shape = 'custom'; L.size.preset = 'custom'; }
-      if (p.startsWith('size.') && p !== 'size.r') { matchSize(); matchDepth(); }
+      if (L.kind === 'divider' && (p.startsWith('div.') || p.startsWith('size.')) && !p.startsWith('div.back') && !p.startsWith('size.edge')) { L.div.shape = 'custom'; L.size.preset = 'custom'; }
+      if (p.startsWith('size.') && p !== 'size.r' && !p.startsWith('size.edge')) { matchSize(); matchDepth(); }
       if (p.startsWith('depth.')) matchDepth();
       if (p === 'symbol.style' && v === 'twotone' && L.symbol.slot2 === L.symbol.slot) L.symbol.slot2 = nearestSlot(RARITY_COLORS[L.symbol.rarity] || '#c12e1f', L.symbol.slot);
     });

@@ -12,6 +12,10 @@ TopLabel has 33 font families built in. They are free to use under the SIL Open 
 
 The default is Comic Neue Bold.
 
+## Uploaded fonts
+
+Library, Upload font adds a font of your own: a TTF, OTF or WOFF file of up to 8 MB (WOFF2 cannot be used). Each upload is its own family in the Font list, in the group Uploaded, with its regular style; Bold and Italic thicken and slant it. Uploaded fonts are shared with everyone on the server; Library, Uploads lists and deletes them. Only upload fonts whose license allows this use. A label whose uploaded font was deleted uses the default font.
+
 ## Styles
 
 Each family has a regular style and, where the family offers them, bold, italic and bold italic. TopLabel uses the style that matches Bold and Italic in the Properties panel. When a family has no bold, the regular letters are thickened slightly; when it has no italic, the letters are slanted.

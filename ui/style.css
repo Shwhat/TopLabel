@@ -264,3 +264,26 @@ dialog::backdrop{background:rgba(20,28,40,.35)}
 .addsel{width:100%;margin-top:4px;color:var(--muted)}
 .litem .note{margin:0}
 .xbtn:disabled{opacity:.3;cursor:default}
+/* 2D layout: picking, moving, scaling and turning items */
+.v2hit{fill:transparent;cursor:move}
+.v2item .v2guide{pointer-events:none}
+.v2item.sel .v2guide{stroke:var(--sel);stroke-dasharray:none;stroke-width:.35;opacity:1}
+.v2h{fill:#fff;stroke:var(--sel);stroke-width:.3}
+.v2h.scale{cursor:nwse-resize}
+.v2h.rot{cursor:grab}
+.v2hl{stroke:var(--sel);stroke-width:.25}
+details.ipos{margin-top:3px}
+details.ipos summary{cursor:pointer;color:var(--muted);font-size:11.5px}
+.irow input[type=number]{width:56px}
+/* docking: panel tabs, moving panels between docks */
+.dtabs{display:flex;align-items:stretch;background:var(--panel);border-bottom:1px solid var(--line);min-height:24px}
+.dtab{padding:4px 10px;font-weight:600;font-size:11.5px;color:var(--muted);cursor:pointer;border-right:1px solid var(--line2);user-select:none;display:flex;align-items:center;gap:6px}
+.dtab.active{color:var(--text);background:var(--panel2)}
+.dtab .dmove{border:none;background:none;color:var(--muted);cursor:pointer;padding:0 2px;font-size:11px}
+.dtab .dmove:hover{color:var(--accent)}
+.dock.droptarget{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
+.dock .dbody.hidden{display:none}
+.bxlist{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:4px}
+.bxlist label{display:flex;gap:6px;padding:2px 6px;align-items:center;white-space:nowrap}
+.bxlist label:hover{background:#e8edf4}
+:root[data-theme=dark] .bxlist label:hover{background:#2f3640}

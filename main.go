@@ -161,6 +161,7 @@ func (s *server) routes() http.Handler {
 		s.serveLib(w, "icons", r.PathValue("file"))
 	}))
 	m.HandleFunc("GET /fonts/{family}/{file}", s.serveFont)
+	s.uploadRoutes(m)
 	return securityHeaders(csrfGuard(m))
 }
 

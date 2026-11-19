@@ -9,6 +9,7 @@ function resolveLines(l, lines = allLines(l)) {
     let v = '';
     switch (ln.src) {
       case 'name': v = st ? fixDashes(st.name) : (l.name || ''); break;
+      case 'short': v = st ? shortName(st) : (l.name || ''); break;
       case 'code': v = st ? st.code : ''; break;
       case 'year': v = st && st.date ? st.date.slice(0, 4) : ''; break;
       case 'date': v = st && st.date ? st.date : ''; break;
@@ -101,6 +102,38 @@ function dividerHoles(l) {
   return { holes: holes.length ? gUnion(holes) : [], area, count: holes.length };
 }
 
+// move, scale and rotate an item's outlines about the centre of its space; rot is in degrees, clockwise
+function itemXform(paths, it, cx, cy) {
+  const s = clamp(num(it.scale, 100), 5, 1000) / 100, a = -num(it.rot, 0) * Math.PI / 180, dx = num(it.x, 0), dy = num(it.y, 0);
+  if (s === 1 && !a && !dx && !dy) return paths;
+  const c = Math.cos(a) * s, sn = Math.sin(a) * s, X0 = cx * GU, Y0 = cy * GU;
+  return paths.map(p => p.map(q => { const x = q.X - X0, y = q.Y - Y0; return { X: Math.round(X0 + x * c - y * sn + dx * GU), Y: Math.round(Y0 + x * sn + y * c + dy * GU) }; }));
+}
+// the symbol source of a symbol item: the label's own symbol, another set, a land or watermark, or an upload
+const ownSym = it => !it.src || it.src === 'label';
+function symStyle(l, it) { return it.t !== 'grid' && ownSym(it) ? l.symbol : { style: it.style || 'detail', slot: it.slot || 2, slot2: it.slot2 || 3 }; }
+function symName(l, it) {
+  if (ownSym(it)) return 'Symbol';
+  if (it.src === 'set') return 'Symbol ' + (it.set || '');
+  if (it.src === 'wm') return 'Symbol ' + (it.wm || '');
+  const u = uploadById(it.up); return 'Symbol ' + (u ? u.name : 'upload');
+}
+// the top edge of the base: insets of the rings that step the edge in, from the full outline to the top face
+function edgeSteps(l) {
+  const e = l.size.edge || 'none', t = Math.max(0.2, num(l.size.t, 2));
+  if (e === 'none') return null;
+  const r = clamp(num(l.size.edgeR, 0.5), 0, Math.min(t - 0.1, Math.min(num(l.size.w, 76), num(l.size.h, 100)) / 4));
+  if (r < 0.05) return null;
+  const n = clamp(Math.round(r / 0.1), 2, 12), out = [];
+  for (let k = 0; k < n; k++) {
+    const f = k / (n - 1), d = e === 'chamfer' ? r * f : r * (1 - Math.sqrt(Math.max(0, 1 - f * f)));
+    out.push({ z: k ? Math.round((t - r + r * k / n) * 1e4) / 1e4 : 0, d });
+  }
+  return { r, steps: out, t };
+}
+const outerOnly = paths => paths.filter(p => gArea(p) > 0);
+function insetOutline(outline, d) { return d > 1e-6 ? gInter(outline, gOffset(outerOnly(outline), -d)) : outline; }
+
 let BUILD_SEQ = 0;
 // build the label: returns { parts, outline, guides, warnings, info }. Parts carry slabs of outlines with z ranges.
 async function buildLabel(l) {
@@ -110,15 +143,35 @@ async function buildLabel(l) {
   const shape = isDiv ? dividerOutline(l) : gRect(num(size.w, 76), num(size.h, 100), num(size.r, 0));
   const pat = isDiv ? dividerHoles(l) : { holes: [] };
   const outline = pat.holes.length ? gDiff(shape, pat.holes) : shape;
+  const edge = edgeSteps(l);
   // sources: the symbol, mana and font files the rows need
   const rows = (l.arr && l.arr.rows) || [];
   const items = rows.flatMap(r => r.items);
-  let svg = '';
-  if (items.some(i => i.t === 'symbol')) {
-    const url = symbolURL(l);
-    if (url) { try { svg = await fetchText(url); } catch (e) { warnings.push('The symbol file could not be loaded. Refresh the library or pick another rarity.'); } }
-    else if (l.symbol.src === 'set' && l.set && l.set.src === 'none') warnings.push('This set has no symbol in the library.');
+  const svgText = {}, warned = new Set();
+  const warnOnce = m => { if (!warned.has(m)) { warned.add(m); warnings.push(m); } };
+  const symURL = it => {
+    if (ownSym(it)) {
+      const url = symbolURL(l);
+      if (!url && l.symbol.src === 'set' && l.set && l.set.src === 'none') warnOnce('This set has no symbol in the library.');
+      return url;
+    }
+    if (it.src === 'set') { const st = SETS_BY_CODE.get(it.set); if (!it.set) return ''; if (!st) { warnOnce(`The set ${it.set} is not in the library.`); return ''; } if (st.src === 'none') { warnOnce(`The set ${it.set} has no symbol in the library.`); return ''; } }
+    if (it.src === 'upload' && !uploadById(it.up)) { warnOnce('An uploaded symbol is no longer on the server. Pick another symbol.'); return ''; }
+    return symbolURL(l, it);
+  };
+  const gridSrc = (it, code) => ({ src: 'set', set: code, rarity: it.rarity || 'C', style: it.style, slot: it.slot, slot2: it.slot2 });
+  const urls = new Set();
+  for (const it of items) {
+    if (it.t === 'symbol') { const u = symURL(it); if (u) urls.add(u); }
+    if (it.t === 'grid') for (const c of it.codes || []) { const u = symURL(gridSrc(it, c)); if (u) urls.add(u); }
   }
+  for (const u of urls) { try { svgText[u] = await fetchText(u); } catch (e) { warnOnce(u.startsWith('/api/uploads') ? 'An uploaded symbol could not be loaded.' : 'The symbol file could not be loaded. Refresh the library or pick another rarity.'); } }
+  const shapeCache = {};
+  const shapesFor = (it, style) => {
+    const u = symURL(it); if (!u || !svgText[u]) return null;
+    const k = u + '|' + style; if (!(k in shapeCache)) { const sh = symbolShapes(svgText[u], style); const b = sh.all.length ? gBounds(sh.all) : null; shapeCache[k] = b ? Object.assign(sh, { b }) : null; }
+    return shapeCache[k];
+  };
   const manaSvg = {};
   const codes = [...new Set(items.filter(i => i.t === 'mana').flatMap(i => i.syms.map(m => m.c)))];
   if (codes.length && !(LIB.mana || []).length) warnings.push('The library has no mana symbols yet. Refresh the library to download them.');
@@ -133,31 +186,41 @@ async function buildLabel(l) {
       fake = { fakeBold: l.text.bold && !key.startsWith('700'), fakeItalic: l.text.italic && !key.endsWith('i') };
     }
   }
-  const twoTone = l.symbol.style === 'twotone';
-  const shapes = svg ? symbolShapes(svg, l.symbol.style) : null;
-  const sb = shapes && shapes.all.length ? gBounds(shapes.all) : null;
-  if (twoTone && shapes && !shapes.border) warnings.push('This symbol has no separate border, so two-tone prints it in one color.');
   const manaCache = {};
   const manaShape = (c, style) => { const k = c + ':' + style; if (!(k in manaCache)) manaCache[k] = manaSvg[c] ? manaShapes(manaSvg[c], style) : null; return manaCache[k]; };
 
   // the rows that have something to show
   const sp = clamp(num(l.text.spacing, 1.15), 0.7, 3), size0 = clamp(num(l.text.size, 7), 0.5, 200), align = l.text.align || 'center';
   const measure = str => font.getAdvanceWidth(str, size0, { kerning: true }) * (fake.fakeBold ? 1.03 : 1);
-  const live = rows.map(r => ({ pct: num(r.h, 0), items: r.items.map(it => {
-    if (it.t === 'symbol') return sb ? { t: 'symbol', aspect: sb.w / sb.h } : null;
-    if (it.t === 'text') { const ls = font ? resolveLines(l, it.lines) : []; return ls.length ? { t: 'text', lines: ls, slot: it.slot || l.text.slot } : null; }
-    if (it.t === 'mana') { const ms = it.syms.filter(m => manaShape(m.c, m.style)); return ms.length ? { t: 'mana', syms: ms, size: Math.max(1, num(it.size, 8)) } : null; }
-    return null;
+  const isSym = i => i.t === 'symbol' || i.t === 'grid';
+  const live = rows.map((r, ri) => ({ pct: num(r.h, 0), items: r.items.map((it, ii) => {
+    let o = null;
+    if (it.t === 'symbol') { const ss = symStyle(l, it), sh = shapesFor(it, ss.style); if (sh) { o = { t: 'symbol', aspect: sh.b.w / sh.b.h, sh, ss }; if (ss.style === 'twotone' && !sh.border) warnOnce('This symbol has no separate border, so two-tone prints it in one color.'); } }
+    else if (it.t === 'grid') {
+      const ss = symStyle(l, it), cells = (it.codes || []).map(c => shapesFor(gridSrc(it, c), ss.style));
+      const n = cells.length;
+      if (cells.some(Boolean)) { const cols = clamp(Math.round(num(it.cols, 0)) || Math.ceil(Math.sqrt(n)), 1, n), rowsN = Math.ceil(n / cols); o = { t: 'grid', cells, cols, rowsN, aspect: cols / rowsN, ss }; }
+    }
+    else if (it.t === 'text') { const ls = font ? resolveLines(l, it.lines) : []; if (ls.length) o = { t: 'text', lines: ls, slot: it.slot || l.text.slot }; }
+    else if (it.t === 'mana') { const ms = it.syms.filter(m => manaShape(m.c, m.style)); if (ms.length) o = { t: 'mana', syms: ms, size: Math.max(1, num(it.size, 8)) }; }
+    return o ? Object.assign(o, { it, ri, ii }) : null;
   }).filter(Boolean) })).filter(r => r.items.length);
   const C = contentArea(l), g = Math.max(0, num(l.arr.gap, 3)), elements = [], info = {}, guides = { inner: C, items: [] };
   const manaW = (n, s) => n * s + (n - 1) * s * 0.25;
+  const pct = clamp(num(l.arr.symPct, 90), 5, 100) / 100;
+  // a symbol scaled into a box (pct of it), centred; returns { outline, fill } in mm
+  const fitSym = (sh, box, k = pct) => {
+    const b = sh.b, s = Math.min(box.w * k / b.w, box.h * k / b.h);
+    const place = paths => gXform(paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), s, box.cx - (b.x0 + b.w / 2) * s, box.cy + (b.y0 + b.h / 2) * s);
+    return { outline: place(sh.outline), fill: sh.fill.length ? place(sh.fill) : [], w: b.w * s, h: b.h * s };
+  };
   if (live.length) {
     // row heights: percentage rows are fixed; rows with a symbol share what is left; text and mana rows take what they need
     const avail = Math.max(1, C.h - g * (live.length - 1));
     for (const r of live) {
-      r.flex = r.pct <= 0 && r.items.some(i => i.t === 'symbol');
+      r.flex = r.pct <= 0 && r.items.some(isSym);
       const fixedW = r.items.reduce((s, i) => s + (i.t === 'mana' ? manaW(i.syms.length, i.size) : 0), 0) + g * (r.items.length - 1);
-      const textW = Math.max(5, (C.w - fixedW) * (r.items.some(i => i.t === 'symbol') ? 0.6 : 1) / Math.max(1, r.items.filter(i => i.t === 'text').length));
+      const textW = Math.max(5, (C.w - fixedW) * (r.items.some(isSym) ? 0.6 : 1) / Math.max(1, r.items.filter(i => i.t === 'text').length));
       r.need = r.pct > 0 ? r.pct / 100 * C.h : Math.max(0, ...r.items.map(i => i.t === 'text' ? i.lines.flatMap(x => wrapLine(measure, x, textW)).length * size0 * sp : i.t === 'mana' ? i.size : 0));
     }
     const flex = live.filter(r => r.flex), fixed = live.filter(r => !r.flex), sum = fixed.reduce((s, r) => s + r.need, 0);
@@ -172,22 +235,35 @@ async function buildLabel(l) {
     const add = (key, name, slot, paths, d, kind) => { const e = elements.find(x => x.key === key); if (e) e.paths = e.paths.concat(paths); else elements.push({ key, name, slot, paths, d, kind }); };
     for (const r of live) {
       const rr = region(C.x0, y - r.h, C.x1, y); y -= r.h + g;
-      const want = r.items.map(i => i.t === 'symbol' ? Math.min(rr.w, rr.h * i.aspect) : i.t === 'mana' ? manaW(i.syms.length, Math.min(i.size, rr.h)) : 0);
+      const want = r.items.map(i => isSym(i) ? Math.min(rr.w, rr.h * i.aspect) : i.t === 'mana' ? manaW(i.syms.length, Math.min(i.size, rr.h)) : 0);
       const nText = r.items.filter(i => i.t === 'text').length, gaps = g * (r.items.length - 1);
       let fixedSum = want.reduce((a, b) => a + b, 0), textW = 0;
       if (nText) { textW = (rr.w - gaps - fixedSum) / nText; if (textW < rr.w * 0.25) { const k = Math.max(0.05, (rr.w * 0.75 - gaps) / Math.max(fixedSum, 1e-6)); for (let i = 0; i < want.length; i++) want[i] *= k; fixedSum *= k; textW = (rr.w - gaps - fixedSum) / nText; } }
       else if (fixedSum + gaps > rr.w) { const k = Math.max(0.05, (rr.w - gaps) / fixedSum); for (let i = 0; i < want.length; i++) want[i] *= k; fixedSum *= k; }
       let x = nText ? rr.x0 : rr.cx - (fixedSum + gaps) / 2;
       r.items.forEach((it, idx) => {
-        const w = it.t === 'text' ? textW : want[idx], box = region(x, rr.y0, x + w, rr.y1); x += w + g;
-        guides.items.push({ kind: it.t, rect: box });
+        const src = it.it, w = it.t === 'text' ? textW : want[idx], box = region(x, rr.y0, x + w, rr.y1); x += w + g;
+        const X = paths => itemXform(paths, src, box.cx, box.cy);
+        guides.items.push({ kind: it.t, rect: box, ri: it.ri, ii: it.ii, x: num(src.x, 0), y: num(src.y, 0), scale: num(src.scale, 100), rot: num(src.rot, 0) });
+        const d = l.depth.symbol;
         if (it.t === 'symbol') {
-          const pct = clamp(num(l.arr.symPct, 90), 5, 100) / 100, s = Math.min(box.w * pct / sb.w, box.h * pct / sb.h);
-          const place = paths => gXform(paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), s, box.cx - (sb.x0 + sb.w / 2) * s, box.cy + (sb.y0 + sb.h / 2) * s);
-          const d = l.depth.symbol;
-          if (twoTone && shapes.fill.length) { add('symbol', 'Symbol outline', l.symbol.slot, place(shapes.outline), d, 'symbol'); add('symbol2', 'Symbol fill', l.symbol.slot2, place(shapes.fill), d, 'symbol'); }
-          else add('symbol', 'Symbol', l.symbol.slot, place(shapes.outline), d, 'symbol');
-          symMax = symMax || { w: r2(sb.w * s), h: r2(sb.h * s) };
+          const own = ownSym(src), ss = it.ss, f = fitSym(it.sh, box), key = own ? 'symbol' : `sym_${it.ri}_${it.ii}`, nm = symName(l, src);
+          if (ss.style === 'twotone' && f.fill.length) { add(key, nm + ' outline', ss.slot, X(f.outline), d, 'symbol'); add(own ? 'symbol2' : key + '_2', nm + ' fill', ss.slot2, X(f.fill), d, 'symbol'); }
+          else add(key, nm, ss.slot, X(f.outline), d, 'symbol');
+          if (own) symMax = symMax || { w: r2(f.w), h: r2(f.h) };
+        } else if (it.t === 'grid') {
+          // square cells, the block centred in the item's space
+          const ss = it.ss, cw = Math.min(box.w / it.cols, box.h / it.rowsN), ch = cw, outl = [], fill = [], key = `grid_${it.ri}_${it.ii}`;
+          const gx0 = box.cx - cw * it.cols / 2, gy1 = box.cy + ch * it.rowsN / 2;
+          it.cells.forEach((sh, k) => {
+            if (!sh) return;
+            const cx = k % it.cols, cy = Math.floor(k / it.cols), inRow = Math.min(it.cols, it.cells.length - cy * it.cols), off = (it.cols - inRow) * cw / 2;
+            const f = fitSym(sh, region(gx0 + off + cx * cw, gy1 - (cy + 1) * ch, gx0 + off + (cx + 1) * cw, gy1 - cy * ch));
+            if (ss.style === 'twotone' && f.fill.length) { outl.push(...f.outline); fill.push(...f.fill); } else outl.push(...f.outline);
+          });
+          add(key, 'Symbol grid', ss.slot, X(outl), d, 'symbol');
+          if (fill.length) add(key + '_2', 'Symbol grid fill', ss.slot2, X(fill), d, 'symbol');
+          info.grid = (info.grid || 0) + it.cells.filter(Boolean).length;
         } else if (it.t === 'text') {
           const wrapped = it.lines.flatMap(str => wrapLine(measure, str, box.w));
           const blk = textBlock(font, wrapped, size0, align, sp, fake), b = gBounds(blk.paths);
@@ -195,7 +271,7 @@ async function buildLabel(l) {
           const k = Math.min(1, box.w / b.w, box.h / b.h);
           const ax = align === 'left' ? box.x0 - b.x0 * k : align === 'right' ? box.x1 - b.x1 * k : box.cx - (b.x0 + b.w / 2) * k;
           const firstSlot = (elements.find(e => e.kind === 'text') || {}).slot, key = firstSlot === undefined || firstSlot === it.slot ? 'text' : 'text_s' + it.slot;
-          add(key, key === 'text' ? 'Text' : `Text, slot ${it.slot}`, it.slot, gXform(blk.paths, k, ax, box.cy - (b.y0 + b.h / 2) * k), l.depth.text, 'text');
+          add(key, key === 'text' ? 'Text' : `Text, slot ${it.slot}`, it.slot, X(gXform(blk.paths, k, ax, box.cy - (b.y0 + b.h / 2) * k)), l.depth.text, 'text');
           if (!info.text) info.text = { size: r2(size0 * k), lines: wrapped.length };
           if (size0 * k < num(l.text.min, 3) - 1e-6) warnings.push(`The text is ${r2(size0 * k)} mm, smaller than the ${num(l.text.min, 3)} mm minimum. Shorten the text, make the label larger or lower the minimum.`);
         } else {
@@ -204,7 +280,7 @@ async function buildLabel(l) {
           for (const m of it.syms) {
             const sh = manaShape(m.c, m.style), mb = gBounds(sh.all), k = s / Math.max(mb.w, mb.h);
             const placed = gXform(sh.paths.map(p => p.map(q => ({ X: q.X, Y: -q.Y }))), k, mx - (mb.x0 + mb.w / 2) * k, box.cy + (mb.y0 + mb.h / 2) * k);
-            add('mana_s' + m.slot, `Mana, slot ${m.slot}`, m.slot, placed, l.depth.symbol, 'mana');
+            add('mana_s' + m.slot, `Mana, slot ${m.slot}`, m.slot, X(placed), l.depth.symbol, 'mana');
             mx += step;
           }
           info.mana = (info.mana || 0) + n;
@@ -217,7 +293,8 @@ async function buildLabel(l) {
   const R = guides;
 
   // keep every element inside the label (a divider's content stays in its solid top band)
-  const keep = isDiv ? gInter(shape, gRect(size.w, num(l.div.band, 12), 0, 0, size.h / 2 - num(l.div.band, 12) / 2)) : outline;
+  let keep = isDiv ? gInter(shape, gRect(size.w, num(l.div.band, 12), 0, 0, size.h / 2 - num(l.div.band, 12) / 2)) : outline;
+  if (edge) keep = gInter(keep, insetOutline(outline, edge.r + 0.05));
   for (const e of elements) { e.paths = gInter(e.paths, keep); e.side = 'top'; }
   // a divider can carry the same content on its back, mirrored so it reads from behind, flush or engraved
   if (isDiv && l.div.back && l.div.back.mode !== 'off') {
@@ -237,15 +314,16 @@ async function buildLabel(l) {
     return { z0: zr(t - s), z1: t, side: 'top', paths: e.paths, e };
   }).filter(c => c.z1 - c.z0 > 1e-6);
   if (tooDeep) warnings.push(isDiv ? 'The front and back are sunk deeper than the divider allows; 0.2 mm of plate is kept between them.' : 'An element is sunk deeper than the base allows; it keeps 0.2 mm of base under it.');
-  const zs = [...new Set([0, t, ...cutters.flatMap(c => [c.z0, c.z1])])].sort((a, b) => a - b);
+  const zs = [...new Set([0, t, ...cutters.flatMap(c => [c.z0, c.z1]), ...(edge ? edge.steps.map(s => s.z) : [])])].sort((a, b) => a - b);
+  const insetAt = z => { if (!edge) return outline; let d = 0; for (const s of edge.steps) if (z >= s.z - 1e-9) d = s.d; return insetOutline(outline, d); };
   const baseSlabs = [];
   for (let i = 0; i < zs.length - 1; i++) {
     const za = zs[i], zb = zs[i + 1];
     const cut = cutters.filter(c => c.z0 <= za + 1e-9 && c.z1 >= zb - 1e-9).flatMap(c => c.paths);
-    const paths = cut.length ? gDiff(outline, gUnion(cut)) : outline;
+    const ol = insetAt(za), paths = cut.length ? gDiff(ol, gUnion(cut)) : ol;
     if (paths.length) baseSlabs.push({ z0: za, z1: zb, paths });
   }
-  parts.push({ key: 'base', name: isDiv ? 'Divider' : 'Base', slot: l.base.slot, slabs: baseSlabs, paths: outline, solid: { outline, t, pockets: cutters.map(c => ({ z: c.side === 'top' ? c.z0 : c.z1, side: c.side, paths: c.paths })) } });
+  parts.push({ key: 'base', name: isDiv ? 'Divider' : 'Base', slot: l.base.slot, slabs: baseSlabs, paths: outline, solid: { outline, t, edge, pockets: cutters.map(c => ({ z: c.side === 'top' ? c.z0 : c.z1, side: c.side, paths: c.paths })) } });
   for (const e of elements) {
     if (e.d.engrave) continue;
     const c = cutters.find(x => x.e === e);

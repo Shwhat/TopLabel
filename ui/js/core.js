@@ -1,6 +1,6 @@
 'use strict';
 // ---------- core: version, helpers, preferences, the open label, undo ----------
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.4.0';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -11,7 +11,7 @@ const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ?
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const r2 = v => Math.round(v * 100) / 100;
 
-const PREFS_DEFAULT = { theme: 'light', surface: 'light', view: '3d', guides: true, panels: { left: true, right: true, bottom: true }, sizes: { left: 330, right: 330, bottom: 150 }, palette: null, defaultArr: 'stack', exportFmt: 'bambu', bed: 'h2d', colors3mf: true, namePattern: '{code} - {name}', setSort: { col: 'date', dir: -1 }, setFilter: { types: 'main', q: '' }, setsView: 'sets', ribbonTab: 'home', autosave: null };
+const PREFS_DEFAULT = { theme: 'light', surface: 'light', view: '3d', guides: true, panels: { left: true, right: true, bottom: true }, dock: { left: 'left', right: 'right', bottom: 'bottom' }, dockTab: { left: 'left', right: 'right', bottom: 'bottom' }, side2d: 'front', sizes: { left: 330, right: 330, bottom: 150 }, palette: null, defaultArr: 'stack', exportFmt: 'bambu', bed: 'h2d', colors3mf: true, namePattern: '{code} - {name}', setSort: { col: 'date', dir: -1 }, setFilter: { types: 'main', q: '' }, setsView: 'sets', ribbonTab: 'home', autosave: null };
 let PREFS = clone(PREFS_DEFAULT);
 
 // the open label and where it is saved

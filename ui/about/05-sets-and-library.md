@@ -11,6 +11,17 @@ This page covers where the symbols and set information come from, how the librar
 
 The repository the symbols come from is the server setting `TOPLABEL_VECTORS_REPO`.
 
+## Uploads
+
+Library, Upload SVG symbol adds a symbol of your own, and Library, Upload font adds a font (see [Fonts](/about/fonts)). Uploads are kept on the server, shared with everyone on it, and are not touched by Refresh library.
+
+| Upload | Files | Limit | Used in |
+|---|---|---|---|
+| SVG symbol | .svg | 2 MB | A set symbol item with the source Uploaded SVG (see [Layout rows and auto-fit](/about/layout)) |
+| Font | .ttf, .otf, .woff (not .woff2) | 8 MB | The Font list, group Uploaded |
+
+The upload window asks for a name (the file name when left empty) and the file. The filled shapes of an uploaded SVG become the symbol, and the three symbol styles work as for set symbols: dark shapes are the symbol, light shapes the border. Library, Uploads lists every upload with its kind, size and who uploaded it, and deletes one after asking; labels that used it then show a warning. Only upload files whose license allows this use.
+
 ## Refresh library
 
 Library, Refresh library (or the Refresh library button) downloads everything again:

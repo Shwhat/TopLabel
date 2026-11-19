@@ -288,3 +288,36 @@ func TestFontsAndPage(t *testing.T) {
 		t.Fatal("version not found")
 	}
 }
+
+func TestUploads(t *testing.T) {
+	_, ts, _, _ := testServer(t, true)
+	a, b := client(t), client(t)
+	call(t, a, "POST", ts.URL+"/api/signup", `{"name":"alice","password":"password123"}`)
+	call(t, b, "POST", ts.URL+"/api/signup", `{"name":"bob","password":"password123"}`)
+	if code, body := call(t, a, "POST", ts.URL+"/api/uploads?kind=svg&name=Bad", "not an image"); code != 400 || !strings.Contains(body, "not an SVG") {
+		t.Fatalf("bad svg: %d %s", code, body)
+	}
+	if code, body := call(t, a, "POST", ts.URL+"/api/uploads?kind=font&name=X", "wOF2xxxxxxxx"); code != 400 || !strings.Contains(body, "WOFF2") {
+		t.Fatalf("woff2: %d %s", code, body)
+	}
+	code, body := call(t, a, "POST", ts.URL+"/api/uploads?kind=svg&name=Star.svg", svgSym)
+	var up Upload
+	if code != 200 || json.Unmarshal([]byte(body), &up) != nil || up.Name != "Star" || up.By != "alice" {
+		t.Fatalf("upload: %d %s", code, body)
+	}
+	if _, body := call(t, b, "GET", ts.URL+"/api/uploads", ""); !strings.Contains(body, up.ID) {
+		t.Fatalf("uploads are shared, bob saw %s", body)
+	}
+	if code, body := call(t, b, "GET", ts.URL+"/api/uploads/"+up.File, ""); code != 200 || body != svgSym {
+		t.Fatalf("serve: %d %s", code, body)
+	}
+	if code, _ := call(t, b, "GET", ts.URL+"/api/uploads/..%2f..%2fusers.json", ""); code != 404 {
+		t.Fatalf("bad id: %d", code)
+	}
+	if code, _ := call(t, b, "DELETE", ts.URL+"/api/uploads/"+up.ID, ""); code != 200 {
+		t.Fatalf("delete: %d", code)
+	}
+	if _, body := call(t, a, "GET", ts.URL+"/api/uploads", ""); strings.TrimSpace(body) != "[]" {
+		t.Fatalf("after delete: %s", body)
+	}
+}

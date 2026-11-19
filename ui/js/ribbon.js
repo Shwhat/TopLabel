@@ -40,22 +40,33 @@ const RI = {
   shortcuts: `<rect x="2" y="5.5" width="16" height="9" rx="1.5" fill="#fff" ${S_}/><path d="M5 8.5h1M8 8.5h1M11 8.5h1M14 8.5h1M6 11.5h8" ${S_}/>`,
   demo: `<rect x="4" y="2.5" width="12" height="15" rx="1" fill="#fff" ${S_}/><path d="M10 5l1.6 3.2 3.4.4-2.5 2.4.6 3.5L10 12.8l-3.1 1.7.6-3.5L5 8.6l3.4-.4z" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1"/>`,
 };
+const RI2 = {
+  addRowGrid: `<rect x="2.5" y="2.5" width="6" height="6" rx="1" fill="#dbe6f7" ${S_}/><rect x="11.5" y="2.5" width="6" height="6" rx="1" fill="#dbe6f7" ${S_}/><rect x="2.5" y="11.5" width="6" height="6" rx="1" fill="#dbe6f7" ${S_}/><path d="M12 14.5h5M14.5 12v5" stroke="#2f7d32" stroke-width="1.8"/>`,
+  batchDlg: `<rect x="5" y="2.5" width="11" height="13" rx="1" fill="#fff" ${S_}/><rect x="3" y="4.5" width="11" height="13" rx="1" fill="#e4f2e6" ${S_}/><path d="M8.5 8v6M6 11.5l2.5 2.5 2.5-2.5" stroke="#1e7a3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+  uploadSvg: `<path d="M4 2.5h8l4 4v11H4z" fill="#fff" ${S_}/><path d="M10 15V9M7.5 11.5L10 9l2.5 2.5" stroke="#1f5fbf" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+  uploadFont: `<path d="M2.5 15L6.5 5h1l4 10M4 12h5" ${S_}/><path d="M15 16v-7M12.5 11.5L15 9l2.5 2.5" stroke="#1f5fbf" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+  manageUploads: `<path d="M3 5.5h5l1.5 2H17v9H3z" fill="#f4d58d" stroke="#8a6d1d" stroke-width="1.1"/><path d="M10 14v-4M8 11.5L10 9.5l2 2" stroke="#2b3442" stroke-width="1.3" fill="none"/>`,
+  side2dFront: `<rect x="3" y="3" width="14" height="14" rx="1" fill="#fff" ${S_}/><path d="M6.5 8h7M6.5 11h5" stroke="#1f5fbf" stroke-width="1.4"/>`,
+  side2dBack: `<rect x="3" y="3" width="14" height="14" rx="1" fill="#dbe6f7" ${S_}/><path d="M13.5 8h-7M13.5 11h-5" stroke="#556" stroke-width="1.4"/>`,
+  resetDock: `<rect x="2.5" y="3.5" width="15" height="13" rx="1" fill="#fff" ${S_}/><path d="M7 3.5v13" ${S_}/><path d="M14.5 10a3 3 0 11-.9-2.1M14 6.5v2h-2" stroke="#1f5fbf" stroke-width="1.2" fill="none"/>`,
+};
+Object.assign(RI, RI2);
 const RLABEL = {
   newLabel: 'New label', newDivider: 'New divider', openDlg: 'Open', save: 'Save', saveAs: 'Save as', undo: 'Undo', redo: 'Redo',
   exportBambu: 'Bambu 3MF', exportStl: 'STL', exportDlg: 'Export...', sizeDlg: 'Size...', arrangementDlg: 'Layout...',
   saveArrangement: 'Save layout', setDefaultArr: 'Make default', depthDlg: 'Depth...', saveDepth: 'Save depth', saveDivider: 'Save divider shape', paletteDlg: 'Filament colors',
-  toggleTwoTone: 'Two-tone symbol', addLine: 'Text row', addRowSymbol: 'Symbol row', addRowText: 'Text row', addRowCode: 'Set code row', addRowMana: 'Mana row',
+  toggleTwoTone: 'Two-tone symbol', addLine: 'Text row', addRowSymbol: 'Symbol row', addRowText: 'Text row', addRowCode: 'Set code row', addRowMana: 'Mana row', addRowGrid: 'Symbol grid', batchDlg: 'Export many', uploadSvg: 'Upload SVG', uploadFont: 'Upload font', manageUploads: 'Uploads', side2dFront: 'Front', side2dBack: 'Back', resetDock: 'Reset panels',
   refreshLibrary: 'Refresh library', libraryInfo: 'Library info', fontsDlg: 'Fonts', showWatermarks: 'Lands and watermarks', showSets: 'Sets',
   view2d: '2D layout', view3d: '3D preview', viewBoth: 'Both', fitView: 'Fit', toggleGuides: 'Layout guides', toggleTheme: 'Dark theme', toggleSurface: 'Dark work surface',
   togglePanels: 'Panels', about: 'About', shortcuts: 'Shortcuts', demo: 'Demo labels',
 };
 const RICON = { openDlg: 'open', addRowSymbol: 'toggleSymbol', addRowText: 'addLine', saveDivider: 'newDivider', exportBambu: 'export3mf', exportStl: 'exportStl', sizeDlg: 'size', arrangementDlg: 'arrangement', saveArrangement: 'saveArr', setDefaultArr: 'defaultArr', depthDlg: 'depth', saveDepth: 'saveDepth', paletteDlg: 'palette', toggleTwoTone: 'twoTone', refreshLibrary: 'refresh', libraryInfo: 'libInfo', fontsDlg: 'fonts', showWatermarks: 'watermarks', showSets: 'libInfo', toggleGuides: 'guides', toggleTheme: 'theme', toggleSurface: 'surface', togglePanels: 'panels' };
 const DEFAULT_RIBBON = [
-  { id: 'home', name: 'Home', groups: [{ name: 'Label', items: ['newLabel', 'newDivider', 'save', 'saveAs', 'openDlg'] }, { name: 'Edit', items: ['undo', 'redo'] }, { name: 'Export', items: ['exportBambu', 'exportStl', 'exportDlg'] }, { name: 'View', items: ['view2d', 'view3d', 'viewBoth'] }] },
+  { id: 'home', name: 'Home', groups: [{ name: 'Label', items: ['newLabel', 'newDivider', 'save', 'saveAs', 'openDlg'] }, { name: 'Edit', items: ['undo', 'redo'] }, { name: 'Export', items: ['exportBambu', 'exportStl', 'exportDlg', 'batchDlg'] }, { name: 'View', items: ['view2d', 'view3d', 'viewBoth'] }] },
   { id: 'label', name: 'Label', groups: [{ name: 'Size', items: ['sizeDlg'] }, { name: 'Layout', items: ['arrangementDlg', 'saveArrangement', 'setDefaultArr'] }, { name: 'Depth', items: ['depthDlg', 'saveDepth'] }, { name: 'Divider', items: ['saveDivider'] }, { name: 'Colors', items: ['paletteDlg', 'toggleTwoTone'] }] },
-  { id: 'insert', name: 'Insert', groups: [{ name: 'Rows', items: ['addRowSymbol', 'addRowText', 'addRowCode', 'addRowMana'] }, { name: 'Symbols', items: ['showSets', 'showWatermarks'] }] },
-  { id: 'library', name: 'Library', groups: [{ name: 'Library', items: ['refreshLibrary', 'libraryInfo', 'fontsDlg'] }] },
-  { id: 'view', name: 'View', groups: [{ name: 'Views', items: ['view2d', 'view3d', 'viewBoth', 'fitView'] }, { name: 'Show', items: ['toggleGuides', 'togglePanels'] }, { name: 'Theme', items: ['toggleTheme', 'toggleSurface'] }] },
+  { id: 'insert', name: 'Insert', groups: [{ name: 'Rows', items: ['addRowSymbol', 'addRowText', 'addRowCode', 'addRowMana', 'addRowGrid'] }, { name: 'Symbols', items: ['showSets', 'showWatermarks'] }] },
+  { id: 'library', name: 'Library', groups: [{ name: 'Library', items: ['refreshLibrary', 'libraryInfo', 'fontsDlg'] }, { name: 'Uploads', items: ['uploadSvg', 'uploadFont', 'manageUploads'] }] },
+  { id: 'view', name: 'View', groups: [{ name: 'Views', items: ['view2d', 'view3d', 'viewBoth', 'fitView'] }, { name: 'Divider', items: ['side2dFront', 'side2dBack'] }, { name: 'Show', items: ['toggleGuides', 'togglePanels', 'resetDock'] }, { name: 'Theme', items: ['toggleTheme', 'toggleSurface'] }] },
   { id: 'help', name: 'Help', groups: [{ name: 'Help', items: ['about', 'shortcuts', 'demo'] }] },
 ];
 // toggle buttons and the state that shows them as on
@@ -63,6 +74,7 @@ const RON = {
   view2d: () => PREFS.view === '2d', view3d: () => PREFS.view === '3d', viewBoth: () => PREFS.view === 'both', toggleGuides: () => !!PREFS.guides,
   toggleTheme: () => document.documentElement.dataset.theme === 'dark', toggleSurface: () => PREFS.surface === 'dark',
   toggleTwoTone: () => L && L.symbol.style === 'twotone',
+  side2dFront: () => PREFS.side2d !== 'back', side2dBack: () => PREFS.side2d === 'back',
   showSets: () => PREFS.setsView !== 'wm', showWatermarks: () => PREFS.setsView === 'wm',
 };
 const ricon = a => `<svg viewBox="0 0 20 20">${RI[RICON[a] || a] || RI.about}</svg>`;

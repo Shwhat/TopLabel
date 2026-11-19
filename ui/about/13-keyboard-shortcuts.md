@@ -12,6 +12,7 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Ctrl+S | Save the label |
 | Ctrl+Shift+S | Save the label under a new name |
 | Ctrl+E | Export |
+| Ctrl+Shift+E | Export many sets |
 | Ctrl+Z | Undo |
 | Ctrl+Y or Ctrl+Shift+Z | Redo |
 | Ctrl+L | Add a text row |
@@ -28,6 +29,19 @@ Help, Keyboard shortcuts (F1) shows this list in TopLabel.
 | Drag (3D) | Turn the view |
 | Right drag or Shift drag (3D) | Move the view |
 | Wheel (3D) | Zoom |
+
+## 2D layout
+
+| Keys | Action |
+|---|---|
+| Click an item | Pick it |
+| Drag an item | Move it |
+| Drag the square handle | Scale the picked item |
+| Drag the round handle | Turn the picked item; with Shift in steps of 15 degrees |
+| Arrow keys | Move the picked item by 0.1 mm |
+| Shift+arrow keys | Move the picked item by 1 mm |
+| Delete | Remove the picked item |
+| Esc | Let go of the picked item |
 
 ## Sets panel
 

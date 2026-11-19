@@ -41,7 +41,7 @@ const posNum = (v, min = 0) => { const n = parseFloat(v); return Number.isFinite
 function confirmDiscard() { return !dirty || confirm('This label has changes that are not saved. Continue without saving?'); }
 
 function shortcuts() {
-  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text row'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
+  const k = [['Ctrl+N', 'New label'], ['Ctrl+Shift+N', 'New divider'], ['Ctrl+O', 'Open a saved label'], ['Ctrl+S', 'Save the label'], ['Ctrl+Shift+S', 'Save the label under a new name'], ['Ctrl+E', 'Export...'], ['Ctrl+Shift+E', 'Export many sets...'], ['Ctrl+Z / Ctrl+Y', 'Undo, redo'], ['Ctrl+L', 'Add a text row'], ['2, 3, B', '2D layout, 3D preview, both views'], ['F', 'Fit the label in the view'], ['G', 'Layout guides on or off'], ['/', 'Search the set list'], ['Up, Down', 'In the set list: move through the sets'], ['Enter', 'In the set list: use the highlighted set; in a dialog: confirm'], ['Esc', 'Close a menu, a dialog or the About screen'], ['F1', 'This list'], ['Click, drag (2D)', 'Pick and move an item; its square handle scales it, its round handle turns it'], ['Arrows, Shift+arrows (2D)', 'Move the picked item by 0.1 mm or 1 mm'], ['Delete (2D)', 'Remove the picked item'], ['Drag (3D)', 'Turn the view'], ['Right drag or Shift drag (3D)', 'Move the view'], ['Wheel (3D)', 'Zoom']];
   dialog('Keyboard shortcuts', [], null, 'OK', `<div class="kbd">${k.map(([a, b]) => `<b>${a}</b><span>${b}</span>`).join('')}</div>`);
 }
 
@@ -296,4 +296,58 @@ function changePasswordDlg() {
     if (v.nw !== v.nw2) { alert('The new passwords do not match.'); return false; }
     host.changePassword(v.old, v.nw).then(() => flash('Password changed. Other sign-ins were ended.')).catch(e => alert(e.message));
   }, 'Change');
+}
+
+// ---------- uploads: own SVG symbols and fonts, shared with everyone on the server ----------
+function uploadDlg(kind) {
+  if (!host.has) { flash('Uploads need the TopLabel server'); return; }
+  const svg = kind === 'svg';
+  dialog(svg ? 'Upload an SVG symbol' : 'Upload a font', [['name', 'Name', '', 'text']], v => {
+    const f = $('#upfile').files[0];
+    if (!f) { alert('Choose a file.'); return false; }
+    const name = v.name || f.name.replace(/\.[^.]+$/, '');
+    host.upload(kind, name, f).then(u => {
+      flash(`Uploaded "${u.name}"`);
+      if (svg && L) { const it = selItem(); if (it && it.t === 'symbol' && it.src === 'upload' && !it.up) rowsCommit(() => { it.up = u.id; }); else render(); }
+      else render();
+    }).catch(e => alert(e.message));
+  }, 'Upload', `<div class="prow"><label for="upfile">File</label><input id="upfile" type="file" accept="${svg ? '.svg,image/svg+xml' : '.ttf,.otf,.woff'}"></div>
+    <div class="note">${svg ? 'An SVG of up to 2 MB. Its filled shapes become the symbol; the Detailed, Silhouette and Two-tone styles work as for set symbols. Use it in a symbol item with the source Uploaded SVG.' : 'A TTF, OTF or WOFF font of up to 8 MB (WOFF2 cannot be used). It appears in the Font list under Uploaded. Bold and italic are made from the regular style.'} Uploads are shared with everyone on this server. Make sure the license of the file allows this use.</div>`);
+}
+function manageUploads() {
+  if (!host.has) { flash('Uploads need the TopLabel server'); return; }
+  const list = () => UPLOADS.length ? `<table class="dtab"><tr><th>Name</th><th>Kind</th><th>Size</th><th>Uploaded by</th><th></th></tr>${UPLOADS.map(u => `<tr><td>${esc(u.name)}</td><td>${u.kind === 'svg' ? 'SVG symbol' : 'Font'}</td><td>${Math.max(1, Math.round(u.size / 1024))} KB</td><td>${esc(u.by)}</td><td><button type="button" class="lnk" data-delup="${u.id}">Delete</button></td></tr>`).join('')}</table>` : '<div class="note">Nothing uploaded yet. Use Library, Upload SVG symbol or Upload font.</div>';
+  dialog('Uploads', [], null, 'OK', `<div id="uplist">${list()}</div><div class="btnrow" style="margin-top:8px"><button type="button" class="btn small" data-act="uploadSvg">Upload SVG symbol...</button><button type="button" class="btn small" data-act="uploadFont">Upload font...</button></div>`);
+  $('#dlg').style.width = '620px';
+  $('#dlgbody').onclick = e => {
+    const b = e.target.closest('[data-delup]'); if (!b) return;
+    const u = uploadById(b.dataset.delup); if (!u || !confirm(`Delete the upload "${u.name}"? Labels that use it will show a warning.`)) return;
+    host.deleteUpload(u.id).then(() => { $('#uplist').innerHTML = list(); flash('Deleted ' + u.name); render(); }).catch(e2 => alert(e2.message));
+  };
+}
+
+// ---------- batch export ----------
+function batchDlg() {
+  if (!LIB.sets.length) { flash('The library has no sets yet'); return; }
+  const shown = filteredSets().filter(s => s.src !== 'none');
+  const chosen = new Set(L.set ? [L.set.code] : []);
+  const fmts = EXPORT_FORMATS.filter(([k]) => k !== 'bambu' && k !== 'png');
+  dialog('Export many sets', [['mode', 'Output', PREFS.batchMode || 'project', 'select', [['project', 'One Bambu Studio project (.3mf)'], ['files', 'One file per set (.zip)']]],
+    ['plates', 'Plates in the project', PREFS.batchPlates || 'packed', 'select', [['packed', 'Packed onto the printer bed'], ['plates', 'One plate per set']]],
+    ['fmt', 'Format of the files', PREFS.batchFmt || 'stl', 'select', fmts], ['bed', 'Printer bed', PREFS.bed, 'select', BEDS.map(b => [b.id, b.name])]], v => {
+    const codes = [...$$('#bxlist input:checked')].map(x => x.value);
+    if (!codes.length) { alert('Choose at least one set.'); return false; }
+    PREFS.batchMode = v.mode; PREFS.batchPlates = v.plates; PREFS.batchFmt = v.fmt; PREFS.bed = v.bed; savePrefs();
+    const st = $('#st-msg');
+    batchExport(codes, { mode: v.mode, plates: v.plates, fmt: v.fmt }, (i, n, s) => { if (st) st.textContent = s ? `Building ${i + 1} of ${n}: ${s.code}` : ''; });
+  }, 'Export', `<div class="prow"><label for="bxq">Sets</label><input id="bxq" placeholder="Filter by name or code"></div>
+    <div class="btnrow"><button type="button" class="btn small" data-bx="all">Choose all shown</button><button type="button" class="btn small" data-bx="none">Choose none</button><span class="note" id="bxcount" style="margin:0"></span></div>
+    <div class="bxlist" id="bxlist">${shown.map(s => `<label data-q="${esc((s.code + ' ' + s.name).toLowerCase())}"><input type="checkbox" value="${esc(s.code)}" ${chosen.has(s.code) ? 'checked' : ''}><b>${esc(s.code)}</b> ${esc(fixDashes(s.name))} <span class="note" style="margin:0">${esc((s.date || '').slice(0, 4))}</span></label>`).join('')}</div>
+    <div class="note">Each set gets a copy of the open label with that set's symbol and text; size, layout, depth and colors stay the same. The list shows the sets of the Sets panel filter.</div>`);
+  $('#dlg').style.width = '620px';
+  const count = () => { $('#bxcount').textContent = `${$$('#bxlist input:checked').length} chosen`; };
+  count();
+  $('#dlgbody').oninput = e => { if (e.target.id === 'bxq') { const q = e.target.value.trim().toLowerCase(); $$('#bxlist label').forEach(l => l.classList.toggle('hidden', !!q && !l.dataset.q.includes(q))); } };
+  $('#dlgbody').onchange = count;
+  $('#dlgbody').onclick = e => { const b = e.target.closest('[data-bx]'); if (!b) return; $$('#bxlist label').forEach(l => { if (!l.classList.contains('hidden')) l.querySelector('input').checked = b.dataset.bx === 'all'; }); count(); };
 }

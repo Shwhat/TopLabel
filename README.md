@@ -11,19 +11,23 @@ The full user guide is built into the program: Help, About TopLabel.
 - Symbol library from mtg-vectors and Scryfall: Refresh library button, automatic first download, Scryfall icons for sets mtg-vectors does not have yet, every rarity, basic lands and watermarks.
 - Sets panel: search by name or code, sort by code, name or date, filter by set type, year and symbol.
 - Automatic labels: pick a set and the label is built; symbol and text scale to fit any label size; long names wrap.
-- Layout rows: each row holds set symbols, text, set codes or mana symbols side by side; add, move and remove rows and items; six presets; save layouts by name and pick a default.
+- Layout rows: each row holds set symbols, text, set codes, mana symbols or symbol grids side by side; add, move and remove rows and items; seven presets; save layouts by name and pick a default.
+- Move, scale and turn any item: Position fields, or drag the item and its handles in the 2D layout; arrow keys nudge it.
+- Several symbols per label: each symbol item uses the label's symbol, another set, a land or watermark, or an uploaded SVG, in its own style and colors. Symbol grids show many sets in rows and columns.
+- Uploads: your own SVG symbols and fonts (TTF, OTF, WOFF), shared on the server.
 - Mana symbols from Scryfall, any number in a row, each with its own color and pip or icon style, with guild, shard and wedge presets.
-- Sizes: toploader replacement (76 x 100 mm), card size, small card, square tile, mini tile, or any custom size; scale by percentage.
+- Sizes: toploader replacement (76 x 100 mm), card size, small card, square tile, mini tile, or any custom size; scale by percentage; square, rounded or chamfered top edge.
 - Depth profiles: standard (2 mm base, symbol and text 0.5 mm sunk and 1 mm above, 3 mm in all), low, bold, flush inlay, engraved; the symbol and text share one depth unless Same depth is turned off; save profiles by name.
-- Dividers: Card catalog divider shape (71.92 x 72 x 2.16 mm with a narrower tab), hexagon, circle, square, diamond, slot or solid patterns, symbol and text in the top band on one or both faces (flush by default), saved divider shapes.
+- Dividers: Card catalog divider shape (71.92 x 72 x 2.16 mm with a narrower tab), hexagon, circle, square, diamond, slot or solid patterns, symbol and text in the top band on one or both faces (flush by default), front or back in the 2D layout, saved divider shapes.
 - Symbol styles: detailed (symbol without its border), silhouette, two-tone.
-- Text lines from the set name, code, year, date, type, rarity, card count or custom text; 33 built-in free fonts with bold, italic and capitals.
+- Text lines from the set name, short set name (automatic or saved per set), code, year, date, type, rarity, card count or custom text; 33 built-in free fonts with bold, italic and capitals.
 - Filament palette of up to 16 slots with saved color sets.
-- 2D layout with guides and dimensions, 3D preview, or both; light and dark theme and a dark work surface.
-- Export: Bambu Studio and OrcaSlicer 3MF project (parts on their filament slots), standard 3MF, STL, STL per color.
+- 2D layout with guides and dimensions, 3D preview, or both; light and dark theme and a dark work surface; panels dock left, right or bottom, as tabs.
+- Export: Bambu Studio and OrcaSlicer 3MF project (parts on their filament slots), standard 3MF, STL, STL per color, OBJ and AMF with colors, SVG top view, DXF outlines, PNG picture.
+- Export many sets at once: one Bambu project with labels packed onto plates or one plate per set, or a zip of files.
 - Accounts, saved labels and preferences on the server, undo and redo, keyboard shortcuts.
 
-Planned: drag editing, own SVG and font upload and a grid layout (0.4.0); batch export with plate packing, OBJ, AMF, SVG, DXF and PNG (0.5.0).
+Planned for later: floating panels and saved workspaces; several styles of one uploaded font; WOFF2 fonts.
 
 ## Keyboard shortcuts
 
@@ -32,12 +36,15 @@ Planned: drag editing, own SVG and font upload and a grid layout (0.4.0); batch 
 | Ctrl+N, Ctrl+O, Ctrl+S, Ctrl+Shift+S | New label, open, save, save as |
 | Ctrl+Shift+N | New divider |
 | Ctrl+E | Export |
+| Ctrl+Shift+E | Export many sets |
 | Ctrl+Z, Ctrl+Y | Undo, redo |
 | Ctrl+L | Add a text row |
 | 2, 3, B | 2D layout, 3D preview, both |
 | F | Fit the label in the view |
 | G | Layout guides on or off |
 | / | Search the set list (Up, Down and Enter to pick) |
+| Arrows, Shift+arrows | Move the item picked in the 2D layout by 0.1 mm or 1 mm |
+| Delete | Remove the item picked in the 2D layout |
 | Esc | Close a menu, dialog or the About screen |
 | F1 | Keyboard shortcuts |
 
